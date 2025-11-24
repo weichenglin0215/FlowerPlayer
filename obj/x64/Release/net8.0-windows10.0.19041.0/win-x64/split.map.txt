@@ -1,0 +1,13 @@
+﻿[ResourceMetadata]
+"ResourceDimensions"		"scale-200"
+"ResourceDimensions"		"language-en-us"
+
+[Files]
+"C:\3D_prj\VS_2022_WinUI3_prj\FlowerPlayer\obj\x64\Release\net8.0-windows10.0.19041.0\win-x64\split.pri"			"resources.pri"
+"C:\3D_prj\VS_2022_WinUI3_prj\FlowerPlayer\obj\x64\Release\net8.0-windows10.0.19041.0\win-x64\PackageLayout\Assets\Wide310x150Logo.scale-200.png"			"Assets\Wide310x150Logo.scale-200.png"
+"C:\3D_prj\VS_2022_WinUI3_prj\FlowerPlayer\obj\x64\Release\net8.0-windows10.0.19041.0\win-x64\PackageLayout\Assets\StoreLogo.png"			"Assets\StoreLogo.png"
+"C:\3D_prj\VS_2022_WinUI3_prj\FlowerPlayer\obj\x64\Release\net8.0-windows10.0.19041.0\win-x64\PackageLayout\Assets\Square44x44Logo.scale-200.png"			"Assets\Square44x44Logo.scale-200.png"
+"C:\3D_prj\VS_2022_WinUI3_prj\FlowerPlayer\obj\x64\Release\net8.0-windows10.0.19041.0\win-x64\PackageLayout\Assets\Square44x44Logo.targetsize-24_altform-unplated.png"			"Assets\Square44x44Logo.targetsize-24_altform-unplated.png"
+"C:\3D_prj\VS_2022_WinUI3_prj\FlowerPlayer\obj\x64\Release\net8.0-windows10.0.19041.0\win-x64\PackageLayout\Assets\Square150x150Logo.scale-200.png"			"Assets\Square150x150Logo.scale-200.png"
+"C:\3D_prj\VS_2022_WinUI3_prj\FlowerPlayer\obj\x64\Release\net8.0-windows10.0.19041.0\win-x64\PackageLayout\Assets\SplashScreen.scale-200.png"			"Assets\SplashScreen.scale-200.png"
+"C:\3D_prj\VS_2022_WinUI3_prj\FlowerPlayer\obj\x64\Release\net8.0-windows10.0.19041.0\win-x64\PackageLayout\Assets\LockScreenLogo.scale-200.png"			"Assets\LockScreenLogo.scale-200.png"

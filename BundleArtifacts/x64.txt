@@ -1,0 +1,1 @@
+MainPackage=C:\3D_prj\VS_2022_WinUI3_prj\FlowerPlayer\bin\x64\Release\net8.0-windows10.0.19041.0\win-x64\FlowerPlayer_0.1.0.0_x64.msix

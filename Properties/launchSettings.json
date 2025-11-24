@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "FlowerPlayer (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "FlowerPlayer (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
