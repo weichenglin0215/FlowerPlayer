@@ -2,16 +2,25 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FlowerPlayer.Services;
 using System;
+using System.Linq;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using System.Threading.Tasks;
 using FlowerPlayer.Helpers;
+using Microsoft.UI.Xaml;
 
 namespace FlowerPlayer.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
         private readonly IMediaService _mediaService;
+        public Microsoft.UI.Xaml.XamlRoot XamlRoot { get; set; }
+        
+        // 存储已生成的波形数据，避免重复生成
+        private readonly System.Collections.Generic.Dictionary<string, float[]> _waveformCache = new System.Collections.Generic.Dictionary<string, float[]>();
+        
+        // 当前正在生成波形的文件路径
+        private string _currentGeneratingFilePath = null;
 
         [ObservableProperty]
         private string _windowTitle = "FlowerPlayer";
@@ -30,6 +39,21 @@ namespace FlowerPlayer.ViewModels
         
         [ObservableProperty]
         private bool _isWaveformVisible;
+        
+        [ObservableProperty]
+        private bool _isGeneratingWaveform;
+        
+        partial void OnIsGeneratingWaveformChanged(bool value)
+        {
+            // 當生成狀態改變時，通知 IsFileLoadedAndNotGeneratingWaveform 屬性變化
+            OnPropertyChanged(nameof(IsFileLoadedAndNotGeneratingWaveform));
+        }
+        
+        partial void OnIsFileLoadedChanged(bool value)
+        {
+            // 當文件載入狀態改變時，通知 IsFileLoadedAndNotGeneratingWaveform 屬性變化
+            OnPropertyChanged(nameof(IsFileLoadedAndNotGeneratingWaveform));
+        }
 
         [ObservableProperty]
         private double _rangeStart;
@@ -51,9 +75,21 @@ namespace FlowerPlayer.ViewModels
 
         [ObservableProperty]
         private bool _isFileLoaded;
+        
+        // 計算屬性：文件已載入且不在生成波形
+        public bool IsFileLoadedAndNotGeneratingWaveform => IsFileLoaded && !IsGeneratingWaveform;
 
         [ObservableProperty]
         private bool _isSmartSkipActive;
+
+        [ObservableProperty]
+        private string _statusMessage;
+
+        [ObservableProperty]
+        private string _currentFileName;
+
+        [ObservableProperty]
+        private string _currentFileDirectory;
 
         private TimeSpan _smartSkipSegmentStart;
 
@@ -89,9 +125,87 @@ namespace FlowerPlayer.ViewModels
             }
         }
 
-        public async void GenerateWaveform(StorageFile file)
+        public async System.Threading.Tasks.Task GenerateWaveformAsync(StorageFile file, bool firstFiveMinutesOnly = false)
         {
-            WaveformData = await MediaHelper.GenerateWaveformAsync(file, 1000);
+            if (file == null) return;
+            
+            string filePath = file.Path;
+            
+            // 检查是否已经生成过波形
+            if (_waveformCache.ContainsKey(filePath))
+            {
+                System.Diagnostics.Debug.WriteLine($"MainViewModel.GenerateWaveformAsync: Using cached waveform for {file.Name}");
+                WaveformData = _waveformCache[filePath];
+                IsGeneratingWaveform = false;
+                return;
+            }
+            
+            // 检查是否正在生成
+            if (_currentGeneratingFilePath == filePath)
+            {
+                System.Diagnostics.Debug.WriteLine($"MainViewModel.GenerateWaveformAsync: Already generating waveform for {file.Name}");
+                return;
+            }
+            
+            try
+            {
+                IsGeneratingWaveform = true;
+                _currentGeneratingFilePath = filePath;
+                
+                System.Diagnostics.Debug.WriteLine($"MainViewModel.GenerateWaveformAsync: Starting for {file.Name}, firstFiveMinutesOnly={firstFiveMinutesOnly}");
+                System.Diagnostics.Debug.WriteLine($"MainViewModel.GenerateWaveformAsync: Calling MediaHelper.GenerateWaveformAsync...");
+                
+                var waveform = await MediaHelper.GenerateWaveformAsync(file, 1000, firstFiveMinutesOnly);
+                
+                System.Diagnostics.Debug.WriteLine($"MainViewModel.GenerateWaveformAsync: Received waveform, length={waveform?.Length ?? 0}");
+                
+                if (waveform == null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"MainViewModel.GenerateWaveformAsync: ERROR - waveform is null!");
+                    IsGeneratingWaveform = false;
+                    _currentGeneratingFilePath = null;
+                    return;
+                }
+                
+                // 缓存波形数据
+                _waveformCache[filePath] = waveform;
+                
+                System.Diagnostics.Debug.WriteLine($"MainViewModel.GenerateWaveformAsync: Setting WaveformData property...");
+                WaveformData = waveform;
+                System.Diagnostics.Debug.WriteLine($"MainViewModel.GenerateWaveformAsync: WaveformData set, current value length={WaveformData?.Length ?? 0}");
+                
+                if (waveform.Length > 0)
+                {
+                    float maxValue = waveform[0];
+                    float minValue = waveform[0];
+                    for (int i = 1; i < waveform.Length; i++)
+                    {
+                        if (waveform[i] > maxValue) maxValue = waveform[i];
+                        if (waveform[i] < minValue) minValue = waveform[i];
+                    }
+                    var first5 = waveform.Length >= 5 ? waveform.Take(5).ToArray() : waveform;
+                    System.Diagnostics.Debug.WriteLine($"MainViewModel.GenerateWaveformAsync: Waveform data - Max: {maxValue}, Min: {minValue}, First 5: [{string.Join(", ", first5.Select(v => v.ToString("F3")))}]");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"MainViewModel.GenerateWaveformAsync: WARNING - Waveform data is empty!");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"MainViewModel.GenerateWaveformAsync: Error - {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"MainViewModel.GenerateWaveformAsync: Error type - {ex.GetType().FullName}");
+                System.Diagnostics.Debug.WriteLine($"MainViewModel.GenerateWaveformAsync: StackTrace - {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"MainViewModel.GenerateWaveformAsync: InnerException - {ex.InnerException.Message}");
+                }
+            }
+            finally
+            {
+                IsGeneratingWaveform = false;
+                _currentGeneratingFilePath = null;
+            }
         }
 
         partial void OnRangeStartChanged(double value) => UpdateRange();
@@ -99,7 +213,94 @@ namespace FlowerPlayer.ViewModels
         partial void OnIsLoopingChanged(bool value) => _mediaService.IsLooping = value;
         
         // Update setting when property changes
-        partial void OnIsWaveformVisibleChanged(bool value) => LocalSettingsService.IsWaveformVisible = value;
+        partial void OnIsWaveformVisibleChanged(bool value)
+        {
+            LocalSettingsService.IsWaveformVisible = value;
+            
+            // 當關閉波形顯示時，不清空波形數據（保留在緩存中），只是隱藏
+            // 當開啟顯示波形時，檢查是否已有緩存的波形數據
+            if (value && _mediaService.CurrentFile != null)
+            {
+                string filePath = _mediaService.CurrentFile.Path;
+                
+                // 如果已經有緩存的波形數據，直接顯示
+                if (_waveformCache.ContainsKey(filePath))
+                {
+                    System.Diagnostics.Debug.WriteLine($"MainViewModel.OnIsWaveformVisibleChanged: Using cached waveform for {_mediaService.CurrentFile.Name}");
+                    WaveformData = _waveformCache[filePath];
+                    return;
+                }
+                
+                // 如果沒有緩存，異步檢查是否需要確認
+                _ = CheckAndGenerateWaveformAsync();
+            }
+        }
+        
+        private async System.Threading.Tasks.Task CheckAndGenerateWaveformAsync()
+        {
+            if (_mediaService.CurrentFile == null) return;
+            
+            try
+            {
+                // 獲取媒體文件時長
+                var audioProperties = await _mediaService.CurrentFile.Properties.GetMusicPropertiesAsync();
+                var duration = audioProperties.Duration;
+                
+                // 如果超過一分鐘，顯示確認對話框
+                if (duration.TotalMinutes > 1.0)
+                {
+                    if (XamlRoot == null)
+                    {
+                        System.Diagnostics.Debug.WriteLine("MainViewModel.CheckAndGenerateWaveformAsync: XamlRoot is null, cannot show dialog");
+                        await GenerateWaveformAsync(_mediaService.CurrentFile, false);
+                        return;
+                    }
+                    
+                    var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+                    {
+                        Title = "確認",
+                        Content = $"媒體檔案超過一分鐘（{duration.TotalMinutes:F1} 分鐘），產生波形圖需要較長時間，請選擇：",
+                        PrimaryButtonText = "顯示整段波形圖",
+                        SecondaryButtonText = "取消",
+                        CloseButtonText = "只顯示前五分鐘",
+                        XamlRoot = XamlRoot
+                    };
+                    
+                    var result = await dialog.ShowAsync();
+                    
+                    if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Secondary)
+                    {
+                        // 用戶取消，恢復未啟動狀態
+                        IsWaveformVisible = false;
+                        return;
+                    }
+                    else if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.None)
+                    {
+                        // 用戶選擇"只顯示前五分鐘"
+                        await GenerateWaveformAsync(_mediaService.CurrentFile, true);
+                    }
+                    else
+                    {
+                        // 用戶選擇"顯示整段波形圖"
+                        await GenerateWaveformAsync(_mediaService.CurrentFile, false);
+                    }
+                }
+                else
+                {
+                    // 不超過一分鐘，直接生成
+                    await GenerateWaveformAsync(_mediaService.CurrentFile, false);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"MainViewModel.CheckAndGenerateWaveformAsync: Error checking duration: {ex.Message}");
+                // 如果獲取時長失敗，仍然嘗試生成波形
+                if (_mediaService.CurrentFile != null)
+                {
+                    await GenerateWaveformAsync(_mediaService.CurrentFile, false);
+                }
+            }
+        }
 
         private void UpdateRange()
         {
@@ -151,7 +352,13 @@ namespace FlowerPlayer.ViewModels
         }
 
         [RelayCommand]
-        public void Stop() => _mediaService.Stop();
+        public void Stop()
+        {
+            _mediaService.Stop();
+            // 清除文件名和目录信息
+            CurrentFileName = string.Empty;
+            CurrentFileDirectory = string.Empty;
+        }
 
         [RelayCommand]
         public void SeekForward() => _mediaService.Position += TimeSpan.FromMinutes(1);

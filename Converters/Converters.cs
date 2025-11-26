@@ -66,7 +66,7 @@ namespace FlowerPlayer.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            return (value is bool b && b) ? "Pause" : "Play";
+            return (value is bool b && b) ? "暫停" : "播放";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

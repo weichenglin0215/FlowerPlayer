@@ -7,6 +7,7 @@ using Windows.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Windows.Media.Editing;
 using System.Threading.Tasks;
+using FlowerPlayer.Helpers;
 
 namespace FlowerPlayer.Services
 {
@@ -23,6 +24,7 @@ namespace FlowerPlayer.Services
         public event EventHandler<MediaState> StateChanged;
         public event EventHandler<StorageFile> MediaOpened;
         public event EventHandler<TimeSpan> DurationChanged;
+        public event EventHandler MediaEnded;
 
         public MediaPlayer Player => _player;
 
@@ -32,6 +34,12 @@ namespace FlowerPlayer.Services
             _player.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
             _player.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
             _player.PlaybackSession.NaturalDurationChanged += PlaybackSession_NaturalDurationChanged;
+            _player.MediaEnded += Player_MediaEnded;
+        }
+
+        private void Player_MediaEnded(MediaPlayer sender, object args)
+        {
+            MediaEnded?.Invoke(this, EventArgs.Empty);
         }
 
         public TimeSpan Duration => _player.PlaybackSession.NaturalDuration;
@@ -113,12 +121,13 @@ namespace FlowerPlayer.Services
             _currentFile = file;
             
             // 檢測是否為影片檔案（根據副檔名）
-            var videoExtensions = new[] { ".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".webm", ".m4v" };
-            _hasVideo = videoExtensions.Contains(file.FileType.ToLower());
+            _hasVideo = MediaFileHelper.IsVideoFile(file);
             
             _player.Source = MediaSource.CreateFromStorageFile(file);
             MediaOpened?.Invoke(this, file);
         }
+
+        public StorageFile CurrentFile => _currentFile;
 
         public void Play() => _player.Play();
         public void Pause() => _player.Pause();

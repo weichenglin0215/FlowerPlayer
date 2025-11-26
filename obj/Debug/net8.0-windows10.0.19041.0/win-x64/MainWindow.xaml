@@ -16,7 +16,8 @@
     </Window.SystemBackdrop>
 
     <Grid x:ConnectionId='2' x:Name="RootGrid" AllowDrop="True"                                          
-          IsTabStop="True" UseSystemFocusVisuals="False"                           >
+          IsTabStop="True" UseSystemFocusVisuals="False"                           
+                                            >
         <Grid.Resources>
             <converters:BoolToVisConverter x:Key="BoolToVisConverter" />
             <converters:PlayPauseLabelConverter x:Key="PlayPauseLabelConverter" />
@@ -27,6 +28,7 @@
             <RowDefinition Height="Auto" /> <!-- Waveform -->
             <RowDefinition Height="Auto" /> <!-- Timeline -->
             <RowDefinition Height="Auto" /> <!-- Controls -->
+            <RowDefinition Height="Auto" /> <!-- Status Bar -->
         </Grid.RowDefinitions>
 
         <!-- Video Area -->
@@ -41,7 +43,7 @@
         <Grid x:ConnectionId='4' Grid.Row="1" Height="60" Visibility="{Binding IsWaveformVisible, Mode=OneWay, Converter={StaticResource BoolToVisConverter}}"
               Background="Transparent"
                                                        >
-            <controls:WaveformControl x:ConnectionId='24'                                                             IsHitTestVisible="False"/>
+            <controls:WaveformControl x:ConnectionId='27'                                                             IsHitTestVisible="False"/>
         </Grid>
 
         <!-- Timeline Control -->
@@ -51,33 +53,42 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock x:ConnectionId='21'                                                                VerticalAlignment="Center" Width="100" TextAlignment="Right" FontFamily="Consolas, Courier New, Monospace"/>
+            <TextBlock x:ConnectionId='24'                                                                VerticalAlignment="Center" Width="100" TextAlignment="Right" FontFamily="Consolas, Courier New, Monospace"/>
             
             <!-- Custom Range Slider -->
-            <controls:RangeSlider x:ConnectionId='22' x:Name="TimelineSlider" Grid.Column="1" Margin="10,0"
+            <controls:RangeSlider x:ConnectionId='25' x:Name="TimelineSlider" Grid.Column="1" Margin="10,0"
                                Minimum="0"
                                                                                                    
                                                                                      
                                                                                       
                                                                                   />
             
-            <TextBlock x:ConnectionId='23' Grid.Column="2"                                                                  VerticalAlignment="Center" Width="100" TextAlignment="Left" FontFamily="Consolas, Courier New, Monospace"/>
+            <TextBlock x:ConnectionId='26' Grid.Column="2"                                                                  VerticalAlignment="Center" Width="100" TextAlignment="Left" FontFamily="Consolas, Courier New, Monospace"/>
         </Grid>
 
         <!-- Controls -->
         <StackPanel Grid.Row="3" Orientation="Vertical" HorizontalAlignment="Center" Margin="0,10,0,20" Spacing="10">
             <!-- Main Controls -->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
-                <Button x:ConnectionId='5' Content="-1min"                                                                                                          />
-                <Button x:ConnectionId='6' Content="上一幀"                                                                                                       />
-                <Button x:ConnectionId='7' Content="Stop"                                                                                                  />
-                <Button x:ConnectionId='8' Content="{Binding IsPlaying, Mode=OneWay, Converter={StaticResource PlayPauseLabelConverter}}"
+                <Button x:ConnectionId='6' Content="-1min"                                                                                                          />
+                <Button x:ConnectionId='7' Content="上一幀"                                                                                                       />
+                <Button x:ConnectionId='8' Content="Stop"                                                                                                  />
+                <Button x:ConnectionId='9' Content="{Binding IsPlaying, Mode=OneWay, Converter={StaticResource PlayPauseLabelConverter}}"
                                                                       Style="{StaticResource AccentButtonStyle}"
                                                                                 />
-                <Button x:ConnectionId='9' Content="下一幀"                                                                                                       />
-                <Button x:ConnectionId='10' Content="+1min"                                                                                                         />
-                <Button x:ConnectionId='11' Content="開啟檔案"                       />
-                <Button x:ConnectionId='12' Content="撥放清單"                           />
+                <Button x:ConnectionId='10' Content="下一幀"                                                                                                       />
+                <Button x:ConnectionId='11' Content="+1min"                                                                                                         />
+                <Button x:ConnectionId='12' Content="開啟檔案"                       />
+                
+                <!-- MenuBar for Settings, Playlist, History -->
+                <MenuBar VerticalAlignment="Center">
+                    <MenuBarItem Title="選單">
+                        <MenuFlyoutItem x:ConnectionId='21' Text="設定"                           />
+                        <MenuFlyoutItem x:ConnectionId='22' Text="播放清單"                           />
+                        <MenuFlyoutItem x:ConnectionId='23' Text="歷史清單"                          />
+                    </MenuBarItem>
+                </MenuBar>
+                
                 <CheckBox x:ConnectionId='13' Content="循環撥放"                                                                                                               />
                 <Button x:ConnectionId='14' Content="設定起點"                                                                                                           />
                 <Button x:ConnectionId='15' Content="設定終點"                                                                                                         />
@@ -90,6 +101,11 @@
                                                                        VerticalAlignment="Center"/>
             </StackPanel>
         </StackPanel>
+        
+        <!-- Status Bar -->
+        <Border Grid.Row="4" Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}" Padding="10,2">
+            <TextBlock x:ConnectionId='5'                                                      FontSize="16" VerticalAlignment="Center"/>
+        </Border>
     </Grid>
 </Window>
 

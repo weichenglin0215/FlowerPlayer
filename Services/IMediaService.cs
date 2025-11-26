@@ -11,6 +11,7 @@ namespace FlowerPlayer.Services
         event EventHandler<MediaState> StateChanged;
         event EventHandler<StorageFile> MediaOpened;
         event EventHandler<TimeSpan> DurationChanged;
+        event EventHandler MediaEnded;
 
         TimeSpan Duration { get; }
         TimeSpan Position { get; set; }
@@ -20,6 +21,7 @@ namespace FlowerPlayer.Services
         bool IsLooping { get; set; }
         bool HasVideo { get; }
         MediaPlayer Player { get; }
+        StorageFile CurrentFile { get; }
 
         void Open(StorageFile file);
         void Play();

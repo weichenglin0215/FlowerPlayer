@@ -17,6 +17,9 @@ namespace FlowerPlayer.ViewModels
         [ObservableProperty]
         private double _smartSkipSkipDuration;
 
+        [ObservableProperty]
+        private bool _autoPlayNext;
+
         public SettingsViewModel()
         {
             // Load initial values
@@ -24,11 +27,13 @@ namespace FlowerPlayer.ViewModels
             _resumeLastFile = LocalSettingsService.ResumeLastFile;
             _smartSkipPlayDuration = LocalSettingsService.SmartSkipPlayDuration;
             _smartSkipSkipDuration = LocalSettingsService.SmartSkipSkipDuration;
+            _autoPlayNext = LocalSettingsService.AutoPlayNext;
         }
 
         partial void OnAutoPlayOnOpenChanged(bool value) => LocalSettingsService.AutoPlayOnOpen = value;
         partial void OnResumeLastFileChanged(bool value) => LocalSettingsService.ResumeLastFile = value;
         partial void OnSmartSkipPlayDurationChanged(double value) => LocalSettingsService.SmartSkipPlayDuration = value;
         partial void OnSmartSkipSkipDurationChanged(double value) => LocalSettingsService.SmartSkipSkipDuration = value;
+        partial void OnAutoPlayNextChanged(bool value) => LocalSettingsService.AutoPlayNext = value;
     }
 }

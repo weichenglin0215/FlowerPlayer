@@ -226,7 +226,7 @@ namespace FlowerPlayer.FlowerPlayer_XamlTypeInfo
         
         private void InitTypeTables()
         {
-            _typeNameTable = new string[46];
+            _typeNameTable = new string[47];
             _typeNameTable[0] = "Microsoft.UI.Xaml.Controls.XamlControlsResources";
             _typeNameTable[1] = "Microsoft.UI.Xaml.ResourceDictionary";
             _typeNameTable[2] = "Object";
@@ -241,15 +241,15 @@ namespace FlowerPlayer.FlowerPlayer_XamlTypeInfo
             _typeNameTable[11] = "Single[]";
             _typeNameTable[12] = "System.Array";
             _typeNameTable[13] = "Single";
-            _typeNameTable[14] = "Microsoft.UI.Xaml.Media.MicaBackdrop";
-            _typeNameTable[15] = "Microsoft.UI.Xaml.Media.SystemBackdrop";
-            _typeNameTable[16] = "Microsoft.UI.Composition.SystemBackdrops.MicaKind";
-            _typeNameTable[17] = "System.Enum";
-            _typeNameTable[18] = "System.ValueType";
-            _typeNameTable[19] = "FlowerPlayer.MainWindow";
-            _typeNameTable[20] = "Microsoft.UI.Xaml.Window";
-            _typeNameTable[21] = "FlowerPlayer.ViewModels.MainViewModel";
-            _typeNameTable[22] = "CommunityToolkit.Mvvm.ComponentModel.ObservableObject";
+            _typeNameTable[14] = "FlowerPlayer.HistoryWindow";
+            _typeNameTable[15] = "Microsoft.UI.Xaml.Window";
+            _typeNameTable[16] = "FlowerPlayer.ViewModels.PlaylistViewModel";
+            _typeNameTable[17] = "CommunityToolkit.Mvvm.ComponentModel.ObservableObject";
+            _typeNameTable[18] = "Microsoft.UI.Xaml.Media.MicaBackdrop";
+            _typeNameTable[19] = "Microsoft.UI.Xaml.Media.SystemBackdrop";
+            _typeNameTable[20] = "Microsoft.UI.Composition.SystemBackdrops.MicaKind";
+            _typeNameTable[21] = "System.Enum";
+            _typeNameTable[22] = "System.ValueType";
             _typeNameTable[23] = "Microsoft.UI.Xaml.Controls.MenuBar";
             _typeNameTable[24] = "Microsoft.UI.Xaml.Controls.Control";
             _typeNameTable[25] = "System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.MenuBarItem>";
@@ -257,24 +257,25 @@ namespace FlowerPlayer.FlowerPlayer_XamlTypeInfo
             _typeNameTable[27] = "System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.MenuFlyoutItemBase>";
             _typeNameTable[28] = "Microsoft.UI.Xaml.Controls.MenuFlyoutItemBase";
             _typeNameTable[29] = "String";
-            _typeNameTable[30] = "FlowerPlayer.PlaylistWindow";
-            _typeNameTable[31] = "FlowerPlayer.ViewModels.PlaylistViewModel";
-            _typeNameTable[32] = "Microsoft.UI.Xaml.Controls.NumberBox";
-            _typeNameTable[33] = "Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode";
-            _typeNameTable[34] = "Microsoft.UI.Xaml.DataTemplate";
-            _typeNameTable[35] = "Windows.Globalization.NumberFormatting.INumberFormatter2";
-            _typeNameTable[36] = "Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase";
-            _typeNameTable[37] = "Microsoft.UI.Xaml.Media.SolidColorBrush";
-            _typeNameTable[38] = "Microsoft.UI.Xaml.TextReadingOrder";
-            _typeNameTable[39] = "Microsoft.UI.Xaml.Controls.NumberBoxValidationMode";
-            _typeNameTable[40] = "FlowerPlayer.SettingsWindow";
-            _typeNameTable[41] = "FlowerPlayer.ViewModels.SettingsViewModel";
-            _typeNameTable[42] = "Microsoft.UI.Xaml.Controls.TreeViewNode";
-            _typeNameTable[43] = "Microsoft.UI.Xaml.DependencyObject";
-            _typeNameTable[44] = "System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>";
-            _typeNameTable[45] = "Int32";
+            _typeNameTable[30] = "FlowerPlayer.MainWindow";
+            _typeNameTable[31] = "FlowerPlayer.ViewModels.MainViewModel";
+            _typeNameTable[32] = "FlowerPlayer.PlaylistWindow";
+            _typeNameTable[33] = "Microsoft.UI.Xaml.Controls.NumberBox";
+            _typeNameTable[34] = "Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode";
+            _typeNameTable[35] = "Microsoft.UI.Xaml.DataTemplate";
+            _typeNameTable[36] = "Windows.Globalization.NumberFormatting.INumberFormatter2";
+            _typeNameTable[37] = "Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase";
+            _typeNameTable[38] = "Microsoft.UI.Xaml.Media.SolidColorBrush";
+            _typeNameTable[39] = "Microsoft.UI.Xaml.TextReadingOrder";
+            _typeNameTable[40] = "Microsoft.UI.Xaml.Controls.NumberBoxValidationMode";
+            _typeNameTable[41] = "FlowerPlayer.SettingsWindow";
+            _typeNameTable[42] = "FlowerPlayer.ViewModels.SettingsViewModel";
+            _typeNameTable[43] = "Microsoft.UI.Xaml.Controls.TreeViewNode";
+            _typeNameTable[44] = "Microsoft.UI.Xaml.DependencyObject";
+            _typeNameTable[45] = "System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>";
+            _typeNameTable[46] = "Int32";
 
-            _typeTable = new global::System.Type[46];
+            _typeTable = new global::System.Type[47];
             _typeTable[0] = typeof(global::Microsoft.UI.Xaml.Controls.XamlControlsResources);
             _typeTable[1] = typeof(global::Microsoft.UI.Xaml.ResourceDictionary);
             _typeTable[2] = typeof(global::System.Object);
@@ -289,15 +290,15 @@ namespace FlowerPlayer.FlowerPlayer_XamlTypeInfo
             _typeTable[11] = typeof(global::System.Single[]);
             _typeTable[12] = typeof(global::System.Array);
             _typeTable[13] = typeof(global::System.Single);
-            _typeTable[14] = typeof(global::Microsoft.UI.Xaml.Media.MicaBackdrop);
-            _typeTable[15] = typeof(global::Microsoft.UI.Xaml.Media.SystemBackdrop);
-            _typeTable[16] = typeof(global::Microsoft.UI.Composition.SystemBackdrops.MicaKind);
-            _typeTable[17] = typeof(global::System.Enum);
-            _typeTable[18] = typeof(global::System.ValueType);
-            _typeTable[19] = typeof(global::FlowerPlayer.MainWindow);
-            _typeTable[20] = typeof(global::Microsoft.UI.Xaml.Window);
-            _typeTable[21] = typeof(global::FlowerPlayer.ViewModels.MainViewModel);
-            _typeTable[22] = typeof(global::CommunityToolkit.Mvvm.ComponentModel.ObservableObject);
+            _typeTable[14] = typeof(global::FlowerPlayer.HistoryWindow);
+            _typeTable[15] = typeof(global::Microsoft.UI.Xaml.Window);
+            _typeTable[16] = typeof(global::FlowerPlayer.ViewModels.PlaylistViewModel);
+            _typeTable[17] = typeof(global::CommunityToolkit.Mvvm.ComponentModel.ObservableObject);
+            _typeTable[18] = typeof(global::Microsoft.UI.Xaml.Media.MicaBackdrop);
+            _typeTable[19] = typeof(global::Microsoft.UI.Xaml.Media.SystemBackdrop);
+            _typeTable[20] = typeof(global::Microsoft.UI.Composition.SystemBackdrops.MicaKind);
+            _typeTable[21] = typeof(global::System.Enum);
+            _typeTable[22] = typeof(global::System.ValueType);
             _typeTable[23] = typeof(global::Microsoft.UI.Xaml.Controls.MenuBar);
             _typeTable[24] = typeof(global::Microsoft.UI.Xaml.Controls.Control);
             _typeTable[25] = typeof(global::System.Collections.Generic.IList<global::Microsoft.UI.Xaml.Controls.MenuBarItem>);
@@ -305,22 +306,23 @@ namespace FlowerPlayer.FlowerPlayer_XamlTypeInfo
             _typeTable[27] = typeof(global::System.Collections.Generic.IList<global::Microsoft.UI.Xaml.Controls.MenuFlyoutItemBase>);
             _typeTable[28] = typeof(global::Microsoft.UI.Xaml.Controls.MenuFlyoutItemBase);
             _typeTable[29] = typeof(global::System.String);
-            _typeTable[30] = typeof(global::FlowerPlayer.PlaylistWindow);
-            _typeTable[31] = typeof(global::FlowerPlayer.ViewModels.PlaylistViewModel);
-            _typeTable[32] = typeof(global::Microsoft.UI.Xaml.Controls.NumberBox);
-            _typeTable[33] = typeof(global::Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode);
-            _typeTable[34] = typeof(global::Microsoft.UI.Xaml.DataTemplate);
-            _typeTable[35] = typeof(global::Windows.Globalization.NumberFormatting.INumberFormatter2);
-            _typeTable[36] = typeof(global::Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase);
-            _typeTable[37] = typeof(global::Microsoft.UI.Xaml.Media.SolidColorBrush);
-            _typeTable[38] = typeof(global::Microsoft.UI.Xaml.TextReadingOrder);
-            _typeTable[39] = typeof(global::Microsoft.UI.Xaml.Controls.NumberBoxValidationMode);
-            _typeTable[40] = typeof(global::FlowerPlayer.SettingsWindow);
-            _typeTable[41] = typeof(global::FlowerPlayer.ViewModels.SettingsViewModel);
-            _typeTable[42] = typeof(global::Microsoft.UI.Xaml.Controls.TreeViewNode);
-            _typeTable[43] = typeof(global::Microsoft.UI.Xaml.DependencyObject);
-            _typeTable[44] = typeof(global::System.Collections.Generic.IList<global::Microsoft.UI.Xaml.Controls.TreeViewNode>);
-            _typeTable[45] = typeof(global::System.Int32);
+            _typeTable[30] = typeof(global::FlowerPlayer.MainWindow);
+            _typeTable[31] = typeof(global::FlowerPlayer.ViewModels.MainViewModel);
+            _typeTable[32] = typeof(global::FlowerPlayer.PlaylistWindow);
+            _typeTable[33] = typeof(global::Microsoft.UI.Xaml.Controls.NumberBox);
+            _typeTable[34] = typeof(global::Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode);
+            _typeTable[35] = typeof(global::Microsoft.UI.Xaml.DataTemplate);
+            _typeTable[36] = typeof(global::Windows.Globalization.NumberFormatting.INumberFormatter2);
+            _typeTable[37] = typeof(global::Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase);
+            _typeTable[38] = typeof(global::Microsoft.UI.Xaml.Media.SolidColorBrush);
+            _typeTable[39] = typeof(global::Microsoft.UI.Xaml.TextReadingOrder);
+            _typeTable[40] = typeof(global::Microsoft.UI.Xaml.Controls.NumberBoxValidationMode);
+            _typeTable[41] = typeof(global::FlowerPlayer.SettingsWindow);
+            _typeTable[42] = typeof(global::FlowerPlayer.ViewModels.SettingsViewModel);
+            _typeTable[43] = typeof(global::Microsoft.UI.Xaml.Controls.TreeViewNode);
+            _typeTable[44] = typeof(global::Microsoft.UI.Xaml.DependencyObject);
+            _typeTable[45] = typeof(global::System.Collections.Generic.IList<global::Microsoft.UI.Xaml.Controls.TreeViewNode>);
+            _typeTable[46] = typeof(global::System.Int32);
         }
 
         private int LookupTypeIndexByName(string typeName)
@@ -361,15 +363,15 @@ namespace FlowerPlayer.FlowerPlayer_XamlTypeInfo
         private object Activate_7_PlayPauseLabelConverter() { return new global::FlowerPlayer.Converters.PlayPauseLabelConverter(); }
         private object Activate_8_RangeSlider() { return new global::FlowerPlayer.Controls.RangeSlider(); }
         private object Activate_10_WaveformControl() { return new global::FlowerPlayer.Controls.WaveformControl(); }
-        private object Activate_14_MicaBackdrop() { return new global::Microsoft.UI.Xaml.Media.MicaBackdrop(); }
-        private object Activate_19_MainWindow() { return new global::FlowerPlayer.MainWindow(); }
-        private object Activate_21_MainViewModel() { return new global::FlowerPlayer.ViewModels.MainViewModel(); }
+        private object Activate_18_MicaBackdrop() { return new global::Microsoft.UI.Xaml.Media.MicaBackdrop(); }
         private object Activate_23_MenuBar() { return new global::Microsoft.UI.Xaml.Controls.MenuBar(); }
         private object Activate_26_MenuBarItem() { return new global::Microsoft.UI.Xaml.Controls.MenuBarItem(); }
-        private object Activate_32_NumberBox() { return new global::Microsoft.UI.Xaml.Controls.NumberBox(); }
-        private object Activate_40_SettingsWindow() { return new global::FlowerPlayer.SettingsWindow(); }
-        private object Activate_41_SettingsViewModel() { return new global::FlowerPlayer.ViewModels.SettingsViewModel(); }
-        private object Activate_42_TreeViewNode() { return new global::Microsoft.UI.Xaml.Controls.TreeViewNode(); }
+        private object Activate_30_MainWindow() { return new global::FlowerPlayer.MainWindow(); }
+        private object Activate_31_MainViewModel() { return new global::FlowerPlayer.ViewModels.MainViewModel(); }
+        private object Activate_33_NumberBox() { return new global::Microsoft.UI.Xaml.Controls.NumberBox(); }
+        private object Activate_41_SettingsWindow() { return new global::FlowerPlayer.SettingsWindow(); }
+        private object Activate_42_SettingsViewModel() { return new global::FlowerPlayer.ViewModels.SettingsViewModel(); }
+        private object Activate_43_TreeViewNode() { return new global::Microsoft.UI.Xaml.Controls.TreeViewNode(); }
         private void StaticInitializer_0_XamlControlsResources() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.XamlControlsResources).TypeHandle);
         private void StaticInitializer_4_BoolToVisConverter() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::FlowerPlayer.Converters.BoolToVisConverter).TypeHandle);
         private void StaticInitializer_5_TimeConverter() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::FlowerPlayer.Converters.TimeConverter).TypeHandle);
@@ -377,27 +379,28 @@ namespace FlowerPlayer.FlowerPlayer_XamlTypeInfo
         private void StaticInitializer_8_RangeSlider() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::FlowerPlayer.Controls.RangeSlider).TypeHandle);
         private void StaticInitializer_10_WaveformControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::FlowerPlayer.Controls.WaveformControl).TypeHandle);
         private void StaticInitializer_12_Array() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Array).TypeHandle);
-        private void StaticInitializer_14_MicaBackdrop() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Media.MicaBackdrop).TypeHandle);
-        private void StaticInitializer_16_MicaKind() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Composition.SystemBackdrops.MicaKind).TypeHandle);
-        private void StaticInitializer_17_Enum() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Enum).TypeHandle);
-        private void StaticInitializer_18_ValueType() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.ValueType).TypeHandle);
-        private void StaticInitializer_19_MainWindow() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::FlowerPlayer.MainWindow).TypeHandle);
-        private void StaticInitializer_21_MainViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::FlowerPlayer.ViewModels.MainViewModel).TypeHandle);
-        private void StaticInitializer_22_ObservableObject() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::CommunityToolkit.Mvvm.ComponentModel.ObservableObject).TypeHandle);
+        private void StaticInitializer_14_HistoryWindow() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::FlowerPlayer.HistoryWindow).TypeHandle);
+        private void StaticInitializer_16_PlaylistViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::FlowerPlayer.ViewModels.PlaylistViewModel).TypeHandle);
+        private void StaticInitializer_17_ObservableObject() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::CommunityToolkit.Mvvm.ComponentModel.ObservableObject).TypeHandle);
+        private void StaticInitializer_18_MicaBackdrop() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Media.MicaBackdrop).TypeHandle);
+        private void StaticInitializer_20_MicaKind() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Composition.SystemBackdrops.MicaKind).TypeHandle);
+        private void StaticInitializer_21_Enum() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Enum).TypeHandle);
+        private void StaticInitializer_22_ValueType() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.ValueType).TypeHandle);
         private void StaticInitializer_23_MenuBar() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.MenuBar).TypeHandle);
         private void StaticInitializer_25_IList() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Collections.Generic.IList<global::Microsoft.UI.Xaml.Controls.MenuBarItem>).TypeHandle);
         private void StaticInitializer_26_MenuBarItem() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.MenuBarItem).TypeHandle);
         private void StaticInitializer_27_IList() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Collections.Generic.IList<global::Microsoft.UI.Xaml.Controls.MenuFlyoutItemBase>).TypeHandle);
-        private void StaticInitializer_30_PlaylistWindow() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::FlowerPlayer.PlaylistWindow).TypeHandle);
-        private void StaticInitializer_31_PlaylistViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::FlowerPlayer.ViewModels.PlaylistViewModel).TypeHandle);
-        private void StaticInitializer_32_NumberBox() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.NumberBox).TypeHandle);
-        private void StaticInitializer_33_NumberBoxSpinButtonPlacementMode() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode).TypeHandle);
-        private void StaticInitializer_35_INumberFormatter2() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Windows.Globalization.NumberFormatting.INumberFormatter2).TypeHandle);
-        private void StaticInitializer_39_NumberBoxValidationMode() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.NumberBoxValidationMode).TypeHandle);
-        private void StaticInitializer_40_SettingsWindow() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::FlowerPlayer.SettingsWindow).TypeHandle);
-        private void StaticInitializer_41_SettingsViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::FlowerPlayer.ViewModels.SettingsViewModel).TypeHandle);
-        private void StaticInitializer_42_TreeViewNode() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TreeViewNode).TypeHandle);
-        private void StaticInitializer_44_IList() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Collections.Generic.IList<global::Microsoft.UI.Xaml.Controls.TreeViewNode>).TypeHandle);
+        private void StaticInitializer_30_MainWindow() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::FlowerPlayer.MainWindow).TypeHandle);
+        private void StaticInitializer_31_MainViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::FlowerPlayer.ViewModels.MainViewModel).TypeHandle);
+        private void StaticInitializer_32_PlaylistWindow() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::FlowerPlayer.PlaylistWindow).TypeHandle);
+        private void StaticInitializer_33_NumberBox() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.NumberBox).TypeHandle);
+        private void StaticInitializer_34_NumberBoxSpinButtonPlacementMode() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode).TypeHandle);
+        private void StaticInitializer_36_INumberFormatter2() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Windows.Globalization.NumberFormatting.INumberFormatter2).TypeHandle);
+        private void StaticInitializer_40_NumberBoxValidationMode() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.NumberBoxValidationMode).TypeHandle);
+        private void StaticInitializer_41_SettingsWindow() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::FlowerPlayer.SettingsWindow).TypeHandle);
+        private void StaticInitializer_42_SettingsViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::FlowerPlayer.ViewModels.SettingsViewModel).TypeHandle);
+        private void StaticInitializer_43_TreeViewNode() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TreeViewNode).TypeHandle);
+        private void StaticInitializer_45_IList() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Collections.Generic.IList<global::Microsoft.UI.Xaml.Controls.TreeViewNode>).TypeHandle);
         private void MapAdd_0_XamlControlsResources(object instance, object key, object item)
         {
             var collection = (global::System.Collections.Generic.IDictionary<global::System.Object, global::System.Object>)instance;
@@ -417,7 +420,7 @@ namespace FlowerPlayer.FlowerPlayer_XamlTypeInfo
             var newItem = (global::Microsoft.UI.Xaml.Controls.MenuFlyoutItemBase)item;
             collection.Add(newItem);
         }
-        private void VectorAdd_44_IList(object instance, object item)
+        private void VectorAdd_45_IList(object instance, object item)
         {
             var collection = (global::System.Collections.Generic.ICollection<global::Microsoft.UI.Xaml.Controls.TreeViewNode>)instance;
             var newItem = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)item;
@@ -526,63 +529,61 @@ namespace FlowerPlayer.FlowerPlayer_XamlTypeInfo
                 xamlType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 14:   //  Microsoft.UI.Xaml.Media.MicaBackdrop
-                userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Media.SystemBackdrop"));
-                userType.Activator = Activate_14_MicaBackdrop;
-                userType.StaticInitializer = StaticInitializer_14_MicaBackdrop;
-                userType.AddMemberName("Kind");
-                xamlType = userType;
-                break;
-
-            case 15:   //  Microsoft.UI.Xaml.Media.SystemBackdrop
-                xamlType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlSystemBaseType(typeName, type);
-                break;
-
-            case 16:   //  Microsoft.UI.Composition.SystemBackdrops.MicaKind
-                userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
-                userType.StaticInitializer = StaticInitializer_16_MicaKind;
-                userType.AddEnumValue("Base", global::Microsoft.UI.Composition.SystemBackdrops.MicaKind.Base);
-                userType.AddEnumValue("BaseAlt", global::Microsoft.UI.Composition.SystemBackdrops.MicaKind.BaseAlt);
-                xamlType = userType;
-                break;
-
-            case 17:   //  System.Enum
-                userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.ValueType"));
-                userType.StaticInitializer = StaticInitializer_17_Enum;
-                xamlType = userType;
-                break;
-
-            case 18:   //  System.ValueType
-                userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
-                userType.StaticInitializer = StaticInitializer_18_ValueType;
-                xamlType = userType;
-                break;
-
-            case 19:   //  FlowerPlayer.MainWindow
+            case 14:   //  FlowerPlayer.HistoryWindow
                 userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Window"));
-                userType.Activator = Activate_19_MainWindow;
-                userType.StaticInitializer = StaticInitializer_19_MainWindow;
+                userType.StaticInitializer = StaticInitializer_14_HistoryWindow;
                 userType.AddMemberName("ViewModel");
-                userType.AddMemberName("TimeFormatConverter");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 20:   //  Microsoft.UI.Xaml.Window
+            case 15:   //  Microsoft.UI.Xaml.Window
                 xamlType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 21:   //  FlowerPlayer.ViewModels.MainViewModel
+            case 16:   //  FlowerPlayer.ViewModels.PlaylistViewModel
                 userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
-                userType.StaticInitializer = StaticInitializer_21_MainViewModel;
+                userType.StaticInitializer = StaticInitializer_16_PlaylistViewModel;
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 22:   //  CommunityToolkit.Mvvm.ComponentModel.ObservableObject
+            case 17:   //  CommunityToolkit.Mvvm.ComponentModel.ObservableObject
                 userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
-                userType.StaticInitializer = StaticInitializer_22_ObservableObject;
+                userType.StaticInitializer = StaticInitializer_17_ObservableObject;
+                xamlType = userType;
+                break;
+
+            case 18:   //  Microsoft.UI.Xaml.Media.MicaBackdrop
+                userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Media.SystemBackdrop"));
+                userType.Activator = Activate_18_MicaBackdrop;
+                userType.StaticInitializer = StaticInitializer_18_MicaBackdrop;
+                userType.AddMemberName("Kind");
+                xamlType = userType;
+                break;
+
+            case 19:   //  Microsoft.UI.Xaml.Media.SystemBackdrop
+                xamlType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlSystemBaseType(typeName, type);
+                break;
+
+            case 20:   //  Microsoft.UI.Composition.SystemBackdrops.MicaKind
+                userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
+                userType.StaticInitializer = StaticInitializer_20_MicaKind;
+                userType.AddEnumValue("Base", global::Microsoft.UI.Composition.SystemBackdrops.MicaKind.Base);
+                userType.AddEnumValue("BaseAlt", global::Microsoft.UI.Composition.SystemBackdrops.MicaKind.BaseAlt);
+                xamlType = userType;
+                break;
+
+            case 21:   //  System.Enum
+                userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.ValueType"));
+                userType.StaticInitializer = StaticInitializer_21_Enum;
+                xamlType = userType;
+                break;
+
+            case 22:   //  System.ValueType
+                userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
+                userType.StaticInitializer = StaticInitializer_22_ValueType;
                 xamlType = userType;
                 break;
 
@@ -633,26 +634,36 @@ namespace FlowerPlayer.FlowerPlayer_XamlTypeInfo
                 xamlType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 30:   //  FlowerPlayer.PlaylistWindow
+            case 30:   //  FlowerPlayer.MainWindow
                 userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Window"));
-                userType.StaticInitializer = StaticInitializer_30_PlaylistWindow;
+                userType.Activator = Activate_30_MainWindow;
+                userType.StaticInitializer = StaticInitializer_30_MainWindow;
                 userType.AddMemberName("ViewModel");
+                userType.AddMemberName("TimeFormatConverter");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 31:   //  FlowerPlayer.ViewModels.PlaylistViewModel
+            case 31:   //  FlowerPlayer.ViewModels.MainViewModel
                 userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
-                userType.StaticInitializer = StaticInitializer_31_PlaylistViewModel;
+                userType.StaticInitializer = StaticInitializer_31_MainViewModel;
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 32:   //  Microsoft.UI.Xaml.Controls.NumberBox
+            case 32:   //  FlowerPlayer.PlaylistWindow
+                userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Window"));
+                userType.StaticInitializer = StaticInitializer_32_PlaylistWindow;
+                userType.AddMemberName("ViewModel");
+                userType.SetIsLocalType();
+                xamlType = userType;
+                break;
+
+            case 33:   //  Microsoft.UI.Xaml.Controls.NumberBox
                 userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Control"));
-                userType.Activator = Activate_32_NumberBox;
-                userType.StaticInitializer = StaticInitializer_32_NumberBox;
+                userType.Activator = Activate_33_NumberBox;
+                userType.StaticInitializer = StaticInitializer_33_NumberBox;
                 userType.AddMemberName("Value");
                 userType.AddMemberName("SpinButtonPlacementMode");
                 userType.AddMemberName("SmallChange");
@@ -675,67 +686,67 @@ namespace FlowerPlayer.FlowerPlayer_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 33:   //  Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode
+            case 34:   //  Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode
                 userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
-                userType.StaticInitializer = StaticInitializer_33_NumberBoxSpinButtonPlacementMode;
+                userType.StaticInitializer = StaticInitializer_34_NumberBoxSpinButtonPlacementMode;
                 userType.AddEnumValue("Hidden", global::Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode.Hidden);
                 userType.AddEnumValue("Compact", global::Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode.Compact);
                 userType.AddEnumValue("Inline", global::Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode.Inline);
                 xamlType = userType;
                 break;
 
-            case 34:   //  Microsoft.UI.Xaml.DataTemplate
+            case 35:   //  Microsoft.UI.Xaml.DataTemplate
                 xamlType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 35:   //  Windows.Globalization.NumberFormatting.INumberFormatter2
+            case 36:   //  Windows.Globalization.NumberFormatting.INumberFormatter2
                 userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, null);
-                userType.StaticInitializer = StaticInitializer_35_INumberFormatter2;
+                userType.StaticInitializer = StaticInitializer_36_INumberFormatter2;
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 36:   //  Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase
+            case 37:   //  Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase
                 xamlType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 37:   //  Microsoft.UI.Xaml.Media.SolidColorBrush
+            case 38:   //  Microsoft.UI.Xaml.Media.SolidColorBrush
                 xamlType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 38:   //  Microsoft.UI.Xaml.TextReadingOrder
+            case 39:   //  Microsoft.UI.Xaml.TextReadingOrder
                 xamlType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 39:   //  Microsoft.UI.Xaml.Controls.NumberBoxValidationMode
+            case 40:   //  Microsoft.UI.Xaml.Controls.NumberBoxValidationMode
                 userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
-                userType.StaticInitializer = StaticInitializer_39_NumberBoxValidationMode;
+                userType.StaticInitializer = StaticInitializer_40_NumberBoxValidationMode;
                 userType.AddEnumValue("InvalidInputOverwritten", global::Microsoft.UI.Xaml.Controls.NumberBoxValidationMode.InvalidInputOverwritten);
                 userType.AddEnumValue("Disabled", global::Microsoft.UI.Xaml.Controls.NumberBoxValidationMode.Disabled);
                 xamlType = userType;
                 break;
 
-            case 40:   //  FlowerPlayer.SettingsWindow
+            case 41:   //  FlowerPlayer.SettingsWindow
                 userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Window"));
-                userType.Activator = Activate_40_SettingsWindow;
-                userType.StaticInitializer = StaticInitializer_40_SettingsWindow;
+                userType.Activator = Activate_41_SettingsWindow;
+                userType.StaticInitializer = StaticInitializer_41_SettingsWindow;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 41:   //  FlowerPlayer.ViewModels.SettingsViewModel
+            case 42:   //  FlowerPlayer.ViewModels.SettingsViewModel
                 userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
-                userType.StaticInitializer = StaticInitializer_41_SettingsViewModel;
+                userType.StaticInitializer = StaticInitializer_42_SettingsViewModel;
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 42:   //  Microsoft.UI.Xaml.Controls.TreeViewNode
+            case 43:   //  Microsoft.UI.Xaml.Controls.TreeViewNode
                 userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.DependencyObject"));
-                userType.Activator = Activate_42_TreeViewNode;
-                userType.StaticInitializer = StaticInitializer_42_TreeViewNode;
+                userType.Activator = Activate_43_TreeViewNode;
+                userType.StaticInitializer = StaticInitializer_43_TreeViewNode;
                 userType.AddMemberName("Children");
                 userType.AddMemberName("Content");
                 userType.AddMemberName("Depth");
@@ -747,19 +758,19 @@ namespace FlowerPlayer.FlowerPlayer_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 43:   //  Microsoft.UI.Xaml.DependencyObject
+            case 44:   //  Microsoft.UI.Xaml.DependencyObject
                 xamlType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 44:   //  System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>
+            case 45:   //  System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>
                 userType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType(this, typeName, type, null);
-                userType.StaticInitializer = StaticInitializer_44_IList;
-                userType.CollectionAdd = VectorAdd_44_IList;
+                userType.StaticInitializer = StaticInitializer_45_IList;
+                userType.CollectionAdd = VectorAdd_45_IList;
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 45:   //  Int32
+            case 46:   //  Int32
                 xamlType = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
             }
@@ -901,292 +912,297 @@ namespace FlowerPlayer.FlowerPlayer_XamlTypeInfo
             var that = (global::FlowerPlayer.Controls.WaveformControl)instance;
             that.WaveformData = (global::System.Single[])Value;
         }
-        private object get_8_MicaBackdrop_Kind(object instance)
+        private object get_8_HistoryWindow_ViewModel(object instance)
+        {
+            var that = (global::FlowerPlayer.HistoryWindow)instance;
+            return that.ViewModel;
+        }
+        private object get_9_MicaBackdrop_Kind(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Media.MicaBackdrop)instance;
             return that.Kind;
         }
-        private void set_8_MicaBackdrop_Kind(object instance, object Value)
+        private void set_9_MicaBackdrop_Kind(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Media.MicaBackdrop)instance;
             that.Kind = (global::Microsoft.UI.Composition.SystemBackdrops.MicaKind)Value;
         }
-        private object get_9_MainWindow_ViewModel(object instance)
-        {
-            var that = (global::FlowerPlayer.MainWindow)instance;
-            return that.ViewModel;
-        }
-        private object get_10_MainWindow_TimeFormatConverter(object instance)
-        {
-            var that = (global::FlowerPlayer.MainWindow)instance;
-            return that.TimeFormatConverter;
-        }
-        private object get_11_MenuBar_Items(object instance)
+        private object get_10_MenuBar_Items(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.MenuBar)instance;
             return that.Items;
         }
-        private object get_12_MenuBarItem_Items(object instance)
+        private object get_11_MenuBarItem_Items(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.MenuBarItem)instance;
             return that.Items;
         }
-        private object get_13_MenuBarItem_Title(object instance)
+        private object get_12_MenuBarItem_Title(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.MenuBarItem)instance;
             return that.Title;
         }
-        private void set_13_MenuBarItem_Title(object instance, object Value)
+        private void set_12_MenuBarItem_Title(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.MenuBarItem)instance;
             that.Title = (global::System.String)Value;
         }
-        private object get_14_PlaylistWindow_ViewModel(object instance)
+        private object get_13_MainWindow_ViewModel(object instance)
+        {
+            var that = (global::FlowerPlayer.MainWindow)instance;
+            return that.ViewModel;
+        }
+        private object get_14_MainWindow_TimeFormatConverter(object instance)
+        {
+            var that = (global::FlowerPlayer.MainWindow)instance;
+            return that.TimeFormatConverter;
+        }
+        private object get_15_PlaylistWindow_ViewModel(object instance)
         {
             var that = (global::FlowerPlayer.PlaylistWindow)instance;
             return that.ViewModel;
         }
-        private object get_15_NumberBox_Value(object instance)
+        private object get_16_NumberBox_Value(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.Value;
         }
-        private void set_15_NumberBox_Value(object instance, object Value)
+        private void set_16_NumberBox_Value(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.Value = (global::System.Double)Value;
         }
-        private object get_16_NumberBox_SpinButtonPlacementMode(object instance)
+        private object get_17_NumberBox_SpinButtonPlacementMode(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.SpinButtonPlacementMode;
         }
-        private void set_16_NumberBox_SpinButtonPlacementMode(object instance, object Value)
+        private void set_17_NumberBox_SpinButtonPlacementMode(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.SpinButtonPlacementMode = (global::Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode)Value;
         }
-        private object get_17_NumberBox_SmallChange(object instance)
+        private object get_18_NumberBox_SmallChange(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.SmallChange;
         }
-        private void set_17_NumberBox_SmallChange(object instance, object Value)
+        private void set_18_NumberBox_SmallChange(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.SmallChange = (global::System.Double)Value;
         }
-        private object get_18_NumberBox_LargeChange(object instance)
+        private object get_19_NumberBox_LargeChange(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.LargeChange;
         }
-        private void set_18_NumberBox_LargeChange(object instance, object Value)
+        private void set_19_NumberBox_LargeChange(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.LargeChange = (global::System.Double)Value;
         }
-        private object get_19_NumberBox_Minimum(object instance)
+        private object get_20_NumberBox_Minimum(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.Minimum;
         }
-        private void set_19_NumberBox_Minimum(object instance, object Value)
+        private void set_20_NumberBox_Minimum(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.Minimum = (global::System.Double)Value;
         }
-        private object get_20_NumberBox_AcceptsExpression(object instance)
+        private object get_21_NumberBox_AcceptsExpression(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.AcceptsExpression;
         }
-        private void set_20_NumberBox_AcceptsExpression(object instance, object Value)
+        private void set_21_NumberBox_AcceptsExpression(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.AcceptsExpression = (global::System.Boolean)Value;
         }
-        private object get_21_NumberBox_Description(object instance)
+        private object get_22_NumberBox_Description(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.Description;
         }
-        private void set_21_NumberBox_Description(object instance, object Value)
+        private void set_22_NumberBox_Description(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.Description = (global::System.Object)Value;
         }
-        private object get_22_NumberBox_Header(object instance)
+        private object get_23_NumberBox_Header(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.Header;
         }
-        private void set_22_NumberBox_Header(object instance, object Value)
+        private void set_23_NumberBox_Header(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.Header = (global::System.Object)Value;
         }
-        private object get_23_NumberBox_HeaderTemplate(object instance)
+        private object get_24_NumberBox_HeaderTemplate(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.HeaderTemplate;
         }
-        private void set_23_NumberBox_HeaderTemplate(object instance, object Value)
+        private void set_24_NumberBox_HeaderTemplate(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.HeaderTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
         }
-        private object get_24_NumberBox_IsWrapEnabled(object instance)
+        private object get_25_NumberBox_IsWrapEnabled(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.IsWrapEnabled;
         }
-        private void set_24_NumberBox_IsWrapEnabled(object instance, object Value)
+        private void set_25_NumberBox_IsWrapEnabled(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.IsWrapEnabled = (global::System.Boolean)Value;
         }
-        private object get_25_NumberBox_Maximum(object instance)
+        private object get_26_NumberBox_Maximum(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.Maximum;
         }
-        private void set_25_NumberBox_Maximum(object instance, object Value)
+        private void set_26_NumberBox_Maximum(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.Maximum = (global::System.Double)Value;
         }
-        private object get_26_NumberBox_NumberFormatter(object instance)
+        private object get_27_NumberBox_NumberFormatter(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.NumberFormatter;
         }
-        private void set_26_NumberBox_NumberFormatter(object instance, object Value)
+        private void set_27_NumberBox_NumberFormatter(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.NumberFormatter = (global::Windows.Globalization.NumberFormatting.INumberFormatter2)Value;
         }
-        private object get_27_NumberBox_PlaceholderText(object instance)
+        private object get_28_NumberBox_PlaceholderText(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.PlaceholderText;
         }
-        private void set_27_NumberBox_PlaceholderText(object instance, object Value)
+        private void set_28_NumberBox_PlaceholderText(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.PlaceholderText = (global::System.String)Value;
         }
-        private object get_28_NumberBox_PreventKeyboardDisplayOnProgrammaticFocus(object instance)
+        private object get_29_NumberBox_PreventKeyboardDisplayOnProgrammaticFocus(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.PreventKeyboardDisplayOnProgrammaticFocus;
         }
-        private void set_28_NumberBox_PreventKeyboardDisplayOnProgrammaticFocus(object instance, object Value)
+        private void set_29_NumberBox_PreventKeyboardDisplayOnProgrammaticFocus(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.PreventKeyboardDisplayOnProgrammaticFocus = (global::System.Boolean)Value;
         }
-        private object get_29_NumberBox_SelectionFlyout(object instance)
+        private object get_30_NumberBox_SelectionFlyout(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.SelectionFlyout;
         }
-        private void set_29_NumberBox_SelectionFlyout(object instance, object Value)
+        private void set_30_NumberBox_SelectionFlyout(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.SelectionFlyout = (global::Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase)Value;
         }
-        private object get_30_NumberBox_SelectionHighlightColor(object instance)
+        private object get_31_NumberBox_SelectionHighlightColor(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.SelectionHighlightColor;
         }
-        private void set_30_NumberBox_SelectionHighlightColor(object instance, object Value)
+        private void set_31_NumberBox_SelectionHighlightColor(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.SelectionHighlightColor = (global::Microsoft.UI.Xaml.Media.SolidColorBrush)Value;
         }
-        private object get_31_NumberBox_Text(object instance)
+        private object get_32_NumberBox_Text(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.Text;
         }
-        private void set_31_NumberBox_Text(object instance, object Value)
+        private void set_32_NumberBox_Text(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.Text = (global::System.String)Value;
         }
-        private object get_32_NumberBox_TextReadingOrder(object instance)
+        private object get_33_NumberBox_TextReadingOrder(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.TextReadingOrder;
         }
-        private void set_32_NumberBox_TextReadingOrder(object instance, object Value)
+        private void set_33_NumberBox_TextReadingOrder(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.TextReadingOrder = (global::Microsoft.UI.Xaml.TextReadingOrder)Value;
         }
-        private object get_33_NumberBox_ValidationMode(object instance)
+        private object get_34_NumberBox_ValidationMode(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.ValidationMode;
         }
-        private void set_33_NumberBox_ValidationMode(object instance, object Value)
+        private void set_34_NumberBox_ValidationMode(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.ValidationMode = (global::Microsoft.UI.Xaml.Controls.NumberBoxValidationMode)Value;
         }
-        private object get_34_SettingsWindow_ViewModel(object instance)
+        private object get_35_SettingsWindow_ViewModel(object instance)
         {
             var that = (global::FlowerPlayer.SettingsWindow)instance;
             return that.ViewModel;
         }
-        private object get_35_TreeViewNode_Children(object instance)
+        private object get_36_TreeViewNode_Children(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.Children;
         }
-        private object get_36_TreeViewNode_Content(object instance)
+        private object get_37_TreeViewNode_Content(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.Content;
         }
-        private void set_36_TreeViewNode_Content(object instance, object Value)
+        private void set_37_TreeViewNode_Content(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             that.Content = (global::System.Object)Value;
         }
-        private object get_37_TreeViewNode_Depth(object instance)
+        private object get_38_TreeViewNode_Depth(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.Depth;
         }
-        private object get_38_TreeViewNode_HasChildren(object instance)
+        private object get_39_TreeViewNode_HasChildren(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.HasChildren;
         }
-        private object get_39_TreeViewNode_HasUnrealizedChildren(object instance)
+        private object get_40_TreeViewNode_HasUnrealizedChildren(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.HasUnrealizedChildren;
         }
-        private void set_39_TreeViewNode_HasUnrealizedChildren(object instance, object Value)
+        private void set_40_TreeViewNode_HasUnrealizedChildren(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             that.HasUnrealizedChildren = (global::System.Boolean)Value;
         }
-        private object get_40_TreeViewNode_IsExpanded(object instance)
+        private object get_41_TreeViewNode_IsExpanded(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.IsExpanded;
         }
-        private void set_40_TreeViewNode_IsExpanded(object instance, object Value)
+        private void set_41_TreeViewNode_IsExpanded(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             that.IsExpanded = (global::System.Boolean)Value;
         }
-        private object get_41_TreeViewNode_Parent(object instance)
+        private object get_42_TreeViewNode_Parent(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.Parent;
@@ -1254,235 +1270,241 @@ namespace FlowerPlayer.FlowerPlayer_XamlTypeInfo
                 xamlMember.Getter = get_7_WaveformControl_WaveformData;
                 xamlMember.Setter = set_7_WaveformControl_WaveformData;
                 break;
+            case "FlowerPlayer.HistoryWindow.ViewModel":
+                userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("FlowerPlayer.HistoryWindow");
+                xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "ViewModel", "FlowerPlayer.ViewModels.PlaylistViewModel");
+                xamlMember.Getter = get_8_HistoryWindow_ViewModel;
+                xamlMember.SetIsReadOnly();
+                break;
             case "Microsoft.UI.Xaml.Media.MicaBackdrop.Kind":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Media.MicaBackdrop");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "Kind", "Microsoft.UI.Composition.SystemBackdrops.MicaKind");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_8_MicaBackdrop_Kind;
-                xamlMember.Setter = set_8_MicaBackdrop_Kind;
-                break;
-            case "FlowerPlayer.MainWindow.ViewModel":
-                userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("FlowerPlayer.MainWindow");
-                xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "ViewModel", "FlowerPlayer.ViewModels.MainViewModel");
-                xamlMember.Getter = get_9_MainWindow_ViewModel;
-                xamlMember.SetIsReadOnly();
-                break;
-            case "FlowerPlayer.MainWindow.TimeFormatConverter":
-                userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("FlowerPlayer.MainWindow");
-                xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "TimeFormatConverter", "FlowerPlayer.Converters.TimeConverter");
-                xamlMember.Getter = get_10_MainWindow_TimeFormatConverter;
-                xamlMember.SetIsReadOnly();
+                xamlMember.Getter = get_9_MicaBackdrop_Kind;
+                xamlMember.Setter = set_9_MicaBackdrop_Kind;
                 break;
             case "Microsoft.UI.Xaml.Controls.MenuBar.Items":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.MenuBar");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "Items", "System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.MenuBarItem>");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_11_MenuBar_Items;
+                xamlMember.Getter = get_10_MenuBar_Items;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.MenuBarItem.Items":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.MenuBarItem");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "Items", "System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.MenuFlyoutItemBase>");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_12_MenuBarItem_Items;
+                xamlMember.Getter = get_11_MenuBarItem_Items;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.MenuBarItem.Title":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.MenuBarItem");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "Title", "String");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_13_MenuBarItem_Title;
-                xamlMember.Setter = set_13_MenuBarItem_Title;
+                xamlMember.Getter = get_12_MenuBarItem_Title;
+                xamlMember.Setter = set_12_MenuBarItem_Title;
+                break;
+            case "FlowerPlayer.MainWindow.ViewModel":
+                userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("FlowerPlayer.MainWindow");
+                xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "ViewModel", "FlowerPlayer.ViewModels.MainViewModel");
+                xamlMember.Getter = get_13_MainWindow_ViewModel;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "FlowerPlayer.MainWindow.TimeFormatConverter":
+                userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("FlowerPlayer.MainWindow");
+                xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "TimeFormatConverter", "FlowerPlayer.Converters.TimeConverter");
+                xamlMember.Getter = get_14_MainWindow_TimeFormatConverter;
+                xamlMember.SetIsReadOnly();
                 break;
             case "FlowerPlayer.PlaylistWindow.ViewModel":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("FlowerPlayer.PlaylistWindow");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "ViewModel", "FlowerPlayer.ViewModels.PlaylistViewModel");
-                xamlMember.Getter = get_14_PlaylistWindow_ViewModel;
+                xamlMember.Getter = get_15_PlaylistWindow_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.Value":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "Value", "Double");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_15_NumberBox_Value;
-                xamlMember.Setter = set_15_NumberBox_Value;
+                xamlMember.Getter = get_16_NumberBox_Value;
+                xamlMember.Setter = set_16_NumberBox_Value;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.SpinButtonPlacementMode":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "SpinButtonPlacementMode", "Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_16_NumberBox_SpinButtonPlacementMode;
-                xamlMember.Setter = set_16_NumberBox_SpinButtonPlacementMode;
+                xamlMember.Getter = get_17_NumberBox_SpinButtonPlacementMode;
+                xamlMember.Setter = set_17_NumberBox_SpinButtonPlacementMode;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.SmallChange":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "SmallChange", "Double");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_17_NumberBox_SmallChange;
-                xamlMember.Setter = set_17_NumberBox_SmallChange;
+                xamlMember.Getter = get_18_NumberBox_SmallChange;
+                xamlMember.Setter = set_18_NumberBox_SmallChange;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.LargeChange":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "LargeChange", "Double");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_18_NumberBox_LargeChange;
-                xamlMember.Setter = set_18_NumberBox_LargeChange;
+                xamlMember.Getter = get_19_NumberBox_LargeChange;
+                xamlMember.Setter = set_19_NumberBox_LargeChange;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.Minimum":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "Minimum", "Double");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_19_NumberBox_Minimum;
-                xamlMember.Setter = set_19_NumberBox_Minimum;
+                xamlMember.Getter = get_20_NumberBox_Minimum;
+                xamlMember.Setter = set_20_NumberBox_Minimum;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.AcceptsExpression":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "AcceptsExpression", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_20_NumberBox_AcceptsExpression;
-                xamlMember.Setter = set_20_NumberBox_AcceptsExpression;
+                xamlMember.Getter = get_21_NumberBox_AcceptsExpression;
+                xamlMember.Setter = set_21_NumberBox_AcceptsExpression;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.Description":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "Description", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_21_NumberBox_Description;
-                xamlMember.Setter = set_21_NumberBox_Description;
+                xamlMember.Getter = get_22_NumberBox_Description;
+                xamlMember.Setter = set_22_NumberBox_Description;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.Header":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "Header", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_22_NumberBox_Header;
-                xamlMember.Setter = set_22_NumberBox_Header;
+                xamlMember.Getter = get_23_NumberBox_Header;
+                xamlMember.Setter = set_23_NumberBox_Header;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.HeaderTemplate":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "HeaderTemplate", "Microsoft.UI.Xaml.DataTemplate");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_23_NumberBox_HeaderTemplate;
-                xamlMember.Setter = set_23_NumberBox_HeaderTemplate;
+                xamlMember.Getter = get_24_NumberBox_HeaderTemplate;
+                xamlMember.Setter = set_24_NumberBox_HeaderTemplate;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.IsWrapEnabled":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "IsWrapEnabled", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_24_NumberBox_IsWrapEnabled;
-                xamlMember.Setter = set_24_NumberBox_IsWrapEnabled;
+                xamlMember.Getter = get_25_NumberBox_IsWrapEnabled;
+                xamlMember.Setter = set_25_NumberBox_IsWrapEnabled;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.Maximum":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "Maximum", "Double");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_25_NumberBox_Maximum;
-                xamlMember.Setter = set_25_NumberBox_Maximum;
+                xamlMember.Getter = get_26_NumberBox_Maximum;
+                xamlMember.Setter = set_26_NumberBox_Maximum;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.NumberFormatter":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "NumberFormatter", "Windows.Globalization.NumberFormatting.INumberFormatter2");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_26_NumberBox_NumberFormatter;
-                xamlMember.Setter = set_26_NumberBox_NumberFormatter;
+                xamlMember.Getter = get_27_NumberBox_NumberFormatter;
+                xamlMember.Setter = set_27_NumberBox_NumberFormatter;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.PlaceholderText":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "PlaceholderText", "String");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_27_NumberBox_PlaceholderText;
-                xamlMember.Setter = set_27_NumberBox_PlaceholderText;
+                xamlMember.Getter = get_28_NumberBox_PlaceholderText;
+                xamlMember.Setter = set_28_NumberBox_PlaceholderText;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.PreventKeyboardDisplayOnProgrammaticFocus":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "PreventKeyboardDisplayOnProgrammaticFocus", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_28_NumberBox_PreventKeyboardDisplayOnProgrammaticFocus;
-                xamlMember.Setter = set_28_NumberBox_PreventKeyboardDisplayOnProgrammaticFocus;
+                xamlMember.Getter = get_29_NumberBox_PreventKeyboardDisplayOnProgrammaticFocus;
+                xamlMember.Setter = set_29_NumberBox_PreventKeyboardDisplayOnProgrammaticFocus;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.SelectionFlyout":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "SelectionFlyout", "Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_29_NumberBox_SelectionFlyout;
-                xamlMember.Setter = set_29_NumberBox_SelectionFlyout;
+                xamlMember.Getter = get_30_NumberBox_SelectionFlyout;
+                xamlMember.Setter = set_30_NumberBox_SelectionFlyout;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.SelectionHighlightColor":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "SelectionHighlightColor", "Microsoft.UI.Xaml.Media.SolidColorBrush");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_30_NumberBox_SelectionHighlightColor;
-                xamlMember.Setter = set_30_NumberBox_SelectionHighlightColor;
+                xamlMember.Getter = get_31_NumberBox_SelectionHighlightColor;
+                xamlMember.Setter = set_31_NumberBox_SelectionHighlightColor;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.Text":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "Text", "String");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_31_NumberBox_Text;
-                xamlMember.Setter = set_31_NumberBox_Text;
+                xamlMember.Getter = get_32_NumberBox_Text;
+                xamlMember.Setter = set_32_NumberBox_Text;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.TextReadingOrder":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "TextReadingOrder", "Microsoft.UI.Xaml.TextReadingOrder");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_32_NumberBox_TextReadingOrder;
-                xamlMember.Setter = set_32_NumberBox_TextReadingOrder;
+                xamlMember.Getter = get_33_NumberBox_TextReadingOrder;
+                xamlMember.Setter = set_33_NumberBox_TextReadingOrder;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.ValidationMode":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "ValidationMode", "Microsoft.UI.Xaml.Controls.NumberBoxValidationMode");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_33_NumberBox_ValidationMode;
-                xamlMember.Setter = set_33_NumberBox_ValidationMode;
+                xamlMember.Getter = get_34_NumberBox_ValidationMode;
+                xamlMember.Setter = set_34_NumberBox_ValidationMode;
                 break;
             case "FlowerPlayer.SettingsWindow.ViewModel":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("FlowerPlayer.SettingsWindow");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "ViewModel", "FlowerPlayer.ViewModels.SettingsViewModel");
-                xamlMember.Getter = get_34_SettingsWindow_ViewModel;
+                xamlMember.Getter = get_35_SettingsWindow_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.Children":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "Children", "System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>");
-                xamlMember.Getter = get_35_TreeViewNode_Children;
+                xamlMember.Getter = get_36_TreeViewNode_Children;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.Content":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "Content", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_36_TreeViewNode_Content;
-                xamlMember.Setter = set_36_TreeViewNode_Content;
+                xamlMember.Getter = get_37_TreeViewNode_Content;
+                xamlMember.Setter = set_37_TreeViewNode_Content;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.Depth":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "Depth", "Int32");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_37_TreeViewNode_Depth;
+                xamlMember.Getter = get_38_TreeViewNode_Depth;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.HasChildren":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "HasChildren", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_38_TreeViewNode_HasChildren;
+                xamlMember.Getter = get_39_TreeViewNode_HasChildren;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.HasUnrealizedChildren":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "HasUnrealizedChildren", "Boolean");
-                xamlMember.Getter = get_39_TreeViewNode_HasUnrealizedChildren;
-                xamlMember.Setter = set_39_TreeViewNode_HasUnrealizedChildren;
+                xamlMember.Getter = get_40_TreeViewNode_HasUnrealizedChildren;
+                xamlMember.Setter = set_40_TreeViewNode_HasUnrealizedChildren;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.IsExpanded":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "IsExpanded", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_40_TreeViewNode_IsExpanded;
-                xamlMember.Setter = set_40_TreeViewNode_IsExpanded;
+                xamlMember.Getter = get_41_TreeViewNode_IsExpanded;
+                xamlMember.Setter = set_41_TreeViewNode_IsExpanded;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.Parent":
                 userType = (global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::FlowerPlayer.FlowerPlayer_XamlTypeInfo.XamlMember(this, "Parent", "Microsoft.UI.Xaml.Controls.TreeViewNode");
-                xamlMember.Getter = get_41_TreeViewNode_Parent;
+                xamlMember.Getter = get_42_TreeViewNode_Parent;
                 xamlMember.SetIsReadOnly();
                 break;
             }

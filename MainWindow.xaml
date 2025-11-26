@@ -9,14 +9,15 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="FlowerPlayer Ver 0.0.1.0 (初版)">
+    Title="FlowerPlayer Ver 0.0.2.0 (撥放、歷史清單、波形圖)">
 
     <Window.SystemBackdrop>
         <MicaBackdrop />
     </Window.SystemBackdrop>
 
     <Grid x:Name="RootGrid" AllowDrop="True" DragOver="Grid_DragOver" Drop="Grid_Drop"
-          IsTabStop="True" UseSystemFocusVisuals="False" Loaded="MainWindow_Loaded">
+          IsTabStop="True" UseSystemFocusVisuals="False" Loaded="MainWindow_Loaded"
+            DataContext="{x:Bind ViewModel}">
         <Grid.Resources>
             <converters:BoolToVisConverter x:Key="BoolToVisConverter" />
             <converters:PlayPauseLabelConverter x:Key="PlayPauseLabelConverter" />
@@ -27,6 +28,7 @@
             <RowDefinition Height="Auto" /> <!-- Waveform -->
             <RowDefinition Height="Auto" /> <!-- Timeline -->
             <RowDefinition Height="Auto" /> <!-- Controls -->
+            <RowDefinition Height="Auto" /> <!-- Status Bar -->
         </Grid.RowDefinitions>
 
         <!-- Video Area -->
@@ -39,19 +41,27 @@
 
         <!-- Waveform Area -->
         <Grid Grid.Row="1" Height="60" Visibility="{Binding IsWaveformVisible, Mode=OneWay, Converter={StaticResource BoolToVisConverter}}"
+              Margin="10,0"
               Background="Transparent"
               PointerPressed="MediaArea_PointerPressed">
-            <controls:WaveformControl WaveformData="{x:Bind ViewModel.WaveformData, Mode=OneWay}" IsHitTestVisible="False"/>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="100"/>
+            </Grid.ColumnDefinitions>
+            <controls:WaveformControl x:Name="WaveformControl" Grid.Column="1" Margin="10,0"
+                                     WaveformData="{x:Bind ViewModel.WaveformData, Mode=OneWay}" 
+                                     IsHitTestVisible="False"/>
         </Grid>
 
         <!-- Timeline Control -->
         <Grid Grid.Row="2" Margin="10,5">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="100"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="100"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="{x:Bind FormatTime(ViewModel.CurrentTime), Mode=OneWay}" VerticalAlignment="Center" Width="100" TextAlignment="Right" FontFamily="Consolas, Courier New, Monospace"/>
+            <TextBlock Text="{x:Bind FormatTime(ViewModel.CurrentTime), Mode=OneWay}" VerticalAlignment="Center" TextAlignment="Right" FontFamily="Consolas, Courier New, Monospace"/>
             
             <!-- Custom Range Slider -->
             <controls:RangeSlider x:Name="TimelineSlider" Grid.Column="1" Margin="10,0"
@@ -61,7 +71,7 @@
                                RangeStart="{x:Bind ViewModel.RangeStart, Mode=TwoWay}"
                                RangeEnd="{x:Bind ViewModel.RangeEnd, Mode=TwoWay}"/>
             
-            <TextBlock Grid.Column="2" Text="{x:Bind FormatTime(ViewModel.TotalDuration), Mode=OneWay}" VerticalAlignment="Center" Width="100" TextAlignment="Left" FontFamily="Consolas, Courier New, Monospace"/>
+            <TextBlock Grid.Column="2" Text="{x:Bind FormatTime(ViewModel.TotalDuration), Mode=OneWay}" VerticalAlignment="Center" TextAlignment="Left" FontFamily="Consolas, Courier New, Monospace"/>
         </Grid>
 
         <!-- Controls -->
@@ -71,18 +81,30 @@
                 <Button Content="-1min" Command="{x:Bind ViewModel.SeekBackwardCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
                 <Button Content="上一幀" Command="{x:Bind ViewModel.StepPrevFrameCommand}" IsEnabled="{x:Bind ViewModel.HasVideo, Mode=OneWay}"/>
                 <Button Content="Stop" Command="{x:Bind ViewModel.StopCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
-                <Button Content="{Binding IsPlaying, Mode=OneWay, Converter={StaticResource PlayPauseLabelConverter}}"
+                <Button x:Name="PlayPauseButton"
+                        Content="{Binding IsPlaying, Mode=OneWay, Converter={StaticResource PlayPauseLabelConverter}}"
                         Command="{x:Bind ViewModel.PlayPauseCommand}" Style="{StaticResource AccentButtonStyle}"
                         IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
                 <Button Content="下一幀" Command="{x:Bind ViewModel.StepNextFrameCommand}" IsEnabled="{x:Bind ViewModel.HasVideo, Mode=OneWay}"/>
                 <Button Content="+1min" Command="{x:Bind ViewModel.SeekForwardCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
+                <Button Content="上個檔案" Click="PlayPreviousFile_Click" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
+                <Button Content="下個檔案" Click="PlayNextFile_Click" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
                 <Button Content="開啟檔案" Click="OpenFile_Click"/>
-                <Button Content="撥放清單" Click="OpenPlaylist_Click"/>
+                
+                <!-- MenuBar for Playlist -->
+                <MenuBar VerticalAlignment="Center">
+                    <MenuBarItem Title="選單">
+                        <MenuFlyoutItem Text="設定" Click="OpenSettings_Click"/>
+                        <MenuFlyoutItem Text="播放清單" Click="OpenPlaylist_Click"/>
+                        <MenuFlyoutItem Text="歷史清單" Click="OpenHistory_Click"/>
+                    </MenuBarItem>
+                </MenuBar>
+                
                 <CheckBox Content="循環撥放" IsChecked="{x:Bind ViewModel.IsLooping, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
                 <Button Content="設定起點" Command="{x:Bind ViewModel.SetRangeStartCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
                 <Button Content="設定終點" Command="{x:Bind ViewModel.SetRangeEndCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
                 <ToggleButton Content="快速跳播" IsChecked="{x:Bind ViewModel.IsSmartSkipActive, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
-                <ToggleButton Content="顯示波形" IsChecked="{x:Bind ViewModel.IsWaveformVisible, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
+                <ToggleButton Content="顯示波形" IsChecked="{x:Bind ViewModel.IsWaveformVisible, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsFileLoadedAndNotGeneratingWaveform, Mode=OneWay}"/>
                 <Button Command="{x:Bind ViewModel.ToggleMuteCommand}" Background="Transparent" BorderThickness="0">
                     <FontIcon Glyph="{x:Bind ViewModel.VolumeIcon, Mode=OneWay}"/>
                 </Button>
@@ -90,5 +112,19 @@
                         Value="{x:Bind ViewModel.Volume, Mode=TwoWay}" VerticalAlignment="Center"/>
             </StackPanel>
         </StackPanel>
+        
+        <!-- Status Bar -->
+        <Border Grid.Row="4" Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}" Padding="10,2">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" FontSize="16" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.CurrentFileName, Mode=OneWay}" FontSize="16" VerticalAlignment="Center" TextAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="2" Text="{x:Bind ViewModel.CurrentFileDirectory, Mode=OneWay}" FontSize="16" VerticalAlignment="Center" TextAlignment="Right" TextTrimming="CharacterEllipsis"/>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

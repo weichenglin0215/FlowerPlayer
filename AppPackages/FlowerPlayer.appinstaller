@@ -1,22 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <AppInstaller
 	Uri="file:///C:/3D_prj/VS_2022_WinUI3_prj/FlowerPlayer_Publish/FlowerPlayer.appinstaller"
-	Version="0.1.0.0" xmlns="http://schemas.microsoft.com/appx/appinstaller/2017/2">
+	Version="0.2.0.0" xmlns="http://schemas.microsoft.com/appx/appinstaller/2017/2">
 	<MainBundle
 		Name="97c7633f-09ac-464f-b9b6-da1d535c3995"
-		Version="0.1.0.0"
+		Version="0.2.0.0"
 		Publisher="CN=joey"
-		Uri="file:///C:/3D_prj/VS_2022_WinUI3_prj/FlowerPlayer_Publish/FlowerPlayer_0.1.0.0_Test/FlowerPlayer_0.1.0.0_x64.msixbundle" />
+		Uri="file:///C:/3D_prj/VS_2022_WinUI3_prj/FlowerPlayer_Publish/FlowerPlayer_0.2.0.0_Debug_Test/FlowerPlayer_0.2.0.0_x64_Debug.msixbundle" />
 	<Dependencies>
 		<Package
 			Name="Microsoft.WindowsAppRuntime.1.8"
 			Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
 			ProcessorArchitecture="x64"
-			Uri="file:///C:/3D_prj/VS_2022_WinUI3_prj/FlowerPlayer_Publish/FlowerPlayer_0.1.0.0_Test/Dependencies/x64/Microsoft.WindowsAppRuntime.1.8.msix"
+			Uri="file:///C:/3D_prj/VS_2022_WinUI3_prj/FlowerPlayer_Publish/FlowerPlayer_0.2.0.0_Debug_Test/Dependencies/x64/Microsoft.WindowsAppRuntime.1.8.msix"
 			Version="8000.675.1142.0" />
 	</Dependencies>
 	<UpdateSettings>
 		<OnLaunch
-			HoursBetweenUpdateChecks="0" />
+			HoursBetweenUpdateChecks="8760" />
 	</UpdateSettings>
 </AppInstaller>

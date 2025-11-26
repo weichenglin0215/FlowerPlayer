@@ -35,6 +35,28 @@ namespace FlowerPlayer
         public App()
         {
             InitializeComponent();
+            
+            // Add detailed error handling
+            this.UnhandledException += App_UnhandledException;
+        }
+
+        private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+        {
+            // Log the exception
+            System.Diagnostics.Debug.WriteLine($"========== UNHANDLED EXCEPTION ==========");
+            System.Diagnostics.Debug.WriteLine($"Exception Type: {e.Exception.GetType().Name}");
+            System.Diagnostics.Debug.WriteLine($"Message: {e.Exception.Message}");
+            System.Diagnostics.Debug.WriteLine($"Stack trace: {e.Exception.StackTrace}");
+            
+            if (e.Exception.InnerException != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"Inner Exception: {e.Exception.InnerException.Message}");
+                System.Diagnostics.Debug.WriteLine($"Inner Stack trace: {e.Exception.InnerException.StackTrace}");
+            }
+            System.Diagnostics.Debug.WriteLine($"=========================================");
+            
+            // Mark as handled to prevent crash (for debugging)
+            e.Handled = true;
         }
 
         /// <summary>

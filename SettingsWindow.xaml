@@ -7,7 +7,7 @@
     mc:Ignorable="d"
     Title="Settings">
 
-    <Grid Padding="20">
+    <Grid x:Name="RootGrid" Padding="20" DataContext="{x:Bind ViewModel}">
         <StackPanel Spacing="20">
             <TextBlock Text="General Settings" Style="{StaticResource TitleTextBlockStyle}"/>
             
@@ -16,6 +16,9 @@
             
             <CheckBox Content="Resume Last File" 
                       IsChecked="{x:Bind ViewModel.ResumeLastFile, Mode=TwoWay}"/>
+            
+            <CheckBox Content="依播放清單順序，播放下一個檔案" 
+                      IsChecked="{x:Bind ViewModel.AutoPlayNext, Mode=TwoWay}"/>
             
             <MenuFlyoutSeparator/>
             

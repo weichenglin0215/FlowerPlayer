@@ -7,7 +7,7 @@
     mc:Ignorable="d">
 
     <Grid>
-        <Polyline x:ConnectionId='2' x:Name="WavePolyline" Stroke="Cyan" StrokeThickness="1" Stretch="Fill"/>
+        <Polyline x:ConnectionId='2' x:Name="WavePolyline" Stroke="#00BFFF" StrokeThickness="2" Stretch="Fill"/>
     </Grid>
 </UserControl>
 

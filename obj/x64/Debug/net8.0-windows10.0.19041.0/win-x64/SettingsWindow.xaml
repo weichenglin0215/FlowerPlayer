@@ -7,15 +7,18 @@
     mc:Ignorable="d"
     Title="Settings">
 
-    <Grid Padding="20">
+    <Grid x:ConnectionId='2' x:Name="RootGrid" Padding="20"                                 >
         <StackPanel Spacing="20">
             <TextBlock Text="General Settings" Style="{StaticResource TitleTextBlockStyle}"/>
             
-            <CheckBox x:ConnectionId='2' Content="Auto Play on Open" 
+            <CheckBox x:ConnectionId='3' Content="Auto Play on Open" 
                                                                                 />
             
-            <CheckBox x:ConnectionId='3' Content="Resume Last File" 
+            <CheckBox x:ConnectionId='4' Content="Resume Last File" 
                                                                                 />
+            
+            <CheckBox x:ConnectionId='5' Content="依播放清單順序，播放下一個檔案" 
+                                                                              />
             
             <MenuFlyoutSeparator/>
             
@@ -23,12 +26,12 @@
             
             <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto" RowSpacing="10">
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Play Duration (seconds):" VerticalAlignment="Center"/>
-                <NumberBox x:ConnectionId='4' Grid.Row="0" Grid.Column="1" Width="100" 
+                <NumberBox x:ConnectionId='6' Grid.Row="0" Grid.Column="1" Width="100" 
                                                                                         
                            SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="1"/>
 
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Skip Duration (seconds):" VerticalAlignment="Center"/>
-                <NumberBox x:ConnectionId='5' Grid.Row="1" Grid.Column="1" Width="100" 
+                <NumberBox x:ConnectionId='7' Grid.Row="1" Grid.Column="1" Width="100" 
                                                                                         
                            SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="1"/>
             </Grid>

@@ -13,9 +13,11 @@ using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using FlowerPlayer.ViewModels;
+using Windows.Storage;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
 using Microsoft.UI.Dispatching;
+using FlowerPlayer.Helpers;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -31,13 +33,29 @@ namespace FlowerPlayer
         public Converters.TimeConverter TimeFormatConverter { get; } = new Converters.TimeConverter();
         private DispatcherTimer _positionTimer;
         private PlaylistWindow _playlistWindow = null;
+        private HistoryWindow _historyWindow = null;
+        private SettingsWindow _settingsWindow = null;
 
         public MainWindow()
         {
             this.InitializeComponent();
             
             ViewModel = new MainViewModel();
+            ViewModel.XamlRoot = RootGrid.XamlRoot;
             RootGrid.DataContext = ViewModel;
+            
+            // 設置主視窗預設尺寸為1600*800
+            try
+            {
+                var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+                var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+                var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+                appWindow.Resize(new Windows.Graphics.SizeInt32(1600, 800));
+            }
+            catch { }
+            
+            // 註冊窗口關閉事件，關閉時一併關閉其他視窗
+            this.Closed += MainWindow_Closed;
             
             // 註冊鍵盤事件處理到 RootGrid
             RootGrid.KeyDown += MainWindow_KeyDown;
@@ -49,6 +67,9 @@ namespace FlowerPlayer
             
             // Connect MediaPlayer
             PlayerElement.SetMediaPlayer(ViewModel.MediaService.Player);
+            
+            // 設置 ViewModel 的 XamlRoot（用於顯示對話框）
+            ViewModel.XamlRoot = RootGrid.XamlRoot;
             
             // Connect events with DispatcherQueue for thread-safe UI updates
             var dispatcherQueue = DispatcherQueue;
@@ -67,6 +88,29 @@ namespace FlowerPlayer
                 dispatcherQueue.TryEnqueue(() =>
                 {
                     ViewModel.IsPlaying = state == Services.MediaState.Playing;
+
+                    // 更新播放按鈕文字（確保顯示正確）
+                    if (PlayPauseButton != null)
+                    {
+                        PlayPauseButton.Content = ViewModel.IsPlaying ? "暫停" : "播放";
+                    }
+
+                    // 更新狀態列第一欄（播放狀態）
+                    if (state == Services.MediaState.Playing)
+                    {
+                        ViewModel.StatusMessage = "正在播放";
+                        _positionTimer.Start();
+                    }
+                    else if (state == Services.MediaState.Paused)
+                    {
+                        ViewModel.StatusMessage = "已暫停";
+                        _positionTimer.Stop();
+                    }
+                    else
+                    {
+                        ViewModel.StatusMessage = "已停止";
+                        _positionTimer.Stop();
+                    }
 
                     // Start/stop position timer based on playback state
                     if (state == Services.MediaState.Playing)
@@ -90,9 +134,32 @@ namespace FlowerPlayer
                     ViewModel.WindowTitle = $"FlowerPlayer - {file.Name}";
                     ViewModel.HasVideo = ViewModel.MediaService.HasVideo;
                     ViewModel.IsFileLoaded = true;
-                    ViewModel.GenerateWaveform(file);
+                    
+                    // 重置顯示波形按鈕（不清空緩存的波形數據）
+                    ViewModel.IsWaveformVisible = false;
+                    
                     // Update converter frame rate
                     TimeFormatConverter.FrameRate = fps;
+                    
+                    // 更新狀態列
+                    ViewModel.StatusMessage = "已開啟";
+                    ViewModel.CurrentFileName = file.Name;
+                    ViewModel.CurrentFileDirectory = System.IO.Path.GetDirectoryName(file.Path) ?? string.Empty;
+                    
+                    // Add to history
+                    Services.LocalSettingsService.AddHistoryPath(file.Path);
+                    
+                    // Refresh history window if it's open
+                    if (_historyWindow != null)
+                    {
+                        _historyWindow.Refresh();
+                    }
+                    
+                    // 在播放清單中選擇當前文件
+                    if (_playlistWindow != null)
+                    {
+                        _playlistWindow.SelectFileByPath(file.Path);
+                    }
                 });
             };
 
@@ -113,6 +180,20 @@ namespace FlowerPlayer
                     ViewModel.SliderPosition = 0;
                     ViewModel.CurrentTime = TimeSpan.Zero;
                 });
+            };
+
+            ViewModel.MediaService.MediaEnded += (s, e) =>
+            {
+                System.Diagnostics.Debug.WriteLine($"MediaEnded event triggered. AutoPlayNext: {Services.LocalSettingsService.AutoPlayNext}, IsLooping: {ViewModel.IsLooping}, PlaylistWindow: {_playlistWindow != null}");
+                
+                // 如果啟用了自動播放下一個檔案，且未啟用循環播放，則播放下一個檔案
+                if (Services.LocalSettingsService.AutoPlayNext && !ViewModel.IsLooping && _playlistWindow != null)
+                {
+                    dispatcherQueue.TryEnqueue(() =>
+                    {
+                        _ = PlayNextFileInPlaylist();
+                    });
+                }
             };
             
             // Connect slider value changing event to seek media
@@ -147,10 +228,12 @@ namespace FlowerPlayer
         {
             var picker = new FileOpenPicker();
             picker.SuggestedStartLocation = PickerLocationId.VideosLibrary;
-            picker.FileTypeFilter.Add(".mp4");
-            picker.FileTypeFilter.Add(".mp3");
-            picker.FileTypeFilter.Add(".mkv");
-            picker.FileTypeFilter.Add(".avi");
+            
+            // 添加所有支援的媒體檔案格式
+            foreach (var ext in MediaFileHelper.AllMediaExtensions)
+            {
+                picker.FileTypeFilter.Add(ext);
+            }
 
             // Initialize the picker with the window handle
             InitializeWithWindow.Initialize(picker, WindowNative.GetWindowHandle(this));
@@ -158,7 +241,18 @@ namespace FlowerPlayer
             var file = await picker.PickSingleFileAsync();
             if (file != null)
             {
-                ViewModel.OpenFile(file);
+                    // 檢查是否為媒體檔案
+                    if (MediaFileHelper.IsMediaFile(file))
+                    {
+                        ViewModel.StatusMessage = "正在開啟";
+                        ViewModel.OpenFile(file);
+                    }
+                    else
+                    {
+                        ViewModel.StatusMessage = $"錯誤: {file.Name} 不是支援的媒體檔案格式";
+                        ViewModel.CurrentFileName = file.Name;
+                        ViewModel.CurrentFileDirectory = System.IO.Path.GetDirectoryName(file.Path) ?? string.Empty;
+                    }
             }
         }
 
@@ -168,6 +262,7 @@ namespace FlowerPlayer
             if (_playlistWindow == null)
             {
                 _playlistWindow = new PlaylistWindow(ViewModel.MediaService);
+                _playlistWindow.UpdateStatus = msg => ViewModel.StatusMessage = msg;
                 _playlistWindow.Closed += (s, args) => _playlistWindow = null;
                 _playlistWindow.Activate();
             }
@@ -178,9 +273,44 @@ namespace FlowerPlayer
             }
         }
 
+        private void OpenHistory_Click(object sender, RoutedEventArgs e)
+        {
+            // 確保只有一個歷史清單視窗
+            if (_historyWindow == null)
+            {
+                _historyWindow = new HistoryWindow(ViewModel.MediaService);
+                _historyWindow.UpdateStatus = msg => ViewModel.StatusMessage = msg;
+                _historyWindow.Closed += (s, args) => _historyWindow = null;
+                _historyWindow.Activate();
+            }
+            else
+            {
+                // 如果視窗已經存在，則將焦點設置到該視窗
+                _historyWindow.Activate();
+            }
+        }
+
+        private void OpenSettings_Click(object sender, RoutedEventArgs e)
+        {
+            // 確保只有一個設定視窗
+            if (_settingsWindow == null)
+            {
+                _settingsWindow = new SettingsWindow();
+                _settingsWindow.Closed += (s, args) => _settingsWindow = null;
+                _settingsWindow.Activate();
+            }
+            else
+            {
+                // 如果視窗已經存在，則將焦點設置到該視窗
+                _settingsWindow.Activate();
+            }
+        }
+
         private void Grid_DragOver(object sender, DragEventArgs e)
         {
             e.AcceptedOperation = Windows.ApplicationModel.DataTransfer.DataPackageOperation.Copy;
+            ViewModel.StatusMessage = "拖曳檔案到此處以開啟";
+            // 不清除文件名和目录，保持显示当前文件信息
         }
 
         private void PositionTimer_Tick(object sender, object e)
@@ -198,7 +328,18 @@ namespace FlowerPlayer
                 var items = await e.DataView.GetStorageItemsAsync();
                 if (items.Count > 0 && items[0] is Windows.Storage.StorageFile file)
                 {
-                    ViewModel.OpenFile(file);
+                    // 檢查是否為媒體檔案
+                    if (MediaFileHelper.IsMediaFile(file))
+                    {
+                        ViewModel.StatusMessage = "正在開啟";
+                        ViewModel.OpenFile(file);
+                    }
+                    else
+                    {
+                        ViewModel.StatusMessage = $"錯誤: {file.Name} 不是支援的媒體檔案格式";
+                        ViewModel.CurrentFileName = file.Name;
+                        ViewModel.CurrentFileDirectory = System.IO.Path.GetDirectoryName(file.Path) ?? string.Empty;
+                    }
                 }
             }
         }
@@ -214,6 +355,14 @@ namespace FlowerPlayer
                 // 為了避免與拖曳衝突，這裡不設置 e.Handled = true，除非確定只是點擊
                 // 但對於簡單的播放暫停，通常可以接受
             }
+        }
+
+        private void MainWindow_Closed(object sender, WindowEventArgs args)
+        {
+            // 關閉所有子視窗
+            _playlistWindow?.Close();
+            _historyWindow?.Close();
+            _settingsWindow?.Close();
         }
 
         private void MainWindow_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -242,6 +391,14 @@ namespace FlowerPlayer
                         }
                         break;
                 }
+                return;
+            }
+
+            // SHIFT+DEL: 刪除當前檔案
+            if (isShiftPressed && e.Key == Windows.System.VirtualKey.Delete)
+            {
+                _ = DeleteCurrentFile();
+                e.Handled = true;
                 return;
             }
 
@@ -300,6 +457,246 @@ namespace FlowerPlayer
                         e.Handled = true;
                     }
                     break;
+            }
+        }
+
+        private async void PlayPreviousFile_Click(object sender, RoutedEventArgs e)
+        {
+            await PlayPreviousFile();
+        }
+
+        private async void PlayNextFile_Click(object sender, RoutedEventArgs e)
+        {
+            await PlayNextFile();
+        }
+
+        private async System.Threading.Tasks.Task PlayPreviousFile()
+        {
+            try
+            {
+                var currentFile = ViewModel.MediaService.CurrentFile;
+                if (currentFile == null) return;
+
+                string? targetPath = null;
+
+                // 優先從播放清單中獲取
+                if (_playlistWindow != null)
+                {
+                    targetPath = _playlistWindow.GetPreviousFilePath(currentFile.Path);
+                }
+
+                // 如果播放清單中沒有，從目錄中獲取
+                if (string.IsNullOrEmpty(targetPath))
+                {
+                    targetPath = await GetPreviousFileInDirectory(currentFile);
+                }
+
+                if (!string.IsNullOrEmpty(targetPath))
+                {
+                    var file = await StorageFile.GetFileFromPathAsync(targetPath);
+                    ViewModel.StatusMessage = "正在播放上一個檔案";
+                    ViewModel.OpenFile(file);
+                    if (Services.LocalSettingsService.AutoPlayOnOpen)
+                    {
+                        ViewModel.MediaService.Play();
+                    }
+                }
+                else
+                {
+                    ViewModel.StatusMessage = "沒有上一個媒體檔案";
+                    ViewModel.MediaService.Stop();
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewModel.StatusMessage = $"播放上一個檔案錯誤: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine($"MainWindow - PlayPreviousFile error: {ex.Message}");
+            }
+        }
+
+        private async System.Threading.Tasks.Task PlayNextFile()
+        {
+            try
+            {
+                var currentFile = ViewModel.MediaService.CurrentFile;
+                if (currentFile == null) return;
+
+                string? targetPath = null;
+
+                // 優先從播放清單中獲取
+                if (_playlistWindow != null)
+                {
+                    targetPath = _playlistWindow.GetNextFilePath(currentFile.Path);
+                }
+
+                // 如果播放清單中沒有，從目錄中獲取
+                if (string.IsNullOrEmpty(targetPath))
+                {
+                    targetPath = await GetNextFileInDirectory(currentFile);
+                }
+
+                if (!string.IsNullOrEmpty(targetPath))
+                {
+                    var file = await StorageFile.GetFileFromPathAsync(targetPath);
+                    ViewModel.StatusMessage = "正在播放下一個檔案";
+                    ViewModel.OpenFile(file);
+                    if (Services.LocalSettingsService.AutoPlayOnOpen)
+                    {
+                        ViewModel.MediaService.Play();
+                    }
+                }
+                else
+                {
+                    ViewModel.StatusMessage = "沒有下一個媒體檔案";
+                    ViewModel.MediaService.Stop();
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewModel.StatusMessage = $"播放下一個檔案錯誤: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine($"MainWindow - PlayNextFile error: {ex.Message}");
+            }
+        }
+
+        private async System.Threading.Tasks.Task<string?> GetPreviousFileInDirectory(StorageFile currentFile)
+        {
+            try
+            {
+                var folder = await currentFile.GetParentAsync();
+                var files = await folder.GetFilesAsync();
+                
+                // 過濾媒體檔案並排序
+                var mediaFiles = files
+                    .Where(f => MediaFileHelper.IsMediaFile(f))
+                    .OrderBy(f => f.Name)
+                    .ToList();
+
+                var currentIndex = mediaFiles.FindIndex(f => f.Path.Equals(currentFile.Path, StringComparison.OrdinalIgnoreCase));
+                
+                if (currentIndex > 0)
+                {
+                    return mediaFiles[currentIndex - 1].Path;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"GetPreviousFileInDirectory error: {ex.Message}");
+            }
+            return null;
+        }
+
+        private async System.Threading.Tasks.Task<string?> GetNextFileInDirectory(StorageFile currentFile)
+        {
+            try
+            {
+                var folder = await currentFile.GetParentAsync();
+                var files = await folder.GetFilesAsync();
+                
+                // 過濾媒體檔案並排序
+                var mediaFiles = files
+                    .Where(f => MediaFileHelper.IsMediaFile(f))
+                    .OrderBy(f => f.Name)
+                    .ToList();
+
+                var currentIndex = mediaFiles.FindIndex(f => f.Path.Equals(currentFile.Path, StringComparison.OrdinalIgnoreCase));
+                
+                if (currentIndex >= 0 && currentIndex < mediaFiles.Count - 1)
+                {
+                    return mediaFiles[currentIndex + 1].Path;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"GetNextFileInDirectory error: {ex.Message}");
+            }
+            return null;
+        }
+
+        private async System.Threading.Tasks.Task DeleteCurrentFile()
+        {
+            var currentFile = ViewModel.MediaService.CurrentFile;
+            if (currentFile == null)
+            {
+                ViewModel.StatusMessage = "沒有正在播放的檔案";
+                return;
+            }
+
+            // 顯示確認對話框
+            var dialog = new ContentDialog
+            {
+                Title = "確認刪除",
+                Content = $"確定要將檔案「{currentFile.Name}」移至資源回收桶嗎？",
+                PrimaryButtonText = "確定",
+                SecondaryButtonText = "取消",
+                XamlRoot = this.Content.XamlRoot
+            };
+
+            var result = await dialog.ShowAsync();
+            if (result != ContentDialogResult.Primary) return;
+
+            try
+            {
+                // 從播放清單中移除（如果存在）
+                if (_playlistWindow != null)
+                {
+                    _playlistWindow.RemoveFileByPath(currentFile.Path);
+                }
+
+                // 刪除檔案
+                await currentFile.DeleteAsync(StorageDeleteOption.Default);
+                
+                ViewModel.StatusMessage = $"已將「{currentFile.Name}」移至資源回收桶";
+                
+                // 停止播放
+                ViewModel.MediaService.Stop();
+                ViewModel.IsFileLoaded = false;
+                ViewModel.WindowTitle = "FlowerPlayer";
+            }
+            catch (Exception ex)
+            {
+                ViewModel.StatusMessage = $"刪除檔案錯誤: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine($"DeleteCurrentFile error: {ex.Message}");
+            }
+        }
+
+        private async System.Threading.Tasks.Task PlayNextFileInPlaylist()
+        {
+            if (_playlistWindow == null)
+            {
+                System.Diagnostics.Debug.WriteLine("PlayNextFileInPlaylist: PlaylistWindow is null");
+                return;
+            }
+
+            try
+            {
+                // 獲取當前播放的文件路徑
+                var currentFile = ViewModel.MediaService.CurrentFile;
+                string currentPath = currentFile?.Path;
+                System.Diagnostics.Debug.WriteLine($"PlayNextFileInPlaylist: Current path = {currentPath}");
+
+                // 使用 PlaylistWindow 的公共方法獲取下一個文件路徑
+                string nextPath = _playlistWindow.GetNextFilePath(currentPath);
+                System.Diagnostics.Debug.WriteLine($"PlayNextFileInPlaylist: Next path = {nextPath}");
+
+                // 如果找到下一個文件，播放它
+                if (!string.IsNullOrEmpty(nextPath))
+                {
+                    var file = await StorageFile.GetFileFromPathAsync(nextPath);
+                    ViewModel.OpenFile(file);
+                    if (Services.LocalSettingsService.AutoPlayOnOpen)
+                    {
+                        ViewModel.MediaService.Play();
+                    }
+                    System.Diagnostics.Debug.WriteLine($"PlayNextFileInPlaylist: Playing next file: {file.Name}");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("PlayNextFileInPlaylist: No next file found");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"MainWindow - PlayNextFileInPlaylist error: {ex.Message}");
             }
         }
 
