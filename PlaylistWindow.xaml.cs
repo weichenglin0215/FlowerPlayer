@@ -91,6 +91,11 @@ namespace FlowerPlayer
         // ---------------------------------------------------------------------
         // Double‑tap a row to play the file in the main window (referenced as PlaylistListView_DoubleTapped)
         // ---------------------------------------------------------------------
+        public Action<StorageFile> OpenFileAction { get; set; }
+
+        // ---------------------------------------------------------------------
+        // Double‑tap a row to play the file in the main window (referenced as PlaylistListView_DoubleTapped)
+        // ---------------------------------------------------------------------
         private async void PlaylistListView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
             // Find the Grid row that was double‑tapped
@@ -105,8 +110,16 @@ namespace FlowerPlayer
                 try
                 {
                     var file = await StorageFile.GetFileFromPathAsync(path);
-                    _mediaService.Open(file);
-                    _mediaService.Play();
+                    
+                    if (OpenFileAction != null)
+                    {
+                        OpenFileAction(file);
+                    }
+                    else
+                    {
+                        _mediaService.Open(file);
+                        _mediaService.Play();
+                    }
                     
                     // 更新主窗口狀態列
                     UpdateStatus?.Invoke($"Playlist: 正在播放 {file.Name}");
@@ -163,11 +176,27 @@ namespace FlowerPlayer
             var selected = new List<object>(PlaylistListView.SelectedItems);
             if (selected.Count == 0) return;
 
+            // Build file list string for dialog
+            var fileNames = new System.Text.StringBuilder();
+            int displayCount = 0;
+            foreach (var item in selected)
+            {
+                if (item is Grid row && row.Children.Count > 0 && row.Children[0] is TextBlock tb)
+                {
+                     if (displayCount < 10)
+                     {
+                         fileNames.AppendLine($"- {tb.Text}");
+                     }
+                     displayCount++;
+                }
+            }
+            if (displayCount > 10) fileNames.AppendLine($"... 以及其他 {displayCount - 10} 個檔案");
+
             // 顯示確認對話框
             var dialog = new ContentDialog
             {
-                Title = "確認刪除",
-                Content = $"確定要將選取的 {selected.Count} 個檔案移至資源回收桶嗎？",
+                Title = "確認刪除實體檔案",
+                Content = $"確定要將以下 {selected.Count} 個檔案移至資源回收桶嗎？\n\n{fileNames}",
                 PrimaryButtonText = "確定",
                 SecondaryButtonText = "取消",
                 XamlRoot = this.Content.XamlRoot
@@ -175,6 +204,65 @@ namespace FlowerPlayer
 
             var result = await dialog.ShowAsync();
             if (result != ContentDialogResult.Primary) return;
+
+            // Check if current file is in selected list
+            string currentPath = _mediaService.CurrentFile?.Path;
+            bool isPlayingSelected = false;
+            string nextPathToPlay = null;
+
+            if (!string.IsNullOrEmpty(currentPath))
+            {
+                foreach (var item in selected)
+                {
+                     if (item is Grid row && row.Tag is string path && path.Equals(currentPath, StringComparison.OrdinalIgnoreCase))
+                     {
+                         isPlayingSelected = true;
+                         break;
+                     }
+                }
+            }
+
+            // If playing file is selected, handle stop and find next
+            if (isPlayingSelected)
+            {
+                // Find next file that is NOT in the deletion list
+                if (Services.LocalSettingsService.AutoPlayNext)
+                {
+                    // Simple approach: Get next from current, check if in selected, if so, get next again
+                    string tempCurrent = currentPath;
+                    int maxTries = PlaylistListView.Items.Count;
+                    for(int i=0; i<maxTries; i++)
+                    {
+                        string next = GetNextFilePath(tempCurrent);
+                        if (string.IsNullOrEmpty(next) || next == tempCurrent) 
+                        {
+                            nextPathToPlay = null;
+                            break;
+                        }
+                        
+                        // Check if 'next' is in selected list
+                        bool isNextSelected = false;
+                        foreach (var item in selected)
+                        {
+                            if (item is Grid row && row.Tag is string path && path.Equals(next, StringComparison.OrdinalIgnoreCase))
+                            {
+                                isNextSelected = true;
+                                break;
+                            }
+                        }
+
+                        if (!isNextSelected)
+                        {
+                            nextPathToPlay = next;
+                            break;
+                        }
+                        tempCurrent = next;
+                    }
+                }
+
+                // Stop and Close to release handle
+                _mediaService.Close();
+            }
 
             // 刪除檔案
             int deletedCount = 0;
@@ -208,6 +296,20 @@ namespace FlowerPlayer
             if (deletedCount > 0)
             {
                 UpdateStatus?.Invoke($"Playlist: 已刪除 {deletedCount} 個實體檔案");
+            }
+
+            // Play next file if needed
+            if (isPlayingSelected && !string.IsNullOrEmpty(nextPathToPlay) && OpenFileAction != null)
+            {
+                try
+                {
+                    var nextFile = await StorageFile.GetFileFromPathAsync(nextPathToPlay);
+                    OpenFileAction(nextFile);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"PlaylistWindow - Failed to play next after delete: {ex.Message}");
+                }
             }
         }
 

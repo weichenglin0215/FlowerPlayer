@@ -9,28 +9,37 @@
 
     <Grid x:Name="RootGrid" Padding="20" DataContext="{x:Bind ViewModel}">
         <StackPanel Spacing="20">
-            <TextBlock Text="General Settings" Style="{StaticResource TitleTextBlockStyle}"/>
+            <TextBlock Text="設定" Style="{StaticResource TitleTextBlockStyle}"/>
             
-            <CheckBox Content="Auto Play on Open" 
+            <CheckBox Content="自動播放" 
                       IsChecked="{x:Bind ViewModel.AutoPlayOnOpen, Mode=TwoWay}"/>
             
-            <CheckBox Content="Resume Last File" 
+            <CheckBox Content="自行開啟上一次檔案" 
                       IsChecked="{x:Bind ViewModel.ResumeLastFile, Mode=TwoWay}"/>
             
             <CheckBox Content="依播放清單順序，播放下一個檔案" 
                       IsChecked="{x:Bind ViewModel.AutoPlayNext, Mode=TwoWay}"/>
+
+            <MenuFlyoutSeparator/>
+
+            <Grid ColumnDefinitions="*, Auto" RowSpacing="10">
+                <TextBlock Grid.Column="0" Text="跳過影片前面秒數：" VerticalAlignment="Center"/>
+                <NumberBox Grid.Column="1" Width="100" 
+                           Value="{x:Bind ViewModel.SkipStartSeconds, Mode=TwoWay}"
+                           SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="10" Minimum="0"/>
+            </Grid>
             
             <MenuFlyoutSeparator/>
             
-            <TextBlock Text="Smart Skip Settings" Style="{StaticResource SubtitleTextBlockStyle}"/>
+            <TextBlock Text="快速跳播設定，播放時會跳躍式前進" Style="{StaticResource SubtitleTextBlockStyle}"/>
             
             <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto" RowSpacing="10">
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Play Duration (seconds):" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="播放秒數:" VerticalAlignment="Center"/>
                 <NumberBox Grid.Row="0" Grid.Column="1" Width="100" 
                            Value="{x:Bind ViewModel.SmartSkipPlayDuration, Mode=TwoWay}"
                            SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="1"/>
 
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="Skip Duration (seconds):" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="跳過秒數:" VerticalAlignment="Center"/>
                 <NumberBox Grid.Row="1" Grid.Column="1" Width="100" 
                            Value="{x:Bind ViewModel.SmartSkipSkipDuration, Mode=TwoWay}"
                            SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="1"/>

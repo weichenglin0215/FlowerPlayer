@@ -69,6 +69,7 @@ namespace FlowerPlayer.Services
         public const string KeyLastFilePath = "LastFilePath";
         public const string KeyHistoryPaths = "HistoryPaths";
         public const string KeyAutoPlayNext = "AutoPlayNext";
+        public const string KeySkipStartSeconds = "SkipStartSeconds";
 
         // Default Values
         public static bool AutoPlayOnOpen
@@ -111,6 +112,12 @@ namespace FlowerPlayer.Services
         {
             get => GetSetting(KeyAutoPlayNext, false);
             set => SaveSetting(KeyAutoPlayNext, value);
+        }
+
+        public static double SkipStartSeconds
+        {
+            get => GetSetting(KeySkipStartSeconds, 0.0);
+            set => SaveSetting(KeySkipStartSeconds, value);
         }
 
         // History paths (最多保存50条)

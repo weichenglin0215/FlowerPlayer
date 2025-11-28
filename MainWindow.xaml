@@ -9,7 +9,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="FlowerPlayer Ver 0.0.2.0 (撥放、歷史清單、波形圖)">
+    Title="FlowerPlayer Ver 0.0.2.1 (撥放、歷史清單、波形圖)">
 
     <Window.SystemBackdrop>
         <MicaBackdrop />
@@ -75,20 +75,20 @@
         </Grid>
 
         <!-- Controls -->
-        <StackPanel Grid.Row="3" Orientation="Vertical" HorizontalAlignment="Center" Margin="0,10,0,20" Spacing="10">
+        <StackPanel Grid.Row="3" Orientation="Vertical" HorizontalAlignment="Center" Margin="0,5,0,5" Spacing="10">
             <!-- Main Controls -->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
-                <Button Content="-1min" Command="{x:Bind ViewModel.SeekBackwardCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
-                <Button Content="上一幀" Command="{x:Bind ViewModel.StepPrevFrameCommand}" IsEnabled="{x:Bind ViewModel.HasVideo, Mode=OneWay}"/>
-                <Button Content="Stop" Command="{x:Bind ViewModel.StopCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
+                <Button Content="＜分" Command="{x:Bind ViewModel.SeekBackwardCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
+                <Button Content="＜幀" Command="{x:Bind ViewModel.StepPrevFrameCommand}" IsEnabled="{x:Bind ViewModel.HasVideo, Mode=OneWay}"/>
+                <Button Content="停止" Command="{x:Bind ViewModel.StopCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
                 <Button x:Name="PlayPauseButton"
                         Content="{Binding IsPlaying, Mode=OneWay, Converter={StaticResource PlayPauseLabelConverter}}"
                         Command="{x:Bind ViewModel.PlayPauseCommand}" Style="{StaticResource AccentButtonStyle}"
                         IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
-                <Button Content="下一幀" Command="{x:Bind ViewModel.StepNextFrameCommand}" IsEnabled="{x:Bind ViewModel.HasVideo, Mode=OneWay}"/>
-                <Button Content="+1min" Command="{x:Bind ViewModel.SeekForwardCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
-                <Button Content="上個檔案" Click="PlayPreviousFile_Click" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
-                <Button Content="下個檔案" Click="PlayNextFile_Click" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
+                <Button Content="幀＞" Command="{x:Bind ViewModel.StepNextFrameCommand}" IsEnabled="{x:Bind ViewModel.HasVideo, Mode=OneWay}"/>
+                <Button Content="分＞" Command="{x:Bind ViewModel.SeekForwardCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
+                <Button Content="上個檔" Click="PlayPreviousFile_Click" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
+                <Button Content="下個檔" Click="PlayNextFile_Click" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
                 <Button Content="開啟檔案" Click="OpenFile_Click"/>
                 
                 <!-- MenuBar for Playlist -->

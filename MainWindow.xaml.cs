@@ -98,17 +98,28 @@ namespace FlowerPlayer
                     // 更新狀態列第一欄（播放狀態）
                     if (state == Services.MediaState.Playing)
                     {
-                        ViewModel.StatusMessage = "正在播放";
+                        ViewModel.StatusMessage = GetStatusMessageWithSkipInfo("正在播放");
                         _positionTimer.Start();
                     }
                     else if (state == Services.MediaState.Paused)
                     {
-                        ViewModel.StatusMessage = "已暫停";
+                        if (ViewModel.MediaService.IsStopped)
+                        {
+                            ViewModel.StatusMessage = "已停止播放";
+                        }
+                        else
+                        {
+                            ViewModel.StatusMessage = GetStatusMessageWithSkipInfo("已暫停");
+                        }
                         _positionTimer.Stop();
                     }
                     else
                     {
-                        ViewModel.StatusMessage = "已停止";
+                        // 只有在檔案已載入時才顯示"已停止"，避免覆蓋"無法正常開啟..."等錯誤訊息
+                        if (ViewModel.MediaService.CurrentFile != null && ViewModel.StatusMessage != "無法正常開啟媒體檔案")
+                        {
+                            ViewModel.StatusMessage = "已停止";
+                        }
                         _positionTimer.Stop();
                     }
 
@@ -126,6 +137,24 @@ namespace FlowerPlayer
             
             ViewModel.MediaService.MediaOpened += async (s, file) =>
             {
+                if (file == null)
+                {
+                    dispatcherQueue.TryEnqueue(() =>
+                    {
+                        ViewModel.IsFileLoaded = false;
+                        ViewModel.WindowTitle = "FlowerPlayer";
+                        ViewModel.CurrentFileName = string.Empty;
+                        ViewModel.CurrentFileDirectory = string.Empty;
+                        ViewModel.TotalDuration = TimeSpan.Zero;
+                        ViewModel.CurrentTime = TimeSpan.Zero;
+                        ViewModel.SliderPosition = 0;
+                        ViewModel.WaveformData = null;
+                        ViewModel.HasVideo = false;
+                        // ViewModel.StatusMessage = "已清除"; // Optional
+                    });
+                    return;
+                }
+
                 // Get frame rate
                 var fps = await ViewModel.MediaService.GetFrameRateAsync();
                 
@@ -176,9 +205,27 @@ namespace FlowerPlayer
                     // Ensure the visual representation updates correctly
                     TimelineSlider.RangeEnd = duration.TotalSeconds;
                     
-                    ViewModel.RangeStart = 0;
-                    ViewModel.SliderPosition = 0;
-                    ViewModel.CurrentTime = TimeSpan.Zero;
+                    // 應用跳過前面秒數的設置
+                    double skipSeconds = Services.LocalSettingsService.SkipStartSeconds;
+                    if (skipSeconds > 0 && skipSeconds < duration.TotalSeconds)
+                    {
+                        ViewModel.MediaService.Position = TimeSpan.FromSeconds(skipSeconds);
+                        ViewModel.RangeStart = skipSeconds;
+                        ViewModel.SliderPosition = skipSeconds;
+                        ViewModel.CurrentTime = TimeSpan.FromSeconds(skipSeconds);
+                        
+                        // Sync Smart Skip start to the new position
+                        if (ViewModel.IsSmartSkipActive)
+                        {
+                            ViewModel.SyncSmartSkipStart();
+                        }
+                    }
+                    else
+                    {
+                        ViewModel.RangeStart = 0;
+                        ViewModel.SliderPosition = 0;
+                        ViewModel.CurrentTime = TimeSpan.Zero;
+                    }
                 });
             };
 
@@ -195,11 +242,26 @@ namespace FlowerPlayer
                     });
                 }
             };
+
+            ViewModel.MediaService.MediaFailed += (s, args) =>
+            {
+                 dispatcherQueue.TryEnqueue(() =>
+                 {
+                     System.Diagnostics.Debug.WriteLine($"MediaFailed: {args.Error} - {args.ErrorMessage}");
+                     ViewModel.StatusMessage = "無法正常開啟媒體檔案";
+                     // Optionally close/reset player state if needed, but keeping the message is key.
+                     // We might want to stop the timer.
+                     _positionTimer.Stop();
+                     ViewModel.IsPlaying = false;
+                     if (PlayPauseButton != null) PlayPauseButton.Content = "播放";
+                 });
+            };
             
             // Connect slider value changing event to seek media
             TimelineSlider.ValueChanging += (s, newValue) =>
             {
                 ViewModel.MediaService.Position = TimeSpan.FromSeconds(newValue);
+                if (ViewModel.IsSmartSkipActive) ViewModel.SyncSmartSkipStart();
             };
             
             // Connect range sliders to seek media to start/end points
@@ -213,7 +275,7 @@ namespace FlowerPlayer
                 ViewModel.MediaService.Position = TimeSpan.FromSeconds(newValue);
             };
             
-            this.Title = "FlowerPlayer";
+            //this.Title = "FlowerPlayer";
             
             // 設置焦點到 RootGrid 以便接收鍵盤輸入
             this.Activated += (s, e) => RootGrid.Focus(FocusState.Programmatic);
@@ -263,6 +325,7 @@ namespace FlowerPlayer
             {
                 _playlistWindow = new PlaylistWindow(ViewModel.MediaService);
                 _playlistWindow.UpdateStatus = msg => ViewModel.StatusMessage = msg;
+                _playlistWindow.OpenFileAction = ViewModel.OpenFile;
                 _playlistWindow.Closed += (s, args) => _playlistWindow = null;
                 _playlistWindow.Activate();
             }
@@ -280,6 +343,7 @@ namespace FlowerPlayer
             {
                 _historyWindow = new HistoryWindow(ViewModel.MediaService);
                 _historyWindow.UpdateStatus = msg => ViewModel.StatusMessage = msg;
+                _historyWindow.OpenFileAction = ViewModel.OpenFile;
                 _historyWindow.Closed += (s, args) => _historyWindow = null;
                 _historyWindow.Activate();
             }
@@ -636,21 +700,42 @@ namespace FlowerPlayer
 
             try
             {
-                // 從播放清單中移除（如果存在）
+                string currentPath = currentFile.Path;
+                string nextPath = null;
+
+                // 1. Calculate next path BEFORE removing from playlist
                 if (_playlistWindow != null)
                 {
-                    _playlistWindow.RemoveFileByPath(currentFile.Path);
+                    nextPath = _playlistWindow.GetNextFilePath(currentPath);
                 }
 
-                // 刪除檔案
+                // 2. Stop and Close to release handle
+                ViewModel.MediaService.Close();
+                
+                // 3. Delete file
                 await currentFile.DeleteAsync(StorageDeleteOption.Default);
                 
                 ViewModel.StatusMessage = $"已將「{currentFile.Name}」移至資源回收桶";
                 
-                // 停止播放
-                ViewModel.MediaService.Stop();
-                ViewModel.IsFileLoaded = false;
-                ViewModel.WindowTitle = "FlowerPlayer";
+                // 4. Remove from playlist
+                if (_playlistWindow != null)
+                {
+                    _playlistWindow.RemoveFileByPath(currentPath);
+                }
+
+                // 5. Play next file if AutoPlayNext is enabled
+                if (Services.LocalSettingsService.AutoPlayNext && !string.IsNullOrEmpty(nextPath))
+                {
+                     try 
+                     {
+                        var nextFile = await StorageFile.GetFileFromPathAsync(nextPath);
+                        ViewModel.OpenFile(nextFile);
+                     }
+                     catch (Exception ex)
+                     {
+                        System.Diagnostics.Debug.WriteLine($"Failed to play next file after delete: {ex.Message}");
+                     }
+                }
             }
             catch (Exception ex)
             {
@@ -721,6 +806,19 @@ namespace FlowerPlayer
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 生成狀態消息，如果設定了跳過秒數，則添加提示信息
+        /// </summary>
+        private string GetStatusMessageWithSkipInfo(string baseMessage)
+        {
+            double skipSeconds = Services.LocalSettingsService.SkipStartSeconds;
+            if (skipSeconds > 0)
+            {
+                return $"{baseMessage}，設定：已跳過前面{skipSeconds:F0}秒";
+            }
+            return baseMessage;
         }
     }
 }

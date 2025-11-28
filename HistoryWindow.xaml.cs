@@ -41,6 +41,11 @@ namespace FlowerPlayer
         // ---------------------------------------------------------------------
         // Double‑tap a row to play the file in the main window (referenced as HistoryListView_DoubleTapped)
         // ---------------------------------------------------------------------
+        public Action<StorageFile> OpenFileAction { get; set; }
+
+        // ---------------------------------------------------------------------
+        // Double‑tap a row to play the file in the main window (referenced as HistoryListView_DoubleTapped)
+        // ---------------------------------------------------------------------
         private async void HistoryListView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
             // Find the Grid row that was double‑tapped
@@ -55,8 +60,16 @@ namespace FlowerPlayer
                 try
                 {
                     var file = await StorageFile.GetFileFromPathAsync(path);
-                    _mediaService.Open(file);
-                    _mediaService.Play();
+                    
+                    if (OpenFileAction != null)
+                    {
+                        OpenFileAction(file);
+                    }
+                    else
+                    {
+                        _mediaService.Open(file);
+                        _mediaService.Play();
+                    }
                     
                     // 更新主窗口狀態列
                     UpdateStatus?.Invoke($"歷史清單: 正在播放 {file.Name}");
@@ -75,10 +88,21 @@ namespace FlowerPlayer
         private void HistoryListView_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
             var flyout = new MenuFlyout();
+            
+            // 刪除選單項
             var deleteItem = new MenuFlyoutItem { Text = "刪除" };
             deleteItem.Click += (s, args) => DeleteSelectedItems();
             flyout.Items.Add(deleteItem);
-            flyout.ShowAt((FrameworkElement)sender);
+            
+            // 刪除實體檔案選單項（紅色）
+            var deleteFileItem = new MenuFlyoutItem { Text = "刪除實體檔案..." };
+            deleteFileItem.Click += async (s, args) => await DeleteSelectedFiles();
+            // 設置紅色背景
+            deleteFileItem.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Red);
+            flyout.Items.Add(deleteFileItem);
+            
+            // 顯示在滑鼠游標右方
+            flyout.ShowAt((FrameworkElement)sender, e.GetPosition((FrameworkElement)sender));
         }
 
         private void DeleteSelectedItems()
@@ -111,6 +135,113 @@ namespace FlowerPlayer
             if (count > 0)
             {
                 UpdateStatus?.Invoke($"歷史清單: 已刪除 {count} 個項目");
+            }
+        }
+
+        private async System.Threading.Tasks.Task DeleteSelectedFiles()
+        {
+            var selected = new List<object>(HistoryListView.SelectedItems);
+            if (selected.Count == 0) return;
+
+            // Build file list string for dialog
+            var fileNames = new System.Text.StringBuilder();
+            int displayCount = 0;
+            foreach (var item in selected)
+            {
+                if (item is Grid row && row.Children.Count > 0 && row.Children[0] is TextBlock tb)
+                {
+                     if (displayCount < 10)
+                     {
+                         fileNames.AppendLine($"- {tb.Text}");
+                     }
+                     displayCount++;
+                }
+            }
+            if (displayCount > 10) fileNames.AppendLine($"... 以及其他 {displayCount - 10} 個檔案");
+
+            // 顯示確認對話框
+            var dialog = new ContentDialog
+            {
+                Title = "確認刪除實體檔案",
+                Content = $"確定要將以下 {selected.Count} 個檔案移至資源回收桶嗎？\n\n{fileNames}",
+                PrimaryButtonText = "確定",
+                SecondaryButtonText = "取消",
+                XamlRoot = this.Content.XamlRoot
+            };
+
+            var result = await dialog.ShowAsync();
+            if (result != ContentDialogResult.Primary) return;
+
+            // Check if current file is in selected list
+            string currentPath = _mediaService.CurrentFile?.Path;
+            bool isPlayingSelected = false;
+
+            if (!string.IsNullOrEmpty(currentPath))
+            {
+                foreach (var item in selected)
+                {
+                     if (item is Grid row && row.Tag is string path && path.Equals(currentPath, StringComparison.OrdinalIgnoreCase))
+                     {
+                         isPlayingSelected = true;
+                         break;
+                     }
+                }
+            }
+
+            // If playing file is selected, handle stop and close
+            if (isPlayingSelected)
+            {
+                // Stop and Close to release handle
+                _mediaService.Close();
+                // History window doesn't support sequential play logic as strictly as playlist, 
+                // but we could try to play next if we wanted. For now, just stop.
+            }
+
+            // 刪除檔案
+            int deletedCount = 0;
+            var itemsToRemove = new List<object>();
+            var pathsToRemove = new List<string>();
+
+            foreach (var item in selected)
+            {
+                if (item is Grid row && row.Tag is string path)
+                {
+                    try
+                    {
+                        var file = await StorageFile.GetFileFromPathAsync(path);
+                        await file.DeleteAsync(StorageDeleteOption.Default);
+                        itemsToRemove.Add(item);
+                        pathsToRemove.Add(path);
+                        deletedCount++;
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"HistoryWindow - Delete file error: {ex.Message}");
+                    }
+                }
+            }
+
+            // 從列表中移除
+            foreach (var item in itemsToRemove)
+            {
+                HistoryListView.Items.Remove(item);
+            }
+
+            // 從設置中移除這些路徑
+            if (pathsToRemove.Count > 0)
+            {
+                var history = LocalSettingsService.HistoryPaths;
+                foreach (var path in pathsToRemove)
+                {
+                    history.Remove(path);
+                }
+                LocalSettingsService.HistoryPaths = history;
+            }
+
+            // 更新主窗口狀態列
+            if (deletedCount > 0)
+            {
+                UpdateStatus?.Invoke($"歷史清單: 已刪除 {deletedCount} 個實體檔案");
             }
         }
 

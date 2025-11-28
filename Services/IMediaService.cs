@@ -12,6 +12,7 @@ namespace FlowerPlayer.Services
         event EventHandler<StorageFile> MediaOpened;
         event EventHandler<TimeSpan> DurationChanged;
         event EventHandler MediaEnded;
+        event EventHandler<MediaPlayerFailedEventArgs> MediaFailed;
 
         TimeSpan Duration { get; }
         TimeSpan Position { get; set; }
@@ -19,6 +20,7 @@ namespace FlowerPlayer.Services
         double Volume { get; set; }
         bool IsMuted { get; set; }
         bool IsLooping { get; set; }
+        bool IsStopped { get; }
         bool HasVideo { get; }
         MediaPlayer Player { get; }
         StorageFile CurrentFile { get; }
@@ -27,6 +29,7 @@ namespace FlowerPlayer.Services
         void Play();
         void Pause();
         void Stop();
+        void Close();
         void StepForward(int frames = 1);
         void StepBackward(int frames = 1);
         Task<double> GetFrameRateAsync();

@@ -11,7 +11,8 @@ namespace FlowerPlayer.Helpers
         public static readonly string[] VideoExtensions = new[]
         {
             ".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".webm", ".m4v",
-            ".3gp", ".3g2", ".asf", ".dv", ".m2ts", ".mts", ".ts", ".vob"
+            ".3gp", ".3g2", ".asf", ".dv", ".m2ts", ".mts", ".ts", ".vob",
+            ".mpg", ".mpeg"
         };
 
         // 支持的音频文件格式

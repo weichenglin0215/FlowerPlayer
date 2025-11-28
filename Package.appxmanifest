@@ -9,7 +9,7 @@
 
   <Identity
     Name="97c7633f-09ac-464f-b9b6-da1d535c3995"
-    Publisher="CN=joey"
+    Publisher="CN=開心花_Test_20251127)"
     Version="0.2.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="97c7633f-09ac-464f-b9b6-da1d535c3995" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>

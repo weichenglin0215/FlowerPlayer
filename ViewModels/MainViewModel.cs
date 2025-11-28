@@ -332,15 +332,46 @@ namespace FlowerPlayer.ViewModels
 
         public void OpenFile(StorageFile file)
         {
-            _mediaService.Open(file);
-            
-            // Save last file path
-            LocalSettingsService.LastFilePath = file.Path;
-
-            // Auto Play
-            if (LocalSettingsService.AutoPlayOnOpen)
+            try
             {
-                _mediaService.Play();
+                // 1. Clear previous state and release file handle
+                _mediaService.Close();
+                WaveformData = null;
+                IsGeneratingWaveform = false;
+                _currentGeneratingFilePath = null;
+
+                // 2. Smart Skip Persistence
+                // If Smart Skip is active, reset the segment start for the new file.
+                if (IsSmartSkipActive)
+                {
+                    _smartSkipSegmentStart = TimeSpan.Zero;
+                }
+
+                // 3. Open new file
+                _mediaService.Open(file);
+                
+                // Double check reset after open, just in case
+                if (IsSmartSkipActive)
+                {
+                    _smartSkipSegmentStart = TimeSpan.Zero;
+                }
+                
+                // Save last file path
+                LocalSettingsService.LastFilePath = file.Path;
+
+                // Auto Play
+                if (LocalSettingsService.AutoPlayOnOpen)
+                {
+                    _mediaService.Play();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error opening file: {ex.Message}");
+                // Ensure clean state if Open failed partially
+                _mediaService.Close(); 
+                // Set message AFTER Close to avoid being overwritten by StateChanged (though MainWindow logic now handles this)
+                StatusMessage = "無法正常開啟媒體檔案";
             }
         }
 
@@ -360,11 +391,24 @@ namespace FlowerPlayer.ViewModels
             CurrentFileDirectory = string.Empty;
         }
 
-        [RelayCommand]
-        public void SeekForward() => _mediaService.Position += TimeSpan.FromMinutes(1);
+        public void SyncSmartSkipStart()
+        {
+            _smartSkipSegmentStart = _mediaService.Position;
+        }
 
         [RelayCommand]
-        public void SeekBackward() => _mediaService.Position -= TimeSpan.FromMinutes(1);
+        public void SeekForward() 
+        {
+            _mediaService.Position += TimeSpan.FromMinutes(1);
+            if (IsSmartSkipActive) SyncSmartSkipStart();
+        }
+
+        [RelayCommand]
+        public void SeekBackward() 
+        {
+            _mediaService.Position -= TimeSpan.FromMinutes(1);
+            if (IsSmartSkipActive) SyncSmartSkipStart();
+        }
 
         [RelayCommand]
         public void StepNextFrame() => _mediaService.StepForward();

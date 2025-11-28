@@ -16,6 +16,7 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <WindowsPackageType>MSIX</WindowsPackageType>
     <PublishReadyToRun>false</PublishReadyToRun>
+	<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
   </PropertyGroup>
 
   <ItemGroup>
@@ -69,11 +70,11 @@
     <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">True</PublishTrimmed>
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
-    <AssemblyVersion>0.0.2.0</AssemblyVersion>
-    <FileVersion>0.0.2.0</FileVersion>
+    <AssemblyVersion>0.0.2.1</AssemblyVersion>
+    <FileVersion>0.0.2.1</FileVersion>
     <PublishAot>True</PublishAot>
-    <GenerateAppInstallerFile>True</GenerateAppInstallerFile>
-    <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
+    <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
@@ -83,6 +84,7 @@
     <AppInstallerUri>C:\3D_prj\VS_2022_WinUI3_prj\FlowerPlayer_Publish</AppInstallerUri>
     <HoursBetweenUpdateChecks>8760</HoursBetweenUpdateChecks>
     <NuGetAudit>True</NuGetAudit>
+    <PackageCertificateThumbprint>86AE2AD0F8CAE0BE9FB477311A2353401DD90912</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <Optimize>True</Optimize>

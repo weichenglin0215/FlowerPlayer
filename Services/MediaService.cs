@@ -25,6 +25,7 @@ namespace FlowerPlayer.Services
         public event EventHandler<StorageFile> MediaOpened;
         public event EventHandler<TimeSpan> DurationChanged;
         public event EventHandler MediaEnded;
+        public event EventHandler<MediaPlayerFailedEventArgs> MediaFailed;
 
         public MediaPlayer Player => _player;
 
@@ -35,6 +36,12 @@ namespace FlowerPlayer.Services
             _player.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
             _player.PlaybackSession.NaturalDurationChanged += PlaybackSession_NaturalDurationChanged;
             _player.MediaEnded += Player_MediaEnded;
+            _player.MediaFailed += Player_MediaFailed;
+        }
+
+        private void Player_MediaFailed(MediaPlayer sender, MediaPlayerFailedEventArgs args)
+        {
+             MediaFailed?.Invoke(this, args);
         }
 
         private void Player_MediaEnded(MediaPlayer sender, object args)
@@ -129,12 +136,38 @@ namespace FlowerPlayer.Services
 
         public StorageFile CurrentFile => _currentFile;
 
-        public void Play() => _player.Play();
-        public void Pause() => _player.Pause();
+        public bool IsStopped => _isStopped;
+        private bool _isStopped = false;
+
+        public void Play() 
+        {
+            _isStopped = false;
+            _player.Play();
+        }
+
+        public void Pause() 
+        {
+            _isStopped = false;
+            _player.Pause();
+        }
+
         public void Stop()
         {
+            _isStopped = true;
             _player.Pause();
             _player.PlaybackSession.Position = TimeSpan.Zero;
+            // Force state update notification
+            StateChanged?.Invoke(this, CurrentState);
+        }
+
+        public void Close()
+        {
+            _isStopped = false;
+            _player.Pause();
+            _player.Source = null;
+            _currentFile = null;
+            _hasVideo = false;
+            MediaOpened?.Invoke(this, null);
         }
 
         public void StepForward(int frames = 1)

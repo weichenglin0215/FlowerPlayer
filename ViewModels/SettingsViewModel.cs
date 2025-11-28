@@ -20,6 +20,9 @@ namespace FlowerPlayer.ViewModels
         [ObservableProperty]
         private bool _autoPlayNext;
 
+        [ObservableProperty]
+        private double _skipStartSeconds;
+
         public SettingsViewModel()
         {
             // Load initial values
@@ -28,6 +31,7 @@ namespace FlowerPlayer.ViewModels
             _smartSkipPlayDuration = LocalSettingsService.SmartSkipPlayDuration;
             _smartSkipSkipDuration = LocalSettingsService.SmartSkipSkipDuration;
             _autoPlayNext = LocalSettingsService.AutoPlayNext;
+            _skipStartSeconds = LocalSettingsService.SkipStartSeconds;
         }
 
         partial void OnAutoPlayOnOpenChanged(bool value) => LocalSettingsService.AutoPlayOnOpen = value;
@@ -35,5 +39,6 @@ namespace FlowerPlayer.ViewModels
         partial void OnSmartSkipPlayDurationChanged(double value) => LocalSettingsService.SmartSkipPlayDuration = value;
         partial void OnSmartSkipSkipDurationChanged(double value) => LocalSettingsService.SmartSkipSkipDuration = value;
         partial void OnAutoPlayNextChanged(bool value) => LocalSettingsService.AutoPlayNext = value;
+        partial void OnSkipStartSecondsChanged(double value) => LocalSettingsService.SkipStartSeconds = value;
     }
 }
