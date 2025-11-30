@@ -44,17 +44,43 @@ namespace FlowerPlayer
             ViewModel.XamlRoot = RootGrid.XamlRoot;
             RootGrid.DataContext = ViewModel;
             
-            // 設置主視窗預設尺寸為1600*800
+            // 恢復主視窗位置和尺寸
             try
             {
                 var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
                 var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
                 var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
-                appWindow.Resize(new Windows.Graphics.SizeInt32(1600, 800));
+                
+                // 恢復尺寸
+                var savedSize = Services.LocalSettingsService.GetWindowSize(Services.LocalSettingsService.KeyMainWindowSize);
+                if (savedSize.HasValue)
+                {
+                    appWindow.Resize(savedSize.Value);
+                }
+                else
+                {
+                    appWindow.Resize(new Windows.Graphics.SizeInt32(1600, 800));
+                }
+                
+                // 恢復位置
+                var savedPosition = Services.LocalSettingsService.GetWindowPosition(Services.LocalSettingsService.KeyMainWindowPosition);
+                if (savedPosition.HasValue)
+                {
+                    appWindow.Move(savedPosition.Value);
+                }
+                
+                // 監聽位置和尺寸變化
+                appWindow.Changed += (s, args) =>
+                {
+                    if (args.DidPositionChange || args.DidSizeChange)
+                    {
+                        SaveMainWindowState();
+                    }
+                };
             }
             catch { }
             
-            // 註冊窗口關閉事件，關閉時一併關閉其他視窗
+            // 註冊窗口關閉事件，關閉時一併關閉其他視窗並保存窗口狀態
             this.Closed += MainWindow_Closed;
             
             // 註冊鍵盤事件處理到 RootGrid
@@ -150,6 +176,8 @@ namespace FlowerPlayer
                         ViewModel.SliderPosition = 0;
                         ViewModel.WaveformData = null;
                         ViewModel.HasVideo = false;
+                        // 清空媒體時隱藏播放器
+                        PlayerElement.Opacity = 0;
                         // ViewModel.StatusMessage = "已清除"; // Optional
                     });
                     return;
@@ -175,6 +203,9 @@ namespace FlowerPlayer
                     ViewModel.CurrentFileName = file.Name;
                     ViewModel.CurrentFileDirectory = System.IO.Path.GetDirectoryName(file.Path) ?? string.Empty;
                     
+                    // 新媒體載入完成，顯示播放器
+                    PlayerElement.Opacity = 1;
+                    
                     // Add to history
                     Services.LocalSettingsService.AddHistoryPath(file.Path);
                     
@@ -196,48 +227,114 @@ namespace FlowerPlayer
             {
                 dispatcherQueue.TryEnqueue(() =>
                 {
-                    ViewModel.TotalDuration = duration;
-                    // Force update slider maximum
-                    TimelineSlider.Maximum = duration.TotalSeconds;
+                    System.Diagnostics.Debug.WriteLine($"[DEBUG] DurationChanged fired. New Duration: {duration.TotalSeconds}s");
 
-                    // Set RangeEnd to the end of the video
+                    // 記錄當前狀態
+                    System.Diagnostics.Debug.WriteLine($"[DEBUG] Before update - Current Duration: {ViewModel.TotalDuration.TotalSeconds}s, RangeStart: {ViewModel.RangeStart}s, RangeEnd: {ViewModel.RangeEnd}s, SliderPosition: {ViewModel.SliderPosition}s");
+
+                    // 如果 duration 为 0 或无效，说明媒体已关闭，不更新 RangeSlider
+                    if (duration.TotalSeconds <= 0)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[DEBUG] Duration is zero/invalid. Resetting properties.");
+                        // 媒体已关闭，重置相关属性但不触发 RangeSlider 更新
+                        ViewModel.SliderPosition = 0;
+                        ViewModel.CurrentTime = TimeSpan.Zero;
+                        // 不设置 RangeStart 和 RangeEnd，避免触发 RangeSlider 更新
+                        return;
+                    }
+
+                    // 檢查是否是極短的媒體檔案（可能有問題），如果是就記錄但不重置位置
+                    if (duration.TotalSeconds < 1.0)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[DEBUG] Warning: Very short media duration ({duration.TotalSeconds}s). Skipping position reset.");
+                        // 仍然更新 Duration，但不重置位置
+                        ViewModel.TotalDuration = duration;
+                        ViewModel.RangeEnd = duration.TotalSeconds;
+                        return;
+                    }
+
+                    // 1. 先重置播放位置到 0，避免因為縮小 Maximum 而導致 Value 超出範圍觸發 Coercion
+                    System.Diagnostics.Debug.WriteLine($"[DEBUG] Resetting SliderPosition and RangeStart to 0.");
+                    ViewModel.SliderPosition = 0;
+                    ViewModel.CurrentTime = TimeSpan.Zero;
+                    ViewModel.RangeStart = 0;
+
+                    // 2. 更新 TotalDuration (這會更新 TimelineSlider.Maximum)
+                    System.Diagnostics.Debug.WriteLine($"[DEBUG] Updating ViewModel.TotalDuration to {duration.TotalSeconds}");
+                    ViewModel.TotalDuration = duration;
+
+                    // 3. 更新 RangeEnd
+                    System.Diagnostics.Debug.WriteLine($"[DEBUG] Updating ViewModel.RangeEnd to {duration.TotalSeconds}");
                     ViewModel.RangeEnd = duration.TotalSeconds;
-                    // Ensure the visual representation updates correctly
-                    TimelineSlider.RangeEnd = duration.TotalSeconds;
-                    
-                    // 應用跳過前面秒數的設置
+
+                    // 4. 應用跳過前面秒數的設置
                     double skipSeconds = Services.LocalSettingsService.SkipStartSeconds;
+                    System.Diagnostics.Debug.WriteLine($"[DEBUG] Checking SkipStartSeconds: {skipSeconds}s");
+
                     if (skipSeconds > 0 && skipSeconds < duration.TotalSeconds)
                     {
+                        System.Diagnostics.Debug.WriteLine($"[DEBUG] Applying SkipStartSeconds: {skipSeconds}s");
                         ViewModel.MediaService.Position = TimeSpan.FromSeconds(skipSeconds);
                         ViewModel.RangeStart = skipSeconds;
                         ViewModel.SliderPosition = skipSeconds;
                         ViewModel.CurrentTime = TimeSpan.FromSeconds(skipSeconds);
-                        
+
                         // Sync Smart Skip start to the new position
                         if (ViewModel.IsSmartSkipActive)
                         {
                             ViewModel.SyncSmartSkipStart();
                         }
                     }
-                    else
+
+                    // 5. 現在媒體已完全載入，如果需要自動播放，在此開始播放
+                    if (Services.LocalSettingsService.AutoPlayOnOpen)
                     {
-                        ViewModel.RangeStart = 0;
-                        ViewModel.SliderPosition = 0;
-                        ViewModel.CurrentTime = TimeSpan.Zero;
+                        System.Diagnostics.Debug.WriteLine($"[DEBUG] AutoPlayOnOpen is enabled, starting playback after media loaded.");
+                        ViewModel.MediaService.Play();
                     }
+
+                    // 記錄最終狀態
+                    System.Diagnostics.Debug.WriteLine($"[DEBUG] After update - Final Duration: {ViewModel.TotalDuration.TotalSeconds}s, RangeStart: {ViewModel.RangeStart}s, RangeEnd: {ViewModel.RangeEnd}s, SliderPosition: {ViewModel.SliderPosition}s");
+                    System.Diagnostics.Debug.WriteLine($"[DEBUG] DurationChanged processing completed.");
                 });
             };
 
             ViewModel.MediaService.MediaEnded += (s, e) =>
             {
-                System.Diagnostics.Debug.WriteLine($"MediaEnded event triggered. AutoPlayNext: {Services.LocalSettingsService.AutoPlayNext}, IsLooping: {ViewModel.IsLooping}, PlaylistWindow: {_playlistWindow != null}");
+                var position = ViewModel.MediaService.Position.TotalSeconds;
+                var duration = ViewModel.TotalDuration.TotalSeconds;
+                var rangeStart = ViewModel.RangeStart;
+                var rangeEnd = ViewModel.RangeEnd;
                 
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] MediaEnded event triggered.");
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] State: Position={position}s, Duration={duration}s");
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] Slider: RangeStart={rangeStart}s, RangeEnd={rangeEnd}s");
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] Settings: AutoPlayNext={Services.LocalSettingsService.AutoPlayNext}, IsLooping={ViewModel.IsLooping}");
+                
+                // 防止誤觸發：如果播放時間太短（例如小於0.5秒）且總長度大於1秒，可能是開啟瞬間的誤報
+                if (position < 0.5 && duration > 1.0)
+                {
+                     System.Diagnostics.Debug.WriteLine($"[DEBUG] MediaEnded ignored (premature trigger). Position near 0.");
+                     return;
+                }
+
+                // 嚴格檢查：只有當 Position 接近 Duration 或 RangeEnd 時，才視為真正結束
+                bool isAtEnd = (Math.Abs(position - duration) <= 1.0) || (Math.Abs(position - rangeEnd) <= 1.0);
+
+                if (!isAtEnd)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[DEBUG] MediaEnded ignored: Position not at end. (Diff Duration: {Math.Abs(position - duration)}, Diff RangeEnd: {Math.Abs(position - rangeEnd)})");
+                    return;
+                }
+
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] MediaEnded accepted: Playback truly ended.");
+
                 // 如果啟用了自動播放下一個檔案，且未啟用循環播放，則播放下一個檔案
                 if (Services.LocalSettingsService.AutoPlayNext && !ViewModel.IsLooping && _playlistWindow != null)
                 {
                     dispatcherQueue.TryEnqueue(() =>
                     {
+                        System.Diagnostics.Debug.WriteLine($"[DEBUG] Calling PlayNextFileInPlaylist from MediaEnded");
                         _ = PlayNextFileInPlaylist();
                     });
                 }
@@ -247,7 +344,7 @@ namespace FlowerPlayer
             {
                  dispatcherQueue.TryEnqueue(() =>
                  {
-                     System.Diagnostics.Debug.WriteLine($"MediaFailed: {args.Error} - {args.ErrorMessage}");
+                     System.Diagnostics.Debug.WriteLine($"[DEBUG] MediaFailed: {args.Error} - {args.ErrorMessage}");
                      ViewModel.StatusMessage = "無法正常開啟媒體檔案";
                      // Optionally close/reset player state if needed, but keeping the message is key.
                      // We might want to stop the timer.
@@ -260,19 +357,26 @@ namespace FlowerPlayer
             // Connect slider value changing event to seek media
             TimelineSlider.ValueChanging += (s, newValue) =>
             {
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] TimelineSlider_ValueChanging: {newValue}");
                 ViewModel.MediaService.Position = TimeSpan.FromSeconds(newValue);
                 if (ViewModel.IsSmartSkipActive) ViewModel.SyncSmartSkipStart();
             };
             
             // Connect range sliders to seek media to start/end points
+            // 注意：拖动范围滑块时不应该改变播放位置，只应该更新范围
+            // 移除 Position 设置，避免循环调用
             TimelineSlider.RangeStartChanging += (s, newValue) =>
             {
-                ViewModel.MediaService.Position = TimeSpan.FromSeconds(newValue);
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] TimelineSlider_RangeStartChanging: {newValue}");
+                // 拖动 RangeStart 时，只更新 ViewModel.RangeStart（TwoWay 绑定会自动处理）
+                // 不设置 Position，避免循环调用
             };
 
             TimelineSlider.RangeEndChanging += (s, newValue) =>
             {
-                ViewModel.MediaService.Position = TimeSpan.FromSeconds(newValue);
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] TimelineSlider_RangeEndChanging: {newValue}");
+                // 拖动 RangeEnd 时，只更新 ViewModel.RangeEnd（TwoWay 绑定会自动处理）
+                // 不设置 Position，避免循环调用
             };
             
             //this.Title = "FlowerPlayer";
@@ -306,6 +410,9 @@ namespace FlowerPlayer
                     // 檢查是否為媒體檔案
                     if (MediaFileHelper.IsMediaFile(file))
                     {
+                        // 開始載入新媒體前，先隱藏播放器，避免顯示舊媒體畫面
+                        PlayerElement.Opacity = 0;
+                        
                         ViewModel.StatusMessage = "正在開啟";
                         ViewModel.OpenFile(file);
                     }
@@ -395,6 +502,9 @@ namespace FlowerPlayer
                     // 檢查是否為媒體檔案
                     if (MediaFileHelper.IsMediaFile(file))
                     {
+                        // 開始載入新媒體前，先隱藏播放器，避免顯示舊媒體畫面
+                        PlayerElement.Opacity = 0;
+                        
                         ViewModel.StatusMessage = "正在開啟";
                         ViewModel.OpenFile(file);
                     }
@@ -421,8 +531,33 @@ namespace FlowerPlayer
             }
         }
 
+        // 保存主窗口状态（位置和尺寸）
+        private void SaveMainWindowState()
+        {
+            try
+            {
+                var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+                var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+                var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+                
+                Services.LocalSettingsService.SaveWindowPosition(
+                    Services.LocalSettingsService.KeyMainWindowPosition, 
+                    appWindow.Position);
+                Services.LocalSettingsService.SaveWindowSize(
+                    Services.LocalSettingsService.KeyMainWindowSize, 
+                    appWindow.Size);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"MainWindow.SaveMainWindowState error: {ex.Message}");
+            }
+        }
+        
         private void MainWindow_Closed(object sender, WindowEventArgs args)
         {
+            // 保存主窗口状态
+            SaveMainWindowState();
+            
             // 關閉所有子視窗
             _playlistWindow?.Close();
             _historyWindow?.Close();
@@ -558,12 +693,13 @@ namespace FlowerPlayer
                 if (!string.IsNullOrEmpty(targetPath))
                 {
                     var file = await StorageFile.GetFileFromPathAsync(targetPath);
+                    
+                    // 開始載入新媒體前，先隱藏播放器，避免顯示舊媒體畫面
+                    PlayerElement.Opacity = 0;
+                    
                     ViewModel.StatusMessage = "正在播放上一個檔案";
                     ViewModel.OpenFile(file);
-                    if (Services.LocalSettingsService.AutoPlayOnOpen)
-                    {
-                        ViewModel.MediaService.Play();
-                    }
+                    // AutoPlayOnOpen 設定會在 DurationChanged 事件中處理
                 }
                 else
                 {
@@ -602,12 +738,13 @@ namespace FlowerPlayer
                 if (!string.IsNullOrEmpty(targetPath))
                 {
                     var file = await StorageFile.GetFileFromPathAsync(targetPath);
+                    
+                    // 開始載入新媒體前，先隱藏播放器，避免顯示舊媒體畫面
+                    PlayerElement.Opacity = 0;
+                    
                     ViewModel.StatusMessage = "正在播放下一個檔案";
                     ViewModel.OpenFile(file);
-                    if (Services.LocalSettingsService.AutoPlayOnOpen)
-                    {
-                        ViewModel.MediaService.Play();
-                    }
+                    // AutoPlayOnOpen 設定會在 DurationChanged 事件中處理
                 }
                 else
                 {
@@ -685,62 +822,142 @@ namespace FlowerPlayer
                 return;
             }
 
+            // A狀況：主畫面按下 Shift+Del 的流程
+            
+            // 1. 立刻暫停播放，記下該檔案的目錄與檔名
+            string currentPath = currentFile.Path;
+            string currentDirectory = System.IO.Path.GetDirectoryName(currentPath) ?? string.Empty;
+            string currentFileName = currentFile.Name;
+            bool wasPlaying = ViewModel.IsPlaying;
+            
+            // 暫停播放
+            ViewModel.MediaService.Pause();
+            
             // 顯示確認對話框
             var dialog = new ContentDialog
             {
                 Title = "確認刪除",
-                Content = $"確定要將檔案「{currentFile.Name}」移至資源回收桶嗎？",
+                Content = $"確定要將檔案「{currentFileName}」移至資源回收桶嗎？",
                 PrimaryButtonText = "確定",
                 SecondaryButtonText = "取消",
                 XamlRoot = this.Content.XamlRoot
             };
 
             var result = await dialog.ShowAsync();
-            if (result != ContentDialogResult.Primary) return;
+            if (result != ContentDialogResult.Primary)
+            {
+                // 用戶取消，恢復播放狀態
+                if (wasPlaying)
+                {
+                    ViewModel.MediaService.Play();
+                }
+                return;
+            }
 
             try
             {
-                string currentPath = currentFile.Path;
-                string nextPath = null;
-
-                // 1. Calculate next path BEFORE removing from playlist
+                // 2. 比對"播放清單"中是否有相同的檔案（可能多個），記錄這些項目
+                var playlistItemsToRemove = new List<object>();
                 if (_playlistWindow != null)
+                {
+                    foreach (var item in _playlistWindow.PlaylistListViewControl.Items)
+                    {
+                        if (item is Grid row && row.Tag is string path && 
+                            path.Equals(currentPath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            playlistItemsToRemove.Add(item);
+                        }
+                    }
+                }
+
+                // 3. 在刪除前查找下一個檔案路徑（避免刪除後找不到）
+                string nextPath = null;
+                if (Services.LocalSettingsService.AutoPlayNext && _playlistWindow != null)
                 {
                     nextPath = _playlistWindow.GetNextFilePath(currentPath);
+                    System.Diagnostics.Debug.WriteLine($"DeleteCurrentFile: Found next path before delete: {nextPath}");
                 }
 
-                // 2. Stop and Close to release handle
-                ViewModel.MediaService.Close();
-                
-                // 3. Delete file
-                await currentFile.DeleteAsync(StorageDeleteOption.Default);
-                
-                ViewModel.StatusMessage = $"已將「{currentFile.Name}」移至資源回收桶";
-                
-                // 4. Remove from playlist
-                if (_playlistWindow != null)
+                // 4. 放棄該檔案的控制權，執行刪除實體檔案的動作
+                // 注意：先嘗試刪除，如果失敗則不 Close，以便恢復播放
+                bool deleteSuccess = false;
+                try
                 {
-                    _playlistWindow.RemoveFileByPath(currentPath);
+                    // 先 Close 放棄控制權
+                    ViewModel.MediaService.Close();
+                    
+                    // 嘗試刪除檔案
+                    await currentFile.DeleteAsync(StorageDeleteOption.Default);
+                    deleteSuccess = true;
+                }
+                catch (Exception deleteEx)
+                {
+                    // 刪除失敗，跳出警告，停止後續動作
+                    var errorDialog = new ContentDialog
+                    {
+                        Title = "刪除失敗",
+                        Content = $"無法刪除檔案「{currentFileName}」：\n{deleteEx.Message}\n\n請檢查檔案權限或是否被其他程式使用。",
+                        PrimaryButtonText = "確定",
+                        XamlRoot = this.Content.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    
+                    // 刪除失敗，不修改播放清單，直接返回
+                    // 注意：由於已經 Close()，無法恢復播放，這是預期行為
+                    return;
+                }
+                
+                // 只有刪除成功才繼續後續操作
+                if (!deleteSuccess) return;
+                
+                // 5. 確認已刪除，從播放清單中移除所有匹配的項目
+                ViewModel.StatusMessage = $"已將「{currentFileName}」移至資源回收桶";
+                
+                if (_playlistWindow != null && playlistItemsToRemove.Count > 0)
+                {
+                    foreach (var item in playlistItemsToRemove)
+                    {
+                        _playlistWindow.PlaylistListViewControl.Items.Remove(item);
+                    }
+                    // 調用 SavePlaylist 方法
+                    _playlistWindow.SavePlaylist();
                 }
 
-                // 5. Play next file if AutoPlayNext is enabled
+                // 6. 若順利刪除且"依播放清單順序，播放下一個檔案"有勾選，請載入下一個媒體檔案
                 if (Services.LocalSettingsService.AutoPlayNext && !string.IsNullOrEmpty(nextPath))
                 {
-                     try 
-                     {
+                    try
+                    {
+                        System.Diagnostics.Debug.WriteLine($"DeleteCurrentFile: Attempting to play next file: {nextPath}");
                         var nextFile = await StorageFile.GetFileFromPathAsync(nextPath);
                         ViewModel.OpenFile(nextFile);
-                     }
-                     catch (Exception ex)
-                     {
-                        System.Diagnostics.Debug.WriteLine($"Failed to play next file after delete: {ex.Message}");
-                     }
+                        System.Diagnostics.Debug.WriteLine($"DeleteCurrentFile: Successfully opened next file: {nextFile.Name}");
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"DeleteCurrentFile: Failed to play next file after delete: {ex.Message}");
+                        ViewModel.StatusMessage = $"已刪除檔案，但無法播放下一個檔案：{ex.Message}";
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"DeleteCurrentFile: AutoPlayNext={Services.LocalSettingsService.AutoPlayNext}, nextPath={nextPath}");
                 }
             }
             catch (Exception ex)
             {
                 ViewModel.StatusMessage = $"刪除檔案錯誤: {ex.Message}";
                 System.Diagnostics.Debug.WriteLine($"DeleteCurrentFile error: {ex.Message}");
+                
+                // 發生錯誤時，嘗試恢復播放狀態
+                if (wasPlaying && ViewModel.MediaService.CurrentFile != null)
+                {
+                    try
+                    {
+                        ViewModel.MediaService.Play();
+                    }
+                    catch { }
+                }
             }
         }
 
@@ -757,31 +974,43 @@ namespace FlowerPlayer
                 // 獲取當前播放的文件路徑
                 var currentFile = ViewModel.MediaService.CurrentFile;
                 string currentPath = currentFile?.Path;
-                System.Diagnostics.Debug.WriteLine($"PlayNextFileInPlaylist: Current path = {currentPath}");
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] PlayNextFileInPlaylist: Current path = {currentPath}");
 
                 // 使用 PlaylistWindow 的公共方法獲取下一個文件路徑
                 string nextPath = _playlistWindow.GetNextFilePath(currentPath);
-                System.Diagnostics.Debug.WriteLine($"PlayNextFileInPlaylist: Next path = {nextPath}");
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] PlayNextFileInPlaylist: Next path = {nextPath}");
 
                 // 如果找到下一個文件，播放它
                 if (!string.IsNullOrEmpty(nextPath))
                 {
                     var file = await StorageFile.GetFileFromPathAsync(nextPath);
+                    System.Diagnostics.Debug.WriteLine($"[DEBUG] PlayNextFileInPlaylist: Opening file {file.Name}");
+
+                    // 確保當前播放完全停止
+                    System.Diagnostics.Debug.WriteLine($"[DEBUG] PlayNextFileInPlaylist: Stopping current playback first.");
+                    ViewModel.MediaService.Stop();
+                    
+                    // 開始載入新媒體前，先隱藏播放器，避免顯示舊媒體畫面
+                    PlayerElement.Opacity = 0;
+                    
+                    // 等待一小段時間確保停止完成
+                    await System.Threading.Tasks.Task.Delay(100);
+
+                    // 直接使用 ViewModel.OpenFile，它會處理所有清理和載入邏輯
+                    // DurationChanged 事件會在媒體完全載入後自動開始播放（如果 AutoPlayOnOpen 開啟）
+                    ViewModel.StatusMessage = "正在播放下一個檔案";
                     ViewModel.OpenFile(file);
-                    if (Services.LocalSettingsService.AutoPlayOnOpen)
-                    {
-                        ViewModel.MediaService.Play();
-                    }
-                    System.Diagnostics.Debug.WriteLine($"PlayNextFileInPlaylist: Playing next file: {file.Name}");
+                    
+                    System.Diagnostics.Debug.WriteLine($"[DEBUG] PlayNextFileInPlaylist: Successfully initiated opening next file: {file.Name}");
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine("PlayNextFileInPlaylist: No next file found");
+                    System.Diagnostics.Debug.WriteLine("[DEBUG] PlayNextFileInPlaylist: No next file found");
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"MainWindow - PlayNextFileInPlaylist error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] MainWindow - PlayNextFileInPlaylist error: {ex.Message}");
             }
         }
 

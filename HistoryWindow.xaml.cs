@@ -24,15 +24,44 @@ namespace FlowerPlayer
             
             this.InitializeComponent();
             
-            // Set window size
+            // 恢復窗口位置和尺寸
             try
             {
                 var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
                 var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
                 var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
-                appWindow.Resize(new Windows.Graphics.SizeInt32(1200, 600));
+                
+                // 恢復尺寸
+                var savedSize = LocalSettingsService.GetWindowSize(LocalSettingsService.KeyHistoryWindowSize);
+                if (savedSize.HasValue)
+                {
+                    appWindow.Resize(savedSize.Value);
+                }
+                else
+                {
+                    appWindow.Resize(new Windows.Graphics.SizeInt32(1200, 600));
+                }
+                
+                // 恢復位置
+                var savedPosition = LocalSettingsService.GetWindowPosition(LocalSettingsService.KeyHistoryWindowPosition);
+                if (savedPosition.HasValue)
+                {
+                    appWindow.Move(savedPosition.Value);
+                }
+                
+                // 監聽位置和尺寸變化
+                appWindow.Changed += (s, args) =>
+                {
+                    if (args.DidPositionChange || args.DidSizeChange)
+                    {
+                        SaveWindowState();
+                    }
+                };
             }
             catch { }
+            
+            // 註冊窗口關閉事件，保存窗口狀態
+            this.Closed += HistoryWindow_Closed;
 
             // Load history from settings
             LoadHistory();
@@ -355,6 +384,34 @@ namespace FlowerPlayer
             {
                 System.Diagnostics.Debug.WriteLine($"Error adding file to history: {ex.Message}");
             }
+        }
+
+        // 保存窗口状态（位置和尺寸）
+        private void SaveWindowState()
+        {
+            try
+            {
+                var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+                var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+                var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+                
+                LocalSettingsService.SaveWindowPosition(
+                    LocalSettingsService.KeyHistoryWindowPosition, 
+                    appWindow.Position);
+                LocalSettingsService.SaveWindowSize(
+                    LocalSettingsService.KeyHistoryWindowSize, 
+                    appWindow.Size);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"HistoryWindow.SaveWindowState error: {ex.Message}");
+            }
+        }
+        
+        // 窗口關閉時保存窗口狀態
+        private void HistoryWindow_Closed(object sender, WindowEventArgs args)
+        {
+            SaveWindowState();
         }
 
         // 刷新歷史清單顯示

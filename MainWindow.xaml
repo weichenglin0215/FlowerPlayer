@@ -9,7 +9,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="FlowerPlayer Ver 0.0.2.1 (撥放、歷史清單、波形圖)">
+    Title="FlowerPlayer Ver 0.0.2.2 (撥放、歷史清單、波形圖、修正刪除實體檔案的錯誤)">
 
     <Window.SystemBackdrop>
         <MicaBackdrop />

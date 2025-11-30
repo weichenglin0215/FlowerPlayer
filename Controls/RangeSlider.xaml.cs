@@ -69,14 +69,15 @@ namespace FlowerPlayer.Controls
         {
             if (ActualWidth == 0 || Maximum <= Minimum) return;
 
-            MainSlider.Minimum = Minimum;
-            MainSlider.Maximum = Maximum;
+            // 只有在值確實改變時才更新 MainSlider，避免不必要的事件觸發和潛在的迴圈
+            if (Math.Abs(MainSlider.Minimum - Minimum) > 0.0001) MainSlider.Minimum = Minimum;
+            if (Math.Abs(MainSlider.Maximum - Maximum) > 0.0001) MainSlider.Maximum = Maximum;
             
             // Update MainSlider value if not being dragged by user
             if (!_isUserDraggingSlider)
             {
                 _isUpdatingFromProperty = true;
-                MainSlider.Value = Value;
+                if (Math.Abs(MainSlider.Value - Value) > 0.0001) MainSlider.Value = Value;
                 _isUpdatingFromProperty = false;
             }
 

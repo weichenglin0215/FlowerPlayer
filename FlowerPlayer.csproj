@@ -70,8 +70,8 @@
     <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">True</PublishTrimmed>
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
-    <AssemblyVersion>0.0.2.1</AssemblyVersion>
-    <FileVersion>0.0.2.1</FileVersion>
+    <AssemblyVersion>0.0.2.2</AssemblyVersion>
+    <FileVersion>0.0.2.2</FileVersion>
     <PublishAot>True</PublishAot>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
@@ -84,7 +84,8 @@
     <AppInstallerUri>C:\3D_prj\VS_2022_WinUI3_prj\FlowerPlayer_Publish</AppInstallerUri>
     <HoursBetweenUpdateChecks>8760</HoursBetweenUpdateChecks>
     <NuGetAudit>True</NuGetAudit>
-    <PackageCertificateThumbprint>86AE2AD0F8CAE0BE9FB477311A2353401DD90912</PackageCertificateThumbprint>
+    <!-- 移除证书指纹配置，让 Visual Studio 自动生成临时证书用于开发 -->
+    <!-- <PackageCertificateThumbprint>86AE2AD0F8CAE0BE9FB477311A2353401DD90912</PackageCertificateThumbprint> -->
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <Optimize>True</Optimize>

@@ -14,15 +14,17 @@
         <!-- Column Headers -->
         <Grid Grid.Row="1" Background="#F0F0F0" Height="30" Margin="10,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="400"/>
-                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="900"/>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="120"/>
                 <ColumnDefinition Width="200"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Text="檔案名稱" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center"/>
-            <TextBlock Grid.Column="1" Text="長度" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center"/>
-            <TextBlock Grid.Column="2" Text="修改日期" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center"/>
-            <TextBlock Grid.Column="3" Text="目錄" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Text="容量大小" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="2" Text="長度" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="3" Text="修改日期" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="4" Text="目錄" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center"/>
         </Grid>
 
         <!-- ListView -->

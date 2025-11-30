@@ -208,8 +208,39 @@ namespace FlowerPlayer.ViewModels
             }
         }
 
-        partial void OnRangeStartChanged(double value) => UpdateRange();
-        partial void OnRangeEndChanged(double value) => UpdateRange();
+        private bool _isUpdatingRange = false; // 防止 UpdateRange 循环调用
+        
+        partial void OnRangeStartChanged(double value)
+        {
+            if (!_isUpdatingRange)
+            {
+                _isUpdatingRange = true;
+                try
+                {
+                    UpdateRange();
+                }
+                finally
+                {
+                    _isUpdatingRange = false;
+                }
+            }
+        }
+        
+        partial void OnRangeEndChanged(double value)
+        {
+            if (!_isUpdatingRange)
+            {
+                _isUpdatingRange = true;
+                try
+                {
+                    UpdateRange();
+                }
+                finally
+                {
+                    _isUpdatingRange = false;
+                }
+            }
+        }
         partial void OnIsLoopingChanged(bool value) => _mediaService.IsLooping = value;
         
         // Update setting when property changes
@@ -304,6 +335,12 @@ namespace FlowerPlayer.ViewModels
 
         private void UpdateRange()
         {
+            // 如果媒体服务没有当前文件，不更新范围（避免在删除文件时触发）
+            if (_mediaService.CurrentFile == null)
+            {
+                return;
+            }
+            
             if (RangeEnd > RangeStart)
             {
                 _mediaService.SetRange(TimeSpan.FromSeconds(RangeStart), TimeSpan.FromSeconds(RangeEnd));
@@ -334,20 +371,34 @@ namespace FlowerPlayer.ViewModels
         {
             try
             {
-                // 1. Clear previous state and release file handle
+                // 1. 更積極地清除之前的狀態
+                // 先暫停並清除源，避免顯示舊媒體畫面
+                if (_mediaService.CurrentFile != null)
+                {
+                    _mediaService.Player.Pause();
+                    _mediaService.Player.Source = null;
+                }
+                
+                // 2. 完全清除狀態
                 _mediaService.Close();
+                
+                // 重置所有顯示狀態
+                CurrentTime = TimeSpan.Zero;
+                SliderPosition = 0;
+                TotalDuration = TimeSpan.Zero;
+                
                 WaveformData = null;
                 IsGeneratingWaveform = false;
                 _currentGeneratingFilePath = null;
 
-                // 2. Smart Skip Persistence
+                // 3. Smart Skip Persistence
                 // If Smart Skip is active, reset the segment start for the new file.
                 if (IsSmartSkipActive)
                 {
                     _smartSkipSegmentStart = TimeSpan.Zero;
                 }
 
-                // 3. Open new file
+                // 4. Open new file
                 _mediaService.Open(file);
                 
                 // Double check reset after open, just in case
@@ -359,11 +410,9 @@ namespace FlowerPlayer.ViewModels
                 // Save last file path
                 LocalSettingsService.LastFilePath = file.Path;
 
-                // Auto Play
-                if (LocalSettingsService.AutoPlayOnOpen)
-                {
-                    _mediaService.Play();
-                }
+                // Auto Play - 但不立即播放，等待 DurationChanged 事件後再播放
+                // 這樣可以避免媒體還沒準備好就開始播放
+                // 改為不在此處直接調用 Play()，而是透過標誌讓 MediaOpened 或 DurationChanged 處理
             }
             catch (Exception ex)
             {

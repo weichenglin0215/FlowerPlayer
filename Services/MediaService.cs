@@ -164,10 +164,14 @@ namespace FlowerPlayer.Services
         {
             _isStopped = false;
             _player.Pause();
+            // 先清空源，讓畫面變黑（不要先重置位置，那會顯示第一幀）
             _player.Source = null;
+            // 源已清空後再重置位置
+            _player.PlaybackSession.Position = TimeSpan.Zero;
             _currentFile = null;
             _hasVideo = false;
-            MediaOpened?.Invoke(this, null);
+            // 觸發 DurationChanged 事件通知 UI 清空
+            DurationChanged?.Invoke(this, TimeSpan.Zero);
         }
 
         public void StepForward(int frames = 1)
