@@ -24,7 +24,7 @@
 
             <Grid ColumnDefinitions="*, Auto" RowSpacing="10">
                 <TextBlock Grid.Column="0" Text="跳過影片前面秒數：" VerticalAlignment="Center"/>
-                <NumberBox Grid.Column="1" Width="100" 
+                <NumberBox Grid.Column="1" Width="200" 
                            Value="{x:Bind ViewModel.SkipStartSeconds, Mode=TwoWay}"
                            SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="10" Minimum="0"/>
             </Grid>
@@ -35,12 +35,12 @@
             
             <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto" RowSpacing="10">
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="播放秒數:" VerticalAlignment="Center"/>
-                <NumberBox Grid.Row="0" Grid.Column="1" Width="100" 
+                <NumberBox Grid.Row="0" Grid.Column="1" Width="200" 
                            Value="{x:Bind ViewModel.SmartSkipPlayDuration, Mode=TwoWay}"
                            SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="1"/>
 
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="跳過秒數:" VerticalAlignment="Center"/>
-                <NumberBox Grid.Row="1" Grid.Column="1" Width="100" 
+                <NumberBox Grid.Row="1" Grid.Column="1" Width="200" 
                            Value="{x:Bind ViewModel.SmartSkipSkipDuration, Mode=TwoWay}"
                            SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="1"/>
             </Grid>

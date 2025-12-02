@@ -9,7 +9,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="FlowerPlayer Ver 0.0.2.2 (撥放、歷史清單、波形圖、修正刪除實體檔案的錯誤)">
+    Title="FlowerPlayer Ver 0.0.3.0 (熱鍵優化、播放清單優化、搜尋子目錄)">
 
     <Window.SystemBackdrop>
         <MicaBackdrop />
@@ -32,12 +32,15 @@
         </Grid.RowDefinitions>
 
         <!-- Video Area -->
-        <MediaPlayerElement x:Name="PlayerElement" 
-                            Grid.Row="0" 
-                            HorizontalAlignment="Stretch" 
-                            VerticalAlignment="Stretch"
-                            AreTransportControlsEnabled="False"
-                            PointerPressed="MediaArea_PointerPressed"/>
+        <Grid Grid.Row="0">
+            <!-- Black background to prevent white flash when loading media -->
+            <Rectangle Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <MediaPlayerElement x:Name="PlayerElement" 
+                                HorizontalAlignment="Stretch" 
+                                VerticalAlignment="Stretch"
+                                AreTransportControlsEnabled="False"
+                                PointerPressed="MediaArea_PointerPressed"/>
+        </Grid>
 
         <!-- Waveform Area -->
         <Grid Grid.Row="1" Height="60" Visibility="{Binding IsWaveformVisible, Mode=OneWay, Converter={StaticResource BoolToVisConverter}}"

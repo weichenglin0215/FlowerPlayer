@@ -1,18 +1,19 @@
+using FlowerPlayer.Helpers;
+using FlowerPlayer.Models;
+using FlowerPlayer.Services;
+using FlowerPlayer.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
-using FlowerPlayer.Models;
-using FlowerPlayer.Services;
-using FlowerPlayer.ViewModels;
-using FlowerPlayer.Helpers;
-using System.Collections.ObjectModel;
-using System.Collections.Generic;
-using System.IO;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.IO;
 using System.Threading.Tasks;
-using Windows.Storage;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Storage;
 
 namespace FlowerPlayer
 {
@@ -22,7 +23,8 @@ namespace FlowerPlayer
         // Action to report status back to MainWindow
         public Action<string> UpdateStatus { get; set; }
         private readonly IMediaService _mediaService;
-        
+        // 這才是 ListView 的真正資料來源
+        //public ObservableCollection<PlaylistDisplayItem> PlaylistDisplayItem { get; } = new();
         // 提供公共屬性訪問 PlaylistListView（用於 MainWindow 刪除檔案時）
         public ListView PlaylistListViewControl => PlaylistListView;
 
@@ -32,7 +34,8 @@ namespace FlowerPlayer
             ViewModel = existingViewModel ?? new PlaylistViewModel(mediaService);
             
             this.InitializeComponent();
-            
+            // 重要！把 ObservableCollection 綁定到 ListView
+            //PlaylistListView.ItemsSource = PlaylistDisplayItem;
             // 恢复窗口位置和尺寸
             try
             {
@@ -74,6 +77,133 @@ namespace FlowerPlayer
             
             // 在窗口激活后加载保存的播放清单（确保ListView已初始化）
             this.Activated += PlaylistWindow_Activated;
+            
+            // 监听列宽变化，同步到 ListView 项目（在 InitializeComponent 之后才能访问 HeaderGrid）
+            this.HeaderGrid.SizeChanged += HeaderGrid_SizeChanged;
+        }
+        
+        // 拖拽调整列宽的变量
+        private bool _isResizing = false;
+        private Border _currentSplitter = null;
+        private int _leftColumnIndex = -1;
+        private double _startX = 0;
+        private double _leftColumnStartWidth = 0;
+        
+        // 注意：WinUI3 中设置光标比较复杂，这里暂时移除光标设置功能
+        // 拖拽功能本身仍然可以正常工作
+        private void Splitter_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            // WinUI3 中设置光标需要使用其他方法，暂时不实现
+        }
+        
+        private void Splitter_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            // WinUI3 中设置光标需要使用其他方法，暂时不实现
+        }
+        
+        // Splitter 拖拽处理
+        private void Splitter_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is Border splitter)
+            {
+                _isResizing = true;
+                _currentSplitter = splitter;
+                _startX = e.GetCurrentPoint(this.HeaderGrid).Position.X;
+                
+                // 确定要调整的列索引
+                int splitterColumn = Grid.GetColumn(splitter);
+                _leftColumnIndex = splitterColumn - 1; // Splitter 左边的列
+                
+                if (_leftColumnIndex >= 0 && _leftColumnIndex < this.HeaderGrid.ColumnDefinitions.Count)
+                {
+                    var leftCol = this.HeaderGrid.ColumnDefinitions[_leftColumnIndex];
+                    _leftColumnStartWidth = leftCol.ActualWidth;
+                }
+                
+                splitter.CapturePointer(e.Pointer);
+                e.Handled = true;
+            }
+        }
+        
+        private void Splitter_PointerMoved(object sender, PointerRoutedEventArgs e)
+        {
+            if (_isResizing && _currentSplitter != null && _leftColumnIndex >= 0)
+            {
+                double currentX = e.GetCurrentPoint(this.HeaderGrid).Position.X;
+                double deltaX = currentX - _startX;
+                
+                if (_leftColumnIndex < this.HeaderGrid.ColumnDefinitions.Count)
+                {
+                    var leftCol = this.HeaderGrid.ColumnDefinitions[_leftColumnIndex];
+                    double newWidth = _leftColumnStartWidth + deltaX;
+                    
+                    // 限制最小宽度
+                    if (newWidth < 50) newWidth = 50;
+                    
+                    leftCol.Width = new GridLength(newWidth);
+                    
+                    // 同步到 ListView 项目
+                    SyncColumnWidths();
+                }
+            }
+        }
+        
+        private void Splitter_PointerReleased(object sender, PointerRoutedEventArgs e)
+        {
+            if (_isResizing && _currentSplitter != null)
+            {
+                _currentSplitter.ReleasePointerCapture(e.Pointer);
+                _isResizing = false;
+                _currentSplitter = null;
+                _leftColumnIndex = -1;
+                e.Handled = true;
+            }
+        }
+        
+        // 同步列宽到所有 ListView 项目
+        private void HeaderGrid_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            SyncColumnWidths();
+        }
+        
+        // 当 ListView 项目加载时同步列宽
+        private void PlaylistItemGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (sender is Grid itemGrid)
+            {
+                SyncItemGridColumns(itemGrid);
+            }
+        }
+        
+        // 同步单个项目的列宽
+        private void SyncItemGridColumns(Grid itemGrid)
+        {
+            if (itemGrid.ColumnDefinitions.Count >= 5 && this.HeaderGrid.ColumnDefinitions.Count >= 9)
+            {
+                // 跳过 GridSplitter 列（索引 1, 3, 5, 7）
+                itemGrid.ColumnDefinitions[0].Width = this.HeaderGrid.ColumnDefinitions[0].Width;
+                itemGrid.ColumnDefinitions[1].Width = this.HeaderGrid.ColumnDefinitions[2].Width;
+                itemGrid.ColumnDefinitions[2].Width = this.HeaderGrid.ColumnDefinitions[4].Width;
+                itemGrid.ColumnDefinitions[3].Width = this.HeaderGrid.ColumnDefinitions[6].Width;
+                itemGrid.ColumnDefinitions[4].Width = this.HeaderGrid.ColumnDefinitions[8].Width;
+            }
+        }
+        
+        // 同步所有 ListView 项目的列宽
+        private void SyncColumnWidths()
+        {
+            foreach (var item in PlaylistListView.Items)
+            {
+                var container = PlaylistListView.ContainerFromItem(item);
+                if (container is ListViewItem listViewItem)
+                {
+                    var contentPresenter = listViewItem.ContentTemplateRoot as Grid;
+                    if (contentPresenter != null)
+                    {
+                        SyncItemGridColumns(contentPresenter);
+                    }
+                }
+            }
         }
         
         // 保存播放清单（改為公共方法，供 MainWindow 調用）
@@ -84,8 +214,13 @@ namespace FlowerPlayer
                 var paths = new List<string>();
                 foreach (var item in PlaylistListView.Items)
                 {
-                    if (item is Grid row && row.Tag is string path)
+                    if (item is PlaylistDisplayItem displayItem)
                     {
+                        paths.Add(displayItem.FullPath);
+                    }
+                    else if (item is Grid row && row.Tag is string path)
+                    {
+                        // 兼容旧格式
                         paths.Add(path);
                     }
                 }
@@ -127,7 +262,17 @@ namespace FlowerPlayer
                             bool exists = false;
                             foreach (var item in PlaylistListView.Items)
                             {
-                                if (item is Grid row && row.Tag is string existingPath && existingPath.Equals(path, StringComparison.OrdinalIgnoreCase))
+                                string existingPath = null;
+                                if (item is PlaylistDisplayItem displayItem)
+                                {
+                                    existingPath = displayItem.FullPath;
+                                }
+                                else if (item is Grid row && row.Tag is string tagPath)
+                                {
+                                    existingPath = tagPath;
+                                }
+                                
+                                if (existingPath != null && existingPath.Equals(path, StringComparison.OrdinalIgnoreCase))
                                 {
                                     exists = true;
                                     break;
@@ -166,7 +311,7 @@ namespace FlowerPlayer
         
         // 窗口激活时加载播放清单（只加载一次）
         private bool _playlistLoaded = false;
-        private async void PlaylistWindow_Activated(object sender, WindowActivatedEventArgs args)
+        private async void PlaylistWindow_Activated(object sender, Microsoft.UI.Xaml.WindowActivatedEventArgs args)
         {
             if (!_playlistLoaded)
             {
@@ -225,20 +370,36 @@ namespace FlowerPlayer
                 int addedCount = 0;
                 int skippedCount = 0;
                 
-                foreach (var item in items)
+                _isLoadingPlaylist = true; // 避免頻繁觸發 SavePlaylist
+                try
                 {
-                    if (item is StorageFile file)
+                    foreach (var item in items)
                     {
-                        // 檢查是否為媒體檔案
-                        if (MediaFileHelper.IsMediaFile(file))
+                        if (item is StorageFile file)
                         {
-                            AddFile(file);
-                            addedCount++;
+                            // 檢查是否為媒體檔案
+                            if (MediaFileHelper.IsMediaFile(file))
+                            {
+                                AddFile(file, saveAfterAdd: false);
+                                addedCount++;
+                            }
+                            else
+                            {
+                                skippedCount++;
+                            }
                         }
-                        else
+                        else if (item is StorageFolder folder)
                         {
-                            skippedCount++;
+                            addedCount += await AddFolderRecursiveAsync(folder);
                         }
+                    }
+                }
+                finally
+                {
+                    _isLoadingPlaylist = false;
+                    if (addedCount > 0)
+                    {
+                        SavePlaylist();
                     }
                 }
                 
@@ -253,6 +414,36 @@ namespace FlowerPlayer
             }
         }
 
+        private async Task<int> AddFolderRecursiveAsync(StorageFolder folder)
+        {
+            int count = 0;
+            try
+            {
+                // 1. 處理當前目錄的檔案
+                var files = await folder.GetFilesAsync();
+                foreach (var file in files)
+                {
+                    if (MediaFileHelper.IsMediaFile(file))
+                    {
+                        AddFile(file, saveAfterAdd: false);
+                        count++;
+                    }
+                }
+
+                // 2. 遞迴處理子目錄
+                var subFolders = await folder.GetFoldersAsync();
+                foreach (var subFolder in subFolders)
+                {
+                    count += await AddFolderRecursiveAsync(subFolder);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error scanning folder {folder.Name}: {ex.Message}");
+            }
+            return count;
+        }
+
         // ---------------------------------------------------------------------
         // Double‑tap a row to play the file in the main window (referenced as PlaylistListView_DoubleTapped)
         // ---------------------------------------------------------------------
@@ -263,14 +454,41 @@ namespace FlowerPlayer
         // ---------------------------------------------------------------------
         private async void PlaylistListView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            // Find the Grid row that was double‑tapped
-            FrameworkElement element = e.OriginalSource as FrameworkElement;
-            while (element != null && !(element is Grid && element.Tag is string))
+            string path = null;
+            
+            // 尝试从选中的项目获取路径
+            if (PlaylistListView.SelectedItem is PlaylistDisplayItem displayItem)
             {
-                element = element.Parent as FrameworkElement;
+                path = displayItem.FullPath;
+            }
+            else if (PlaylistListView.SelectedItem is Grid row && row.Tag is string tagPath)
+            {
+                path = tagPath;
+            }
+            else
+            {
+                // 如果没有选中项，尝试从点击的元素查找
+                FrameworkElement element = e.OriginalSource as FrameworkElement;
+                while (element != null)
+                {
+                    if (element is ListViewItem listViewItem)
+                    {
+                        if (listViewItem.Content is PlaylistDisplayItem item)
+                        {
+                            path = item.FullPath;
+                            break;
+                        }
+                        else if (listViewItem.Content is Grid grid && grid.Tag is string gridPath)
+                        {
+                            path = gridPath;
+                            break;
+                        }
+                    }
+                    element = element.Parent as FrameworkElement;
+                }
             }
 
-            if (element is Grid row && row.Tag is string path)
+            if (!string.IsNullOrEmpty(path))
             {
                 try
                 {
@@ -298,24 +516,54 @@ namespace FlowerPlayer
         }
 
         // ---------------------------------------------------------------------
+        // Selection changed handler – output selected item content (referenced as PlaylistListView_SelectionChanged)
+        // ---------------------------------------------------------------------
+        private void PlaylistListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (PlaylistListView.SelectedItem is PlaylistDisplayItem selectedItem)
+            {
+                // 输出选中项目的所有字段内容
+                System.Diagnostics.Debug.WriteLine("========================================");
+                System.Diagnostics.Debug.WriteLine($"播放清單項目已選中 (從 ListView 讀取):");
+                System.Diagnostics.Debug.WriteLine($"  檔案名稱: [{"選取" + selectedItem.FileName ?? "(null)"}]");
+                System.Diagnostics.Debug.WriteLine($"  容量大小: [{selectedItem.FileSize ?? "(null)"}]");
+                System.Diagnostics.Debug.WriteLine($"  長度: [{selectedItem.Duration ?? "(null)"}]");
+                System.Diagnostics.Debug.WriteLine($"  修改日期: [{selectedItem.ModifiedDate ?? "(null)"}]");
+                System.Diagnostics.Debug.WriteLine($"  目錄: [{selectedItem.Directory ?? "(null)"}]");
+                System.Diagnostics.Debug.WriteLine($"  完整路徑: [{selectedItem.FullPath ?? "(null)"}]");
+                System.Diagnostics.Debug.WriteLine("========================================");
+            }
+            else if (PlaylistListView.SelectedItem != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"警告: 選中的項目不是 PlaylistDisplayItem 類型，而是: {PlaylistListView.SelectedItem.GetType().Name}");
+            }
+        }
+
+        // ---------------------------------------------------------------------
         // Right‑click context menu – delete selected items (referenced as PlaylistListView_RightTapped)
         // ---------------------------------------------------------------------
         private void PlaylistListView_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
             // 先找到被点击的项目
+            object clickedItem = null;
             FrameworkElement element = e.OriginalSource as FrameworkElement;
-            while (element != null && !(element is Grid && element.Tag is string))
+            while (element != null)
             {
+                if (element is ListViewItem listViewItem)
+                {
+                    clickedItem = listViewItem.Content;
+                    break;
+                }
                 element = element.Parent as FrameworkElement;
             }
 
             // 如果找到了项目，先选中它
-            if (element is Grid row && row.Tag is string path)
+            if (clickedItem != null)
             {
                 // 清除当前选择
                 PlaylistListView.SelectedItems.Clear();
                 // 选中被点击的项目
-                PlaylistListView.SelectedItem = row;
+                PlaylistListView.SelectedItem = clickedItem;
             }
             
             var flyout = new MenuFlyout();
@@ -429,8 +677,17 @@ namespace FlowerPlayer
                     // 檢查當前播放的文件是否在選中列表中
                     foreach (var item in selected)
                     {
-                        if (item is Grid row && row.Tag is string path && 
-                            path.Equals(currentPath, StringComparison.OrdinalIgnoreCase))
+                        string itemPath = null;
+                        if (item is PlaylistDisplayItem displayItem)
+                        {
+                            itemPath = displayItem.FullPath;
+                        }
+                        else if (item is Grid row && row.Tag is string tagPath)
+                        {
+                            itemPath = tagPath;
+                        }
+                        
+                        if (itemPath != null && itemPath.Equals(currentPath, StringComparison.OrdinalIgnoreCase))
                         {
                             isCurrentFileSelected = true;
                             break;
@@ -443,11 +700,21 @@ namespace FlowerPlayer
                 int displayCount = 0;
                 foreach (var item in selected)
                 {
-                    if (item is Grid row && row.Children.Count > 0 && row.Children[0] is TextBlock tb)
+                    string fileName = null;
+                    if (item is PlaylistDisplayItem displayItem)
+                    {
+                        fileName = displayItem.FileName;
+                    }
+                    else if (item is Grid row && row.Children.Count > 0 && row.Children[0] is TextBlock tb)
+                    {
+                        fileName = tb.Text;
+                    }
+                    
+                    if (fileName != null)
                     {
                         if (displayCount < 10)
                         {
-                            fileNames.AppendLine($"- {tb.Text}");
+                            fileNames.AppendLine($"- {fileName}");
                         }
                         displayCount++;
                     }
@@ -494,7 +761,17 @@ namespace FlowerPlayer
                     var pathsToDelete = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                     foreach (var item in selected)
                     {
-                        if (item is Grid row && row.Tag is string path)
+                        string path = null;
+                        if (item is PlaylistDisplayItem displayItem)
+                        {
+                            path = displayItem.FullPath;
+                        }
+                        else if (item is Grid row && row.Tag is string tagPath)
+                        {
+                            path = tagPath;
+                        }
+                        
+                        if (path != null)
                         {
                             pathsToDelete.Add(path);
                         }
@@ -553,7 +830,17 @@ namespace FlowerPlayer
 
                 foreach (var item in selected)
                 {
-                    if (item is Grid row && row.Tag is string path)
+                    string path = null;
+                    if (item is PlaylistDisplayItem displayItem)
+                    {
+                        path = displayItem.FullPath;
+                    }
+                    else if (item is Grid row && row.Tag is string tagPath)
+                    {
+                        path = tagPath;
+                    }
+                    
+                    if (path != null)
                     {
                         try
                         {
@@ -658,7 +945,162 @@ namespace FlowerPlayer
 
         private bool _isLoadingPlaylist = false; // 标记是否正在加载播放清单
         private bool _isDeletingFiles = false; // 标记是否正在删除文件，防止在删除过程中触发自动播放
-        
+
+        // 這段是魔法！不管你用 Items.Add 還是什麼方式加進去，都會自動填文字
+        private void PlaylistListView_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+        {
+            if (args.InRecycleQueue) return;           // 回收的項目跳過
+            if (args.Item is not PlaylistDisplayItem item) return;
+
+            // 重要：Phase 0 才能拿到真正的 ContentTemplateRoot
+            if (args.Phase == 0)
+            {
+                args.RegisterUpdateCallback(PlaylistListView_ContainerContentChanging); // 進入下一階段
+            }
+            else if (args.Phase == 1)
+            {
+                // 找到我們在 XAML 命名的 TextBlock
+                var grid = args.ItemContainer.ContentTemplateRoot as Grid;
+                if (grid != null)
+                {
+                    var tb1 = grid.FindName("TbFileName") as TextBlock;
+                    var tb2 = grid.FindName("TbFileSize") as TextBlock;
+                    var tb3 = grid.FindName("TbDuration") as TextBlock;
+                    var tb4 = grid.FindName("TbModifiedDate") as TextBlock;
+                    var tb5 = grid.FindName("TbDirectory") as TextBlock;
+
+                    if (tb1 != null) tb1.Text = item.FileName ?? "";
+                    if (tb2 != null) tb2.Text = item.FileSize ?? "";
+                    if (tb3 != null) tb3.Text = item.Duration ?? "";
+                    if (tb4 != null) tb4.Text = item.ModifiedDate ?? "";
+                    if (tb5 != null) tb5.Text = item.Directory ?? "";
+                }
+
+                args.Handled = true; // 告訴系統我們已經處理完畢
+            }
+        }
+        private async void BtnOpenFiles_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var picker = new Windows.Storage.Pickers.FileOpenPicker();
+                // WinUI 3 需要設置 Window Handle
+                var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, hWnd);
+                
+                picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
+                picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.ComputerFolder;
+                
+                // 添加支援的檔案類型
+                foreach (var ext in MediaFileHelper.AudioExtensions)
+                {
+                    picker.FileTypeFilter.Add(ext);
+                }
+                foreach (var ext in MediaFileHelper.VideoExtensions)
+                {
+                    picker.FileTypeFilter.Add(ext);
+                }
+                // 如果沒有定義擴展名，至少添加一個通配符或常見格式
+                if (picker.FileTypeFilter.Count == 0)
+                {
+                    picker.FileTypeFilter.Add("*");
+                }
+
+                var files = await picker.PickMultipleFilesAsync();
+                if (files.Count > 0)
+                {
+                    _isLoadingPlaylist = true;
+                    int addedCount = 0;
+                    foreach (var file in files)
+                    {
+                        AddFile(file, saveAfterAdd: false);
+                        addedCount++;
+                    }
+                    _isLoadingPlaylist = false;
+                    SavePlaylist();
+                    
+                    UpdateStatus?.Invoke($"Playlist: 已添加 {addedCount} 個檔案");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"BtnOpenFiles_Click error: {ex.Message}");
+            }
+        }
+
+        private async void BtnOpenFolder_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var picker = new Windows.Storage.Pickers.FolderPicker();
+                var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, hWnd);
+                
+                picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.ComputerFolder;
+                picker.FileTypeFilter.Add("*"); // FolderPicker 需要這個
+
+                var folder = await picker.PickSingleFolderAsync();
+                if (folder != null)
+                {
+                    _isLoadingPlaylist = true;
+                    int addedCount = await AddFolderRecursiveAsync(folder);
+                    _isLoadingPlaylist = false;
+                    
+                    if (addedCount > 0)
+                    {
+                        SavePlaylist();
+                        UpdateStatus?.Invoke($"Playlist: 已從目錄添加 {addedCount} 個檔案");
+                    }
+                    else
+                    {
+                        UpdateStatus?.Invoke($"Playlist: 該目錄沒有發現媒體檔案");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"BtnOpenFolder_Click error: {ex.Message}");
+            }
+        }
+
+        private async void BtnClearAll_Click(object sender, RoutedEventArgs e)
+        {
+            await DeleteAllItems();
+        }
+
+        private void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            // 暴力遍歷 ListView 內所有已經生成的項目
+            for (int i = 0; i < PlaylistListView.Items.Count; i++)
+            {
+                var item = PlaylistListView.Items[i] as PlaylistDisplayItem;
+                if (item == null) continue;
+
+                // 取得這個項目對應的 ListViewItem 容器
+                var container = PlaylistListView.ContainerFromIndex(i) as ListViewItem;
+                if (container == null) continue; // 還沒滾到、還沒生成就跳過
+
+                // 強制這個容器載入模板（這行很重要！）
+                container.UpdateLayout();
+
+                // 現在一定拿得到 Grid 和 TextBlock
+                if (container.ContentTemplateRoot is Grid grid)
+                {
+                    var tb1 = grid.FindName("TbFileName") as TextBlock;
+                    var tb2 = grid.FindName("TbFileSize") as TextBlock;
+                    var tb3 = grid.FindName("TbDuration") as TextBlock;
+                    var tb4 = grid.FindName("TbModifiedDate") as TextBlock;
+                    var tb5 = grid.FindName("TbDirectory") as TextBlock;
+
+                    // 安全寫法，就算有 null 也不會炸
+                    if (tb1 != null) tb1.Text = item.FileName ?? "";
+                    if (tb2 != null) tb2.Text = item.FileSize ?? "";
+                    if (tb3 != null) tb3.Text = item.Duration ?? "";
+                    if (tb4 != null) tb4.Text = item.ModifiedDate ?? "";
+                    if (tb5 != null) tb5.Text = item.Directory ?? "";
+                }
+            }
+        }
         public void AddFile(Windows.Storage.StorageFile file, bool saveAfterAdd = true)
         {
             try
@@ -669,70 +1111,74 @@ namespace FlowerPlayer
                 var modified = props.DateModified.LocalDateTime.ToString("yyyy/MM/dd HH:mm");
                 var fileSize = FormatFileSize(props.Size);
 
-                // Create a Grid representing a row with five columns
-                var rowGrid = new Grid();
-                // Column definitions must match the header widths
-                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new Microsoft.UI.Xaml.GridLength(600) });
-                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new Microsoft.UI.Xaml.GridLength(120) });
-                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new Microsoft.UI.Xaml.GridLength(120) });
-                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new Microsoft.UI.Xaml.GridLength(200) });
-                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new Microsoft.UI.Xaml.GridLength(1, Microsoft.UI.Xaml.GridUnitType.Star) });
-
-                // File name
-                var tbName = new TextBlock
+                // Create a PlaylistDisplayItem for data binding
+                var displayItem = new PlaylistDisplayItem
                 {
-                    Text = file.Name,
-                    Margin = new Thickness(5, 2, 5, 2),
-                    TextTrimming = TextTrimming.CharacterEllipsis
+                    FileName = file.Name,
+                    FileSize = fileSize,
+                    //Duration = "不知道",
+                    Duration = duration,
+                    ModifiedDate = modified,
+                    Directory = directory,
+                    FullPath = file.Path
                 };
-                Grid.SetColumn(tbName, 0);
-                rowGrid.Children.Add(tbName);
 
-                // File size
-                var tbSize = new TextBlock
+                // Add the item to the ListView (will use ItemTemplate)
+                PlaylistListView.Items.Add(displayItem);
+
+               // 从 ListView 中读取刚添加的项目，确认数据已正确存储
+               var addedItem = PlaylistListView.Items[PlaylistListView.Items.Count - 1] as PlaylistDisplayItem;
+                if (addedItem != null)
                 {
-                    Text = fileSize,
-                    Margin = new Thickness(5, 2, 5, 2)
-                };
-                Grid.SetColumn(tbSize, 1);
-                rowGrid.Children.Add(tbSize);
+                    // 2. 強制 ListView 立刻產生所有 UI 元素（關閉虛擬化效果）
+                    PlaylistListView.UpdateLayout();                   // 強制排版
+                    PlaylistListView.ScrollIntoView(addedItem);             // 強制產生該項目的容器
 
-                // Duration
-                var tbDur = new TextBlock
+                    // 3. 現在就能拿到剛剛加入的那一筆的 Grid 了！
+                    if (PlaylistListView.ContainerFromItem(addedItem) is ListViewItem listViewItem)
+                    {
+                        // 這行是真正的救命仙丹！！！
+                        var container = PlaylistListView.ContainerFromItem(addedItem) as ListViewItem;
+                        container?.UpdateLayout();   // 強制這個 ListViewItem 自己 Apply Template
+                        if (listViewItem.ContentTemplateRoot is Grid grid)
+                        {
+                            var tb1 = grid.FindName("TbFileName") as TextBlock;
+                            var tb2 = grid.FindName("TbFileSize") as TextBlock;
+                            var tb3 = grid.FindName("TbDuration") as TextBlock;
+                            var tb4 = grid.FindName("TbModifiedDate") as TextBlock;
+                            var tb5 = grid.FindName("TbDirectory") as TextBlock;
+
+                            if (tb1 != null) tb1.Text = addedItem.FileName ?? "";
+                            if (tb2 != null) tb2.Text = addedItem.FileSize ?? "";
+                            if (tb3 != null) tb3.Text = addedItem.Duration ?? "";
+                            if (tb4 != null) tb4.Text = addedItem.ModifiedDate ?? "";
+                            if (tb5 != null) tb5.Text = addedItem.Directory ?? "";
+
+
+                            //tb1.Text = addedItem.FileName;
+                            //System.Diagnostics.Debug.WriteLine($"  檔案名稱: [{tb1.Text}]");
+                            //tb2.Text = addedItem.FileSize;
+                            //tb3.Text = addedItem.Duration;
+                            //tb4.Text = addedItem.ModifiedDate;
+                            //tb5.Text = addedItem.Directory;
+                        }
+                    }
+
+                    // 输出从播放清单项目中读取的所有文字内容到调试输出
+                    System.Diagnostics.Debug.WriteLine("========================================");
+                    System.Diagnostics.Debug.WriteLine($"播放清單項目已添加 (從 ListView 讀取):");
+                    System.Diagnostics.Debug.WriteLine($"  檔案名稱: [{addedItem.FileName}]");
+                    System.Diagnostics.Debug.WriteLine($"  容量大小: [{addedItem.FileSize}]");
+                    System.Diagnostics.Debug.WriteLine($"  長度: [{addedItem.Duration}]");
+                    System.Diagnostics.Debug.WriteLine($"  修改日期: [{addedItem.ModifiedDate}]");
+                    System.Diagnostics.Debug.WriteLine($"  目錄: [{addedItem.Directory}]");
+                    System.Diagnostics.Debug.WriteLine($"  完整路徑: [{addedItem.FullPath}]");
+                    System.Diagnostics.Debug.WriteLine("========================================");
+                }
+                else
                 {
-                    Text = duration,
-                    Margin = new Thickness(5, 2, 5, 2)
-                };
-                Grid.SetColumn(tbDur, 2);
-                rowGrid.Children.Add(tbDur);
-
-                // Modified date
-                var tbMod = new TextBlock
-                {
-                    Text = modified,
-                    Margin = new Thickness(5, 2, 5, 2)
-                };
-                Grid.SetColumn(tbMod, 3);
-                rowGrid.Children.Add(tbMod);
-
-                // Directory
-                var tbDir = new TextBlock
-                {
-                    Text = directory,
-                    Margin = new Thickness(5, 2, 5, 2),
-                    TextTrimming = TextTrimming.CharacterEllipsis
-                };
-                Grid.SetColumn(tbDir, 4);
-                rowGrid.Children.Add(tbDir);
-
-                // 將文件路徑存儲在 Tag 中，以便雙擊時可以獲取
-                rowGrid.Tag = file.Path;
-
-                // Add the row to the ListView
-                PlaylistListView.Items.Add(rowGrid);
-                System.Diagnostics.Debug.WriteLine($"Added to playlist: {file.Name}");
-                // 移除状态消息，避免每次添加文件时都显示消息
-                // UpdateStatus?.Invoke($"Playlist: Added {file.Name}");
+                    System.Diagnostics.Debug.WriteLine($"警告: 無法從 ListView 讀取剛添加的項目 (類型: {PlaylistListView.Items[PlaylistListView.Items.Count - 1]?.GetType().Name})");
+                }
                 
                 // 只有在非加载状态下才保存播放清单
                 if (saveAfterAdd && !_isLoadingPlaylist)
@@ -809,21 +1255,31 @@ namespace FlowerPlayer
             
             foreach (var item in itemsSnapshot)
             {
-                if (item is Grid row && row.Tag is string path)
+                string itemPath = null;
+                if (item is PlaylistDisplayItem displayItem)
                 {
-                    System.Diagnostics.Debug.WriteLine($"GetNextFilePath: Checking item: {path}");
+                    itemPath = displayItem.FullPath;
+                }
+                else if (item is Grid row && row.Tag is string tagPath)
+                {
+                    itemPath = tagPath;
+                }
+                
+                if (itemPath != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"GetNextFilePath: Checking item: {itemPath}");
                     if (foundCurrent)
                     {
-                        System.Diagnostics.Debug.WriteLine($"GetNextFilePath: Found next file: {path}");
-                        return path;
+                        System.Diagnostics.Debug.WriteLine($"GetNextFilePath: Found next file: {itemPath}");
+                        return itemPath;
                     }
-                    if (string.IsNullOrEmpty(currentPath) || path.Equals(currentPath, StringComparison.OrdinalIgnoreCase))
+                    if (string.IsNullOrEmpty(currentPath) || itemPath.Equals(currentPath, StringComparison.OrdinalIgnoreCase))
                     {
-                        System.Diagnostics.Debug.WriteLine($"GetNextFilePath: Found current file: {path}");
+                        System.Diagnostics.Debug.WriteLine($"GetNextFilePath: Found current file: {itemPath}");
                         foundCurrent = true;
                         if (string.IsNullOrEmpty(currentPath))
                         {
-                            return path;
+                            return itemPath;
                         }
                     }
                 }
@@ -840,7 +1296,17 @@ namespace FlowerPlayer
             
             foreach (var item in PlaylistListView.Items)
             {
-                if (item is Grid row && row.Tag is string path)
+                string path = null;
+                if (item is PlaylistDisplayItem displayItem)
+                {
+                    path = displayItem.FullPath;
+                }
+                else if (item is Grid row && row.Tag is string tagPath)
+                {
+                    path = tagPath;
+                }
+                
+                if (path != null)
                 {
                     if (string.IsNullOrEmpty(currentPath) || path.Equals(currentPath, StringComparison.OrdinalIgnoreCase))
                     {
@@ -860,7 +1326,17 @@ namespace FlowerPlayer
             var itemsToRemove = new List<object>();
             foreach (var item in PlaylistListView.Items)
             {
-                if (item is Grid row && row.Tag is string path && path.Equals(filePath, StringComparison.OrdinalIgnoreCase))
+                string path = null;
+                if (item is PlaylistDisplayItem displayItem)
+                {
+                    path = displayItem.FullPath;
+                }
+                else if (item is Grid row && row.Tag is string tagPath)
+                {
+                    path = tagPath;
+                }
+                
+                if (path != null && path.Equals(filePath, StringComparison.OrdinalIgnoreCase))
                 {
                     itemsToRemove.Add(item);
                 }
@@ -884,7 +1360,17 @@ namespace FlowerPlayer
             
             foreach (var item in PlaylistListView.Items)
             {
-                if (item is Grid row && row.Tag is string path && path.Equals(filePath, StringComparison.OrdinalIgnoreCase))
+                string path = null;
+                if (item is PlaylistDisplayItem displayItem)
+                {
+                    path = displayItem.FullPath;
+                }
+                else if (item is Grid row && row.Tag is string tagPath)
+                {
+                    path = tagPath;
+                }
+                
+                if (path != null && path.Equals(filePath, StringComparison.OrdinalIgnoreCase))
                 {
                     PlaylistListView.SelectedItem = item;
                     // 滾動到選中的項目

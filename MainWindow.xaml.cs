@@ -604,7 +604,13 @@ namespace FlowerPlayer
             switch (e.Key)
             {
                 case Windows.System.VirtualKey.Right:
-                    if (isShiftPressed)
+                    if (isCtrlPressed)
+                    {
+                        // Ctrl+右方向鍵：下一個檔案
+                        PlayNextFile_Click(this, null);
+                        e.Handled = true;
+                    }
+                    else if (isShiftPressed)
                     {
                         // Shift+右方向鍵：+1分鐘（音樂和影片都可用）
                         ViewModel.SeekForwardCommand?.Execute(null);
@@ -619,7 +625,13 @@ namespace FlowerPlayer
                     break;
 
                 case Windows.System.VirtualKey.Left:
-                    if (isShiftPressed)
+                    if (isCtrlPressed)
+                    {
+                        // Ctrl+左方向鍵：上一個檔案
+                        PlayPreviousFile_Click(this, null);
+                        e.Handled = true;
+                    }
+                    else if (isShiftPressed)
                     {
                         // Shift+左方向鍵：-1分鐘（音樂和影片都可用）
                         ViewModel.SeekBackwardCommand?.Execute(null);

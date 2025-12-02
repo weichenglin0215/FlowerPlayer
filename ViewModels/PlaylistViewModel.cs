@@ -12,7 +12,7 @@ namespace FlowerPlayer.ViewModels
     public partial class PlaylistViewModel : ObservableObject
     {
         [ObservableProperty]
-        private ObservableCollection<StorageFile> _playlistItems = new();
+        private ObservableCollection<MediaItem> _playlistItems = new();
 
         private ObservableCollection<HistoryItem> _historyItems;
         public ObservableCollection<HistoryItem> HistoryItems
@@ -32,30 +32,27 @@ namespace FlowerPlayer.ViewModels
         {
             _mediaService = mediaService;
             HistoryItems = new ObservableCollection<HistoryItem>();
-
-            // Add dummy data for design time verification
-            HistoryItems.Add(new HistoryItem("Dummy Video 1.mp4", "150 MB", "2023/10/01 10:00:00", "C:\\Videos\\Dummy1.mp4"));
-            HistoryItems.Add(new HistoryItem("Dummy Music 2.mp3", "5 MB", "2023/10/02 11:30:00", "C:\\Music\\Dummy2.mp3"));
-            HistoryItems.Add(new HistoryItem("Dummy Movie 3.mkv", "2.5 GB", "2023/10/03 20:15:00", "D:\\Movies\\Dummy3.mkv"));
             
             OnPropertyChanged(nameof(HistoryTitle));
         }
 
         [RelayCommand]
-        public void AddFile(StorageFile file)
+        public async Task AddFile(StorageFile file)
         {
-            if (!PlaylistItems.Contains(file))
+            if (!PlaylistItems.Any(i => i.FilePath == file.Path))
             {
-                PlaylistItems.Add(file);
+                var item = new MediaItem(file);
+                PlaylistItems.Add(item);
+                await item.LoadPropertiesAsync();
             }
         }
 
         [RelayCommand]
-        public void RemoveFile(StorageFile file)
+        public void RemoveFile(MediaItem item)
         {
-            if (PlaylistItems.Contains(file))
+            if (PlaylistItems.Contains(item))
             {
-                PlaylistItems.Remove(file);
+                PlaylistItems.Remove(item);
             }
         }
 

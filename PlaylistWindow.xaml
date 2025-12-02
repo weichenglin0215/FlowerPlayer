@@ -4,34 +4,101 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="Playlist">
 
-    <Grid AllowDrop="True" DragOver="Playlist_DragOver" Drop="Playlist_Drop">
+    <Grid AllowDrop="True" DragOver="Playlist_DragOver" Drop="Playlist_Drop" Background="White">
+        <Grid.Resources>
+            <!-- ItemTemplate for ListView items -->
+            <DataTemplate x:Key="PlaylistItemTemplate">
+                <Grid x:Name="ItemGrid" Loaded="PlaylistItemGrid_Loaded" Background="white">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition x:Name="ItemCol0" Width="900"/>
+                        <ColumnDefinition x:Name="ItemCol1" Width="120"/>
+                        <ColumnDefinition x:Name="ItemCol2" Width="120"/>
+                        <ColumnDefinition x:Name="ItemCol3" Width="200"/>
+                        <ColumnDefinition x:Name="ItemCol4" Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" x:Name="TbFileName" Text="TbFileName" Margin="10,2,5,6" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" FontSize="18"/>
+                    <TextBlock Grid.Column="1" x:Name="TbFileSize" Text="TbFileSize" Margin="10,2" VerticalAlignment="Center" Foreground="Black" FontSize="18"/>
+                    <TextBlock Grid.Column="2" x:Name="TbDuration" Text="TbDuration" Margin="5,2" VerticalAlignment="Center" Foreground="Black" FontSize="18"/>
+                    <TextBlock Grid.Column="3" x:Name="TbModifiedDate" Text="TbModifiedDate" Margin="5,2" VerticalAlignment="Center" Foreground="Black" FontSize="18"/>
+                    <TextBlock Grid.Column="4" x:Name="TbDirectory" Text="TbDirectory" Margin="5,2" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Foreground="Black" FontSize="18"/>
+                    <!--
+                    <TextBlock Grid.Column="0" Text="{Binding FileName}" Margin="10,2,5,2" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Text="{Binding FileSize}" Margin="10,2" VerticalAlignment="Center" Foreground="Black"/>
+                    <TextBlock Grid.Column="2" Text="{Binding Duration}" Margin="5,2" VerticalAlignment="Center" Foreground="Black"/>
+                    <TextBlock Grid.Column="3" Text="{Binding ModifiedDate}" Margin="5,2" VerticalAlignment="Center" Foreground="Black"/>
+                    <TextBlock Grid.Column="4" Text="{Binding Directory}" Margin="5,2" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Foreground="Black"/>
+                    -->
+                </Grid>
+            </DataTemplate>
+        </Grid.Resources>
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/> <!-- Title -->
             <RowDefinition Height="30"/> <!-- Column Headers -->
             <RowDefinition Height="*"/>    <!-- List -->
         </Grid.RowDefinitions>
+        
+        <!-- Buttons Panel -->
+        <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,5">
+            <Button Content="開啟檔案..." Click="BtnOpenFiles_Click" Margin="0,0,10,0" FontSize="16"/>
+            <Button Content="開啟目錄..." Click="BtnOpenFolder_Click" Margin="0,0,10,0" FontSize="16"/>
+            <Button Content="清除所有播放清單項目" Click="BtnClearAll_Click" FontSize="16"/>
+        </StackPanel>
 
-        <!-- Column Headers -->
-        <Grid Grid.Row="1" Background="#F0F0F0" Height="30" Margin="10,0">
+        <!-- 放在 Grid 最上面或最下面都行，我放右上角 -->
+        <Button Content="刷新顯示" 
+        HorizontalAlignment="Right" 
+        VerticalAlignment="Top" 
+        Margin="20,5,20,10" 
+        Click="RefreshButton_Click" 
+        FontSize="16"/>
+        
+        <!-- Column Headers with GridSplitters -->
+        <Grid x:Name="HeaderGrid" Grid.Row="1" Background="#F0F0F0" Height="30" Margin="10,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="900"/>
-                <ColumnDefinition Width="120"/>
-                <ColumnDefinition Width="120"/>
-                <ColumnDefinition Width="200"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition x:Name="Col0" Width="900"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition x:Name="Col1" Width="120"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition x:Name="Col2" Width="120"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition x:Name="Col3" Width="200"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition x:Name="Col4" Width="*"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="檔案名稱" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center"/>
-            <TextBlock Grid.Column="1" Text="容量大小" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center"/>
-            <TextBlock Grid.Column="2" Text="長度" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center"/>
-            <TextBlock Grid.Column="3" Text="修改日期" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center"/>
-            <TextBlock Grid.Column="4" Text="目錄" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center"/>
+
+            <TextBlock Grid.Column="0" Text="檔案名稱" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center" FontSize="16"/>
+            <Border x:Name="Splitter0" Grid.Column="1" Background="Gray" 
+                    PointerPressed="Splitter_PointerPressed" PointerMoved="Splitter_PointerMoved" PointerReleased="Splitter_PointerReleased"
+                    PointerEntered="Splitter_PointerEntered" PointerExited="Splitter_PointerExited"/>
+
+            <TextBlock Grid.Column="2" Text="容量大小" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center" FontSize="16"/>
+            <Border x:Name="Splitter1" Grid.Column="3" Background="Gray"
+                    PointerPressed="Splitter_PointerPressed" PointerMoved="Splitter_PointerMoved" PointerReleased="Splitter_PointerReleased"
+                    PointerEntered="Splitter_PointerEntered" PointerExited="Splitter_PointerExited"/>
+
+            <TextBlock Grid.Column="4" Text="長度" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center"  FontSize="16"/>
+            <Border x:Name="Splitter2" Grid.Column="5" Background="Gray"
+                    PointerPressed="Splitter_PointerPressed" PointerMoved="Splitter_PointerMoved" PointerReleased="Splitter_PointerReleased"
+                    PointerEntered="Splitter_PointerEntered" PointerExited="Splitter_PointerExited"/>
+
+            <TextBlock Grid.Column="6" Text="修改日期" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center" FontSize="16"/>
+            <Border x:Name="Splitter3" Grid.Column="7" Background="Gray"
+                    PointerPressed="Splitter_PointerPressed" PointerMoved="Splitter_PointerMoved" PointerReleased="Splitter_PointerReleased"
+                    PointerEntered="Splitter_PointerEntered" PointerExited="Splitter_PointerExited"/>
+
+            <TextBlock Grid.Column="8" Text="目錄" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center" FontSize="16"/>
         </Grid>
 
         <!-- ListView -->
         <ListView Grid.Row="2" x:Name="PlaylistListView"
-                  Margin="10,0,10,10"
+                  Margin="10,0,10,6"
                   SelectionMode="Extended"
+                  Background="#F0F0F0"
                   DoubleTapped="PlaylistListView_DoubleTapped"
-                  RightTapped="PlaylistListView_RightTapped"/>
+                  RightTapped="PlaylistListView_RightTapped"
+                  SelectionChanged="PlaylistListView_SelectionChanged"
+                  ItemTemplate="{StaticResource PlaylistItemTemplate}"
+                  ContainerContentChanging="PlaylistListView_ContainerContentChanging"/>
     </Grid>
 </Window>
