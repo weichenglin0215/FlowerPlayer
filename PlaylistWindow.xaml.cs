@@ -12,14 +12,21 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
+using Windows.Storage.Streams;
 
 namespace FlowerPlayer
 {
     public sealed partial class PlaylistWindow : Window
     {
+        // 檔案名稱（固定）
+        private const string PlaylistFileName = "PlaylistData.json";
         public PlaylistViewModel ViewModel { get; }
         // Action to report status back to MainWindow
         public Action<string> UpdateStatus { get; set; }
@@ -206,9 +213,76 @@ namespace FlowerPlayer
                 }
             }
         }
-        
+
+        // 取得播放清單的完整檔案路徑
+        private async Task<StorageFile> GetPlaylistFileAsync()
+        {
+            var localFolder = ApplicationData.Current.LocalFolder;
+            return await localFolder.CreateFileAsync(PlaylistFileName, CreationCollisionOption.OpenIfExists);
+        }
+
+        // 儲存播放清單到 LocalFolder 的 JSON 檔案
+        private async Task SavePlaylistToFileAsync_OLD2()
+        {
+            try
+            {
+                var paths = new List<string>();
+
+                foreach (var item in PlaylistListView.Items)
+                {
+                    if (item is PlaylistDisplayItem displayItem)
+                    {
+                        paths.Add(displayItem.FullPath);
+                    }
+                    else if (item is Grid row && row.Tag is string path)
+                    {
+                        // 兼容舊格式
+                        paths.Add(path);
+                    }
+                }
+
+                var file = await GetPlaylistFileAsync();
+                string json = JsonSerializer.Serialize(paths, new JsonSerializerOptions { WriteIndented = true });
+                await FileIO.WriteTextAsync(file, json);
+
+                System.Diagnostics.Debug.WriteLine($"PlaylistWindow: Saved {paths.Count} items to LocalFolder/{PlaylistFileName}");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"PlaylistWindow.SavePlaylistToFileAsync error: {ex.Message}");
+            }
+        }
+
+        private async Task SavePlaylistToFileAsync()
+        {
+            try
+            {
+                var paths = new List<string>();
+                foreach (var item in PlaylistListView.Items)
+                {
+                    if (item is PlaylistDisplayItem displayItem)
+                        paths.Add(displayItem.FullPath);
+                    else if (item is Grid row && row.Tag is string path)
+                        paths.Add(path);
+                }
+
+                var file = await ApplicationData.Current.LocalFolder
+                    .CreateFileAsync("PlaylistData.json", CreationCollisionOption.ReplaceExisting);
+
+                using var stream = await file.OpenAsync(FileAccessMode.ReadWrite);
+                var serializer = new DataContractJsonSerializer(typeof(List<string>));
+                serializer.WriteObject(stream.AsStreamForWrite(), paths);
+
+                System.Diagnostics.Debug.WriteLine($"Playlist saved: {paths.Count} items → LocalFolder");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"SavePlaylistToFileAsync error: {ex.Message}");
+            }
+        }
+
         // 保存播放清单（改為公共方法，供 MainWindow 調用）
-        public void SavePlaylist()
+        public void SavePlaylist_OLD()
         {
             try
             {
@@ -233,9 +307,30 @@ namespace FlowerPlayer
                 System.Diagnostics.Debug.WriteLine($"PlaylistWindow.SavePlaylist error: {ex.Message}");
             }
         }
-        
+
+        public async void SavePlaylist()
+        {
+            try
+            {
+                // 新的主要儲存方式：存到檔案
+                await SavePlaylistToFileAsync();
+
+                // （可選）你還是可以保留舊的 LocalSettingsService 做為「備份」或「快速預覽」
+                // 但千萬不要再存完整清單！可以只存個數量或前幾筆給 UI 快速顯示
+                // 例如：
+                // var preview = paths.Take(10).ToList();
+                // Services.LocalSettingsService.PlaylistPaths = preview;
+
+                System.Diagnostics.Debug.WriteLine("PlaylistWindow: Playlist saved successfully to file");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"PlaylistWindow.SavePlaylist error: {ex.Message}");
+            }
+        }
+
         // 加载播放清单
-        private async System.Threading.Tasks.Task LoadPlaylistAsync()
+        private async System.Threading.Tasks.Task LoadPlaylistAsync_OLD()
         {
             try
             {
@@ -309,15 +404,176 @@ namespace FlowerPlayer
                 _isLoadingPlaylist = false; // 标记加载完成
             }
         }
-        
+
+        // 取代你原本的 LoadPlaylistAsync 方法
+
+        private async Task LoadPlaylistFromFileAsync()
+        {
+            try
+            {
+                _isLoadingPlaylist = true;
+
+                var file = await ApplicationData.Current.LocalFolder.TryGetItemAsync("PlaylistData.json") as StorageFile;
+                if (file == null) return;
+
+                using var stream = await file.OpenAsync(FileAccessMode.Read);
+                var serializer = new DataContractJsonSerializer(typeof(List<string>));
+
+                var savedPaths = serializer.ReadObject(stream.AsStreamForRead()) as List<string>;
+                if (savedPaths == null || savedPaths.Count == 0) return;
+
+                System.Diagnostics.Debug.WriteLine($"Loading {savedPaths.Count} items from playlist file");
+
+                int loadedCount = 0;
+                foreach (var path in savedPaths)
+                {
+                    try
+                    {
+                        var storageFile = await StorageFile.GetFileFromPathAsync(path);
+                        bool exists = PlaylistListView.Items.Any(item =>
+                        {
+                            return item is PlaylistDisplayItem di && di.FullPath.Equals(path, StringComparison.OrdinalIgnoreCase) ||
+                                   item is Grid g && g.Tag is string tag && tag.Equals(path, StringComparison.OrdinalIgnoreCase);
+                        });
+
+                        if (!exists)
+                        {
+                            AddFile(storageFile, saveAfterAdd: false);
+                            loadedCount++;
+                        }
+                    }
+                    catch { /* 檔案不存在就跳過 */ }
+                }
+
+                UpdateStatus?.Invoke($"播放清單已載入 {loadedCount}/{savedPaths.Count} 個檔案");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"LoadPlaylistFromFileAsync error: {ex.Message}");
+            }
+            finally
+            {
+                _isLoadingPlaylist = false;
+            }
+        }
+        private async System.Threading.Tasks.Task LoadPlaylistFromFileAsync_OLD2()
+        {
+            try
+            {
+                _isLoadingPlaylist = true;
+
+                var localFolder = ApplicationData.Current.LocalFolder;
+                var fileItem = await localFolder.TryGetItemAsync("PlaylistData.json") as StorageFile;
+
+                if (fileItem == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("PlaylistWindow: No saved playlist file found (PlaylistData.json)");
+                    return;
+                }
+
+                string json = await FileIO.ReadTextAsync(fileItem);
+                if (string.IsNullOrWhiteSpace(json))
+                {
+                    System.Diagnostics.Debug.WriteLine("PlaylistWindow: Playlist file is empty");
+                    return;
+                }
+
+                var savedPaths = JsonSerializer.Deserialize<List<string>>(json);
+
+                if (savedPaths == null || savedPaths.Count == 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("PlaylistWindow: Saved playlist is empty");
+                    return;
+                }
+
+                System.Diagnostics.Debug.WriteLine($"PlaylistWindow: Loading {savedPaths.Count} items from PlaylistData.json");
+                int loadedCount = 0;
+
+                foreach (var path in savedPaths)
+                {
+                    if (string.IsNullOrWhiteSpace(path)) continue;
+
+                    try
+                    {
+                        // 檢查檔案是否真的存在
+                        var file = await StorageFile.GetFileFromPathAsync(path);
+
+                        // 檢查是否已在清單中（避免重複）
+                        bool exists = PlaylistListView.Items.Any(item =>
+                        {
+                            string existingPath = item switch
+                            {
+                                PlaylistDisplayItem displayItem => displayItem.FullPath,
+                                Grid row when row.Tag is string tagPath => tagPath,
+                                _ => null
+                            };
+                            return existingPath != null &&
+                                   existingPath.Equals(path, StringComparison.OrdinalIgnoreCase);
+                        });
+
+                        if (!exists)
+                        {
+                            AddFile(file, saveAfterAdd: false);  // 不觸發儲存，避免循環
+                            loadedCount++;
+                        }
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        // 權限問題（例如在外部磁碟機拔除）
+                        System.Diagnostics.Debug.WriteLine($"PlaylistWindow: Access denied for {path}");
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"PlaylistWindow: File not found {path}");
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"PlaylistWindow: Failed to load file {path}: {ex.Message}");
+                    }
+                }
+
+                if (loadedCount > 0)
+                {
+                    UpdateStatus?.Invoke($"播放清單：已載入 {loadedCount} 個檔案（共 {savedPaths.Count} 筆記錄）");
+                }
+                else
+                {
+                    UpdateStatus?.Invoke($"播放清單：已載入（{savedPaths.Count} 筆中找到 {loadedCount} 個有效檔案）");
+                }
+            }
+            catch (JsonException jsonEx)
+            {
+                System.Diagnostics.Debug.WriteLine($"PlaylistWindow: JSON parse error in playlist file: {jsonEx.Message}");
+                UpdateStatus?.Invoke("播放清單載入失敗：資料格式損壞");
+                // 可選：備份損壞檔案後重新建立
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"PlaylistWindow.LoadPlaylistFromFileAsync error: {ex.Message}");
+            }
+            finally
+            {
+                _isLoadingPlaylist = false;
+            }
+        }
         // 窗口激活时加载播放清单（只加载一次）
         private bool _playlistLoaded = false;
-        private async void PlaylistWindow_Activated(object sender, Microsoft.UI.Xaml.WindowActivatedEventArgs args)
+        private async void PlaylistWindow_Activated(object sender, WindowActivatedEventArgs args)
+        {
+            if (args.WindowActivationState == WindowActivationState.Deactivated) return;
+
+            if (!_playlistLoaded)
+            {
+                _playlistLoaded = true;
+                await LoadPlaylistFromFileAsync();  // 改成新的方法
+            }
+        }
+        private async void PlaylistWindow_Activated_OLD(object sender, Microsoft.UI.Xaml.WindowActivatedEventArgs args)
         {
             if (!_playlistLoaded)
             {
                 _playlistLoaded = true;
-                await LoadPlaylistAsync();
+                await LoadPlaylistAsync_OLD();
             }
         }
         

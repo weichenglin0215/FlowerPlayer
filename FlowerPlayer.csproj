@@ -17,6 +17,9 @@
     <WindowsPackageType>MSIX</WindowsPackageType>
     <PublishReadyToRun>false</PublishReadyToRun>
 	<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+	<EnablePreviewFeatures>true</EnablePreviewFeatures> <!-- 如果還沒加 -->
+    <!-- 最重要的這一行 -->
+    <EnableTrimmedReflectionSerialization>true</EnableTrimmedReflectionSerialization>
   </PropertyGroup>
 
   <ItemGroup>
@@ -71,8 +74,8 @@
     <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">True</PublishTrimmed>
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
-    <AssemblyVersion>0.0.3.2</AssemblyVersion>
-    <FileVersion>0.0.3.2</FileVersion>
+    <AssemblyVersion>0.0.3.3</AssemblyVersion>
+    <FileVersion>0.0.3.3</FileVersion>
     <PublishAot>True</PublishAot>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>

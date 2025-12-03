@@ -9,7 +9,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="FlowerPlayer V0.0.3.2(優化右鍵選取、熱鍵、播放清單、介面配色。新增搜尋子目錄)">
+    Title="FlowerPlayer V0.0.3.3(重寫撥放清單紀錄JSON格式，優化右鍵選取、熱鍵、播放清單、介面配色。新增搜尋子目錄)">
 
     <Window.SystemBackdrop>
         <MicaBackdrop />
