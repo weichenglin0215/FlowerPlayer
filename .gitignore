@@ -6,4 +6,5 @@ bin/
 obj/
 packages/
 AppPackages/
+.vs/
 .fake
