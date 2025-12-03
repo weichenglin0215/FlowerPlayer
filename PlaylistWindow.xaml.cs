@@ -4,6 +4,7 @@ using FlowerPlayer.Services;
 using FlowerPlayer.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using System;
@@ -547,47 +548,66 @@ namespace FlowerPlayer
             // 先找到被点击的项目
             object clickedItem = null;
             FrameworkElement element = e.OriginalSource as FrameworkElement;
+            System.Diagnostics.Debug.WriteLine($"點選起點: [{element?.GetType().Name}]");
+
             while (element != null)
             {
+                System.Diagnostics.Debug.WriteLine($"檢查元素: [{element.GetType().Name}]");
                 if (element is ListViewItem listViewItem)
                 {
                     clickedItem = listViewItem.Content;
+                    System.Diagnostics.Debug.WriteLine($"找到 ListViewItem，內容: [{clickedItem}]");
                     break;
                 }
-                element = element.Parent as FrameworkElement;
+                element = VisualTreeHelper.GetParent(element) as FrameworkElement;
+                System.Diagnostics.Debug.WriteLine($"點選的項目: [{element}]");
             }
 
-            // 如果找到了项目，先选中它
+            // 如果找到了项目
             if (clickedItem != null)
             {
-                // 清除当前选择
-                PlaylistListView.SelectedItems.Clear();
-                // 选中被点击的项目
-                PlaylistListView.SelectedItem = clickedItem;
+                System.Diagnostics.Debug.WriteLine($"準備設置選擇項目");
+
+                // 檢查點擊的項目是否已經在選取範圍內
+                bool isAlreadySelected = PlaylistListView.SelectedItems.Contains(clickedItem);
+
+                if (isAlreadySelected)
+                {
+                    // 如果點擊的項目已經被選取，保留現有的多選狀態
+                    System.Diagnostics.Debug.WriteLine($"點擊的項目已在選取範圍內，保留多選狀態");
+                }
+                else
+                {
+                    // 如果點擊的項目沒有被選取，清除舊選擇並選取新項目
+                    System.Diagnostics.Debug.WriteLine($"點擊的項目不在選取範圍內，更新選擇");
+                    PlaylistListView.SelectedItems.Clear();
+                    PlaylistListView.SelectedItem = clickedItem;
+                    System.Diagnostics.Debug.WriteLine($"置換選擇項目: [{PlaylistListView.SelectedItem ?? "(null)"}]");
+                }
             }
-            
+
             var flyout = new MenuFlyout();
-            
+
             // 刪除選單項
             var deleteItem = new MenuFlyoutItem { Text = "刪除" };
             deleteItem.Click += (s, args) => DeleteSelectedItems();
             flyout.Items.Add(deleteItem);
-            
+
             // 刪除實體檔案選單項（紅色）
             var deleteFileItem = new MenuFlyoutItem { Text = "刪除實體檔案..." };
             deleteFileItem.Click += async (s, args) => await DeleteSelectedFiles();
             // 設置紅色背景
             deleteFileItem.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Red);
             flyout.Items.Add(deleteFileItem);
-            
+
             // 分隔線
             flyout.Items.Add(new MenuFlyoutSeparator());
-            
+
             // 刪除所有播放清單項目選單項
             var deleteAllItem = new MenuFlyoutItem { Text = "刪除所有播放清單項目" };
             deleteAllItem.Click += async (s, args) => await DeleteAllItems();
             flyout.Items.Add(deleteAllItem);
-            
+
             // 顯示在滑鼠游標右方
             flyout.ShowAt((FrameworkElement)sender, e.GetPosition((FrameworkElement)sender));
         }
