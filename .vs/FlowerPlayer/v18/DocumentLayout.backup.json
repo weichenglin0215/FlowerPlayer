@@ -3,16 +3,20 @@
   "WorkspaceRootPath": "C:\\3D_prj\\VS_2022_WinUI3_prj\\FlowerPlayer\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{4C015D63-BE02-D93D-02E5-80C8B7E308BB}|FlowerPlayer.csproj|c:\\3d_prj\\vs_2022_winui3_prj\\flowerplayer\\flowerplayer.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{4C015D63-BE02-D93D-02E5-80C8B7E308BB}|FlowerPlayer.csproj|solutionrelative:flowerplayer.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{4C015D63-BE02-D93D-02E5-80C8B7E308BB}|FlowerPlayer.csproj|c:\\3d_prj\\vs_2022_winui3_prj\\flowerplayer\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{4C015D63-BE02-D93D-02E5-80C8B7E308BB}|FlowerPlayer.csproj|solutionrelative:mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4C015D63-BE02-D93D-02E5-80C8B7E308BB}|FlowerPlayer.csproj|c:\\3d_prj\\vs_2022_winui3_prj\\flowerplayer\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4C015D63-BE02-D93D-02E5-80C8B7E308BB}|FlowerPlayer.csproj|solutionrelative:mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{4C015D63-BE02-D93D-02E5-80C8B7E308BB}|FlowerPlayer.csproj|c:\\3d_prj\\vs_2022_winui3_prj\\flowerplayer\\controls\\rangeslider.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{4C015D63-BE02-D93D-02E5-80C8B7E308BB}|FlowerPlayer.csproj|solutionrelative:controls\\rangeslider.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4C015D63-BE02-D93D-02E5-80C8B7E308BB}|FlowerPlayer.csproj|c:\\3d_prj\\vs_2022_winui3_prj\\flowerplayer\\flowerplayer.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
-      "RelativeMoniker": "D:0:0:{4C015D63-BE02-D93D-02E5-80C8B7E308BB}|FlowerPlayer.csproj|solutionrelative:flowerplayer.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+      "AbsoluteMoniker": "D:0:0:{4C015D63-BE02-D93D-02E5-80C8B7E308BB}|FlowerPlayer.csproj|c:\\3d_prj\\vs_2022_winui3_prj\\flowerplayer\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4C015D63-BE02-D93D-02E5-80C8B7E308BB}|FlowerPlayer.csproj|solutionrelative:mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{4C015D63-BE02-D93D-02E5-80C8B7E308BB}|FlowerPlayer.csproj|c:\\3d_prj\\vs_2022_winui3_prj\\flowerplayer\\playlistwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -62,24 +66,37 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
+              "Title": "RangeSlider.xaml",
+              "DocumentMoniker": "C:\\3D_prj\\VS_2022_WinUI3_prj\\FlowerPlayer\\Controls\\RangeSlider.xaml",
+              "RelativeDocumentMoniker": "Controls\\RangeSlider.xaml",
+              "ToolTip": "C:\\3D_prj\\VS_2022_WinUI3_prj\\FlowerPlayer\\Controls\\RangeSlider.xaml",
+              "RelativeToolTip": "Controls\\RangeSlider.xaml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAABKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-12-15T09:45:20.659Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "MainWindow.xaml",
               "DocumentMoniker": "C:\\3D_prj\\VS_2022_WinUI3_prj\\FlowerPlayer\\MainWindow.xaml",
               "RelativeDocumentMoniker": "MainWindow.xaml",
-              "ToolTip": "C:\\3D_prj\\VS_2022_WinUI3_prj\\FlowerPlayer\\MainWindow.xaml",
-              "RelativeToolTip": "MainWindow.xaml",
-              "ViewState": "AgIAAAEAAAAAAAAAAAAkwAsAAABWAAAAAAAAAA==",
+              "ToolTip": "C:\\3D_prj\\VS_2022_WinUI3_prj\\FlowerPlayer\\MainWindow.xaml*",
+              "RelativeToolTip": "MainWindow.xaml*",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAkwAsAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2025-12-15T09:12:19.96Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "PlaylistWindow.xaml.cs",
               "DocumentMoniker": "C:\\3D_prj\\VS_2022_WinUI3_prj\\FlowerPlayer\\PlaylistWindow.xaml.cs",
               "RelativeDocumentMoniker": "PlaylistWindow.xaml.cs",
@@ -87,12 +104,11 @@
               "RelativeToolTip": "PlaylistWindow.xaml.cs",
               "ViewState": "AgIAAPwBAAAAAAAAAAAAAN8BAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-02T02:54:38.071Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-02T02:54:38.071Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "LocalSettingsService.cs",
               "DocumentMoniker": "C:\\3D_prj\\VS_2022_WinUI3_prj\\FlowerPlayer\\Services\\LocalSettingsService.cs",
               "RelativeDocumentMoniker": "Services\\LocalSettingsService.cs",
@@ -104,7 +120,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "MainWindow.xaml.cs",
               "DocumentMoniker": "C:\\3D_prj\\VS_2022_WinUI3_prj\\FlowerPlayer\\MainWindow.xaml.cs",
               "RelativeDocumentMoniker": "MainWindow.xaml.cs",
@@ -112,12 +128,11 @@
               "RelativeToolTip": "MainWindow.xaml.cs",
               "ViewState": "AgIAAAYAAAAAAAAAAAAAAA8AAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-02T07:56:07.665Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-02T07:56:07.665Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "PlaylistDisplayItem.cs",
               "DocumentMoniker": "C:\\3D_prj\\VS_2022_WinUI3_prj\\FlowerPlayer\\Models\\PlaylistDisplayItem.cs",
               "RelativeDocumentMoniker": "Models\\PlaylistDisplayItem.cs",
@@ -129,7 +144,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "FlowerPlayer",
               "DocumentMoniker": "C:\\3D_prj\\VS_2022_WinUI3_prj\\FlowerPlayer\\FlowerPlayer.csproj",
               "RelativeDocumentMoniker": "FlowerPlayer.csproj",
@@ -141,19 +156,18 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "Package.appxmanifest",
               "DocumentMoniker": "C:\\3D_prj\\VS_2022_WinUI3_prj\\FlowerPlayer\\Package.appxmanifest",
               "RelativeDocumentMoniker": "Package.appxmanifest",
               "ToolTip": "C:\\3D_prj\\VS_2022_WinUI3_prj\\FlowerPlayer\\Package.appxmanifest",
               "RelativeToolTip": "Package.appxmanifest",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001793|",
-              "WhenOpened": "2025-12-03T15:42:54.896Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-03T15:42:54.896Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "PlaylistViewModel.cs",
               "DocumentMoniker": "C:\\3D_prj\\VS_2022_WinUI3_prj\\FlowerPlayer\\ViewModels\\PlaylistViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\PlaylistViewModel.cs",
@@ -165,7 +179,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "MainViewModel.cs",
               "DocumentMoniker": "C:\\3D_prj\\VS_2022_WinUI3_prj\\FlowerPlayer\\ViewModels\\MainViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\MainViewModel.cs",
@@ -177,7 +191,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "HistoryWindow.xaml.cs",
               "DocumentMoniker": "C:\\3D_prj\\VS_2022_WinUI3_prj\\FlowerPlayer\\HistoryWindow.xaml.cs",
               "RelativeDocumentMoniker": "HistoryWindow.xaml.cs",
@@ -189,7 +203,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "PlaylistWindow.xaml",
               "DocumentMoniker": "C:\\3D_prj\\VS_2022_WinUI3_prj\\FlowerPlayer\\PlaylistWindow.xaml",
               "RelativeDocumentMoniker": "PlaylistWindow.xaml",
@@ -201,7 +215,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": "FlowerPlayer.csproj",
               "DocumentMoniker": "C:\\3D_prj\\VS_2022_WinUI3_prj\\FlowerPlayer\\FlowerPlayer.csproj",
               "RelativeDocumentMoniker": "FlowerPlayer.csproj",
@@ -213,7 +227,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 13,
               "Title": "app.manifest",
               "DocumentMoniker": "C:\\3D_prj\\VS_2022_WinUI3_prj\\FlowerPlayer\\app.manifest",
               "RelativeDocumentMoniker": "app.manifest",

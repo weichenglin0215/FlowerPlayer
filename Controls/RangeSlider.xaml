@@ -25,14 +25,14 @@
         <Canvas x:Name="ThumbsOverlay" Canvas.ZIndex="10">
             <!-- Start Thumb (Triangle) -->
             <Canvas x:Name="StartThumbCanvas">
-                <Polygon Points="0,0 -20,25 0,25" Fill="Yellow" Stroke="Black" StrokeThickness="1"
+                <Polygon Points="-10,0 -30,25 -10,25" Fill="Yellow" Stroke="Black" StrokeThickness="1"
                          Canvas.Top="15" IsHitTestVisible="True"
                          PointerPressed="Thumb_PointerPressed" PointerMoved="StartThumb_PointerMoved" PointerReleased="Thumb_PointerReleased"/>
             </Canvas>
 
             <!-- End Thumb (Triangle) -->
             <Canvas x:Name="EndThumbCanvas">
-                <Polygon Points="0,0 0,25 20,25" Fill="Yellow" Stroke="Black" StrokeThickness="1"
+                <Polygon Points="10,0 10,25 30,25" Fill="Yellow" Stroke="Black" StrokeThickness="1"
                          Canvas.Top="15" IsHitTestVisible="True"
                          PointerPressed="Thumb_PointerPressed" PointerMoved="EndThumb_PointerMoved" PointerReleased="Thumb_PointerReleased"/>
             </Canvas>

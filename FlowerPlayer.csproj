@@ -41,6 +41,7 @@
 
   <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
+    <EmbeddedResource Include="Properties\rd.xml" />
   </ItemGroup>
 
   <!--
@@ -72,11 +73,11 @@
   <PropertyGroup>
     <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
     <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
-    <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">True</PublishTrimmed>
+    <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
-    <AssemblyVersion>0.0.3.4</AssemblyVersion>
-    <FileVersion>0.0.3.4</FileVersion>
-    <PublishAot>True</PublishAot>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+    <PublishAot Condition="'$(Configuration)' != 'Debug'">True</PublishAot>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>

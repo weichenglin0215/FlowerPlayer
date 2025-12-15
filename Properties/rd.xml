@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
+  <Application>
+    <!--
+      Preserve marshalling support for generic collections used with WinRT APIs
+      This fixes the CCW (COM Callable Wrapper) creation errors when using
+      FileSavePicker.FileTypeChoices with AOT compilation
+    -->
+    <Assembly Name="System.Collections" Dynamic="Required All">
+      <Type Name="System.Collections.Generic.List`1" Dynamic="Required All">
+        <GenericArgument Name="System.String" Dynamic="Required All" />
+      </Type>
+    </Assembly>
+    
+    <Assembly Name="System.Runtime" Dynamic="Required All">
+      <Type Name="System.String" Dynamic="Required All" />
+      <Type Name="System.Collections.Generic.IList`1" Dynamic="Required All">
+        <GenericArgument Name="System.String" Dynamic="Required All" />
+      </Type>
+      <Type Name="System.Collections.Generic.IEnumerable`1" Dynamic="Required All">
+        <GenericArgument Name="System.String" Dynamic="Required All" />
+      </Type>
+    </Assembly>
+    
+    <!-- Preserve WinRT projection types -->
+    <Assembly Name="WinRT.Runtime" Dynamic="Required All" />
+  </Application>
+</Directives>

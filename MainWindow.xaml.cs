@@ -47,6 +47,8 @@ namespace FlowerPlayer
             // 恢復主視窗位置和尺寸
             try
             {
+                // disable window restore for debugging
+                /*
                 var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
                 var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
                 var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
@@ -77,6 +79,7 @@ namespace FlowerPlayer
                         SaveMainWindowState();
                     }
                 };
+                */
             }
             catch { }
             
@@ -424,6 +427,52 @@ namespace FlowerPlayer
                         ViewModel.CurrentFileName = file.Name;
                         ViewModel.CurrentFileDirectory = System.IO.Path.GetDirectoryName(file.Path) ?? string.Empty;
                     }
+            }
+        }
+
+        private async void SaveClip_Click(object sender, RoutedEventArgs e)
+        {
+            if (!ViewModel.IsFileLoaded || ViewModel.MediaService.CurrentFile == null) return;
+
+            try
+            {
+                var currentFile = ViewModel.MediaService.CurrentFile;
+                string originalName = currentFile.Name;
+                string ext = System.IO.Path.GetExtension(originalName);
+                string nameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(originalName);
+                string suggestedName = $"{nameWithoutExt}_Cut{ext}";
+
+                // Bypass FileTypeChoices CCW marshalling issue in AOT build
+                // Just set the suggested filename with extension - user can change if needed
+                var picker = new FileSavePicker();
+                picker.SuggestedStartLocation = PickerLocationId.VideosLibrary;
+                picker.SuggestedFileName = suggestedName;
+                
+                // With rd.xml preserving List<string> marshalling, this should now work
+                if (!string.IsNullOrEmpty(ext))
+                {
+                    picker.FileTypeChoices.Add($"{ext.TrimStart('.').ToUpper()} Files", new List<string> { ext });
+                }
+                else
+                {
+                    // Fallback if no extension detected
+                    picker.FileTypeChoices.Add("All Files", new List<string> { "*" });
+                }
+
+                // Use standard WinRT initialization (works now that AOT is disabled in Debug)
+                InitializeWithWindow.Initialize(picker, WindowNative.GetWindowHandle(this));
+
+                var file = await picker.PickSaveFileAsync();
+                
+                if (file != null)
+                {
+                    await ViewModel.SaveClipAsync(file);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"SaveClip_Click Error: {ex}");
+                ViewModel.StatusMessage = $"Error preparing to save: {ex.Message}";
             }
         }
 

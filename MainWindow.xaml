@@ -9,7 +9,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="FlowerPlayer V0.0.3.4(Tips顯示全路徑，重寫撥放清單紀錄JSON格式，優化右鍵選取、熱鍵、播放清單、介面配色。新增搜尋子目錄)">
+    Title="FlowerPlayer V0.1.0.0(快速儲存片段、Tips顯示全路徑，重寫撥放清單紀錄JSON格式，優化右鍵選取、熱鍵、播放清單、介面配色。新增搜尋子目錄)">
 
     <Window.SystemBackdrop>
         <MicaBackdrop />
@@ -106,6 +106,7 @@
                 <CheckBox Content="循環撥放" IsChecked="{x:Bind ViewModel.IsLooping, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
                 <Button Content="設定起點" Command="{x:Bind ViewModel.SetRangeStartCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
                 <Button Content="設定終點" Command="{x:Bind ViewModel.SetRangeEndCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
+                <Button Content="儲存片段" Click="SaveClip_Click" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
                 <ToggleButton Content="快速跳播" IsChecked="{x:Bind ViewModel.IsSmartSkipActive, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
                 <ToggleButton Content="顯示波形" IsChecked="{x:Bind ViewModel.IsWaveformVisible, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsFileLoadedAndNotGeneratingWaveform, Mode=OneWay}"/>
                 <Button Command="{x:Bind ViewModel.ToggleMuteCommand}" Background="Transparent" BorderThickness="0">
