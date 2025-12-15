@@ -74,6 +74,28 @@ namespace FlowerPlayer
                 {
                     if (args.DidPositionChange || args.DidSizeChange)
                     {
+                        // Enforce minimum size (100x100)
+                        bool resized = false;
+                        var currentSize = appWindow.Size;
+                        var newWidth = currentSize.Width;
+                        var newHeight = currentSize.Height;
+
+                        if (newWidth < 100)
+                        {
+                            newWidth = 100;
+                            resized = true;
+                        }
+                        if (newHeight < 100)
+                        {
+                            newHeight = 100;
+                            resized = true;
+                        }
+
+                        if (resized)
+                        {
+                            appWindow.Resize(new Windows.Graphics.SizeInt32(newWidth, newHeight));
+                        }
+
                         SaveWindowState();
                     }
                 };
@@ -1250,6 +1272,9 @@ namespace FlowerPlayer
                     if (tb3 != null) tb3.Text = item.Duration ?? "";
                     if (tb4 != null) tb4.Text = item.ModifiedDate ?? "";
                     if (tb5 != null) tb5.Text = item.Directory ?? "";
+
+                    // Add ToolTip to show full path
+                    ToolTipService.SetToolTip(grid, item.FullPath);
                 }
 
                 args.Handled = true; // 告訴系統我們已經處理完畢
@@ -1374,6 +1399,9 @@ namespace FlowerPlayer
                     if (tb3 != null) tb3.Text = item.Duration ?? "";
                     if (tb4 != null) tb4.Text = item.ModifiedDate ?? "";
                     if (tb5 != null) tb5.Text = item.Directory ?? "";
+
+                    // Add ToolTip to show full path
+                    ToolTipService.SetToolTip(grid, item.FullPath);
                 }
             }
         }
@@ -1429,6 +1457,9 @@ namespace FlowerPlayer
                             if (tb3 != null) tb3.Text = addedItem.Duration ?? "";
                             if (tb4 != null) tb4.Text = addedItem.ModifiedDate ?? "";
                             if (tb5 != null) tb5.Text = addedItem.Directory ?? "";
+
+                            // Add ToolTip to show full path
+                            ToolTipService.SetToolTip(grid, addedItem.FullPath);
 
 
                             //tb1.Text = addedItem.FileName;

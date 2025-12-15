@@ -91,6 +91,9 @@ namespace FlowerPlayer.ViewModels
         [ObservableProperty]
         private string _currentFileDirectory;
 
+        [ObservableProperty]
+        private string _currentFileFullPath;
+
         private TimeSpan _smartSkipSegmentStart;
 
         public IMediaService MediaService => _mediaService;
@@ -438,6 +441,7 @@ namespace FlowerPlayer.ViewModels
             // 清除文件名和目录信息
             CurrentFileName = string.Empty;
             CurrentFileDirectory = string.Empty;
+            CurrentFileFullPath = string.Empty;
         }
 
         public void SyncSmartSkipStart()

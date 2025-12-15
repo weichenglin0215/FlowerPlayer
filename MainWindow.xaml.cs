@@ -171,6 +171,7 @@ namespace FlowerPlayer
                         ViewModel.WindowTitle = "FlowerPlayer";
                         ViewModel.CurrentFileName = string.Empty;
                         ViewModel.CurrentFileDirectory = string.Empty;
+                        ViewModel.CurrentFileFullPath = string.Empty;
                         ViewModel.TotalDuration = TimeSpan.Zero;
                         ViewModel.CurrentTime = TimeSpan.Zero;
                         ViewModel.SliderPosition = 0;
@@ -202,6 +203,7 @@ namespace FlowerPlayer
                     ViewModel.StatusMessage = "已開啟";
                     ViewModel.CurrentFileName = file.Name;
                     ViewModel.CurrentFileDirectory = System.IO.Path.GetDirectoryName(file.Path) ?? string.Empty;
+                    ViewModel.CurrentFileFullPath = file.Path;
                     
                     // 新媒體載入完成，顯示播放器
                     PlayerElement.Opacity = 1;

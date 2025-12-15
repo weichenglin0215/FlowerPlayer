@@ -54,6 +54,28 @@ namespace FlowerPlayer
                 {
                     if (args.DidPositionChange || args.DidSizeChange)
                     {
+                        // Enforce minimum size (100x100)
+                        bool resized = false;
+                        var currentSize = appWindow.Size;
+                        var newWidth = currentSize.Width;
+                        var newHeight = currentSize.Height;
+
+                        if (newWidth < 100)
+                        {
+                            newWidth = 100;
+                            resized = true;
+                        }
+                        if (newHeight < 100)
+                        {
+                            newHeight = 100;
+                            resized = true;
+                        }
+
+                        if (resized)
+                        {
+                            appWindow.Resize(new Windows.Graphics.SizeInt32(newWidth, newHeight));
+                        }
+
                         SaveWindowState();
                     }
                 };
