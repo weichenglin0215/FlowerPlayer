@@ -73,11 +73,11 @@ namespace FlowerPlayer
             }
             catch { }
             
-            // 註冊窗口關閉事件，保存窗口狀態
+            // 註冊視窗關閉事件，儲存視窗狀態
             this.Closed += SettingsWindow_Closed;
         }
         
-        // 保存窗口状态（位置和尺寸）
+        // 儲存視窗狀態（位置 and 尺寸）
         private void SaveWindowState()
         {
             try
@@ -99,7 +99,7 @@ namespace FlowerPlayer
             }
         }
         
-        // 窗口關閉時保存窗口狀態
+        // 視窗關閉時儲存視窗狀態
         private void SettingsWindow_Closed(object sender, WindowEventArgs args)
         {
             SaveWindowState();

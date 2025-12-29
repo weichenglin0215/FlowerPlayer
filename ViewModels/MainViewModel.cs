@@ -16,10 +16,10 @@ namespace FlowerPlayer.ViewModels
         private readonly IMediaService _mediaService;
         public Microsoft.UI.Xaml.XamlRoot XamlRoot { get; set; }
         
-        // 存储已生成的波形数据，避免重复生成
+        // 儲存已產生的波形數據，避免重複產生
         private readonly System.Collections.Generic.Dictionary<string, float[]> _waveformCache = new System.Collections.Generic.Dictionary<string, float[]>();
         
-        // 当前正在生成波形的文件路径
+        // 當前正在產生波形的檔案路徑
         private string _currentGeneratingFilePath = null;
 
         [ObservableProperty]
@@ -45,7 +45,7 @@ namespace FlowerPlayer.ViewModels
         
         partial void OnIsGeneratingWaveformChanged(bool value)
         {
-            // 當生成狀態改變時，通知 IsFileLoadedAndNotGeneratingWaveform 屬性變化
+            // 當產生狀態改變時，通知 IsFileLoadedAndNotGeneratingWaveform 屬性變化
             OnPropertyChanged(nameof(IsFileLoadedAndNotGeneratingWaveform));
         }
         
@@ -76,7 +76,7 @@ namespace FlowerPlayer.ViewModels
         [ObservableProperty]
         private bool _isFileLoaded;
         
-        // 計算屬性：文件已載入且不在生成波形
+        // 計算屬性：檔案已載入且不在產生波形
         public bool IsFileLoadedAndNotGeneratingWaveform => IsFileLoaded && !IsGeneratingWaveform;
 
         [ObservableProperty]
@@ -134,7 +134,7 @@ namespace FlowerPlayer.ViewModels
             
             string filePath = file.Path;
             
-            // 检查是否已经生成过波形
+            // 檢查是否已經產生過波形
             if (_waveformCache.ContainsKey(filePath))
             {
                 System.Diagnostics.Debug.WriteLine($"MainViewModel.GenerateWaveformAsync: Using cached waveform for {file.Name}");
@@ -143,7 +143,7 @@ namespace FlowerPlayer.ViewModels
                 return;
             }
             
-            // 检查是否正在生成
+            // 檢查是否正在產生
             if (_currentGeneratingFilePath == filePath)
             {
                 System.Diagnostics.Debug.WriteLine($"MainViewModel.GenerateWaveformAsync: Already generating waveform for {file.Name}");
@@ -170,7 +170,7 @@ namespace FlowerPlayer.ViewModels
                     return;
                 }
                 
-                // 缓存波形数据
+                // 快取波形數據
                 _waveformCache[filePath] = waveform;
                 
                 System.Diagnostics.Debug.WriteLine($"MainViewModel.GenerateWaveformAsync: Setting WaveformData property...");
@@ -211,7 +211,7 @@ namespace FlowerPlayer.ViewModels
             }
         }
 
-        private bool _isUpdatingRange = false; // 防止 UpdateRange 循环调用
+        private bool _isUpdatingRange = false; // 防止 UpdateRange 循環調用
         
         partial void OnRangeStartChanged(double value)
         {
@@ -251,8 +251,8 @@ namespace FlowerPlayer.ViewModels
         {
             LocalSettingsService.IsWaveformVisible = value;
             
-            // 當關閉波形顯示時，不清空波形數據（保留在緩存中），只是隱藏
-            // 當開啟顯示波形時，檢查是否已有緩存的波形數據
+            // 當關閉波形顯示時，不清空波形數據（保留在快取中），只是隱藏
+            // 當開啟顯示波形時，檢查是否已有快取的波形數據
             if (value && _mediaService.CurrentFile != null)
             {
                 string filePath = _mediaService.CurrentFile.Path;
@@ -338,7 +338,7 @@ namespace FlowerPlayer.ViewModels
 
         private void UpdateRange()
         {
-            // 如果媒体服务没有当前文件，不更新范围（避免在删除文件时触发）
+            // 如果媒體服務沒有當前檔案，不更新範圍（避免在刪除檔案時觸發）
             if (_mediaService.CurrentFile == null)
             {
                 return;
@@ -438,7 +438,7 @@ namespace FlowerPlayer.ViewModels
         public void Stop()
         {
             _mediaService.Stop();
-            // 清除文件名和目录信息
+            // 清除檔名和目錄資訊
             CurrentFileName = string.Empty;
             CurrentFileDirectory = string.Empty;
             CurrentFileFullPath = string.Empty;

@@ -17,10 +17,10 @@
                         <ColumnDefinition x:Name="ItemCol4" Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" x:Name="TbFileName" Text="TbFileName" Margin="10,0,5,2" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" FontSize="16"/>
-                    <TextBlock Grid.Column="1" x:Name="TbFileSize" Text="TbFileSize" Margin="10,2" VerticalAlignment="Center" Foreground="Black" FontSize="16"/>
-                    <TextBlock Grid.Column="2" x:Name="TbDuration" Text="TbDuration" Margin="5,2" VerticalAlignment="Center" Foreground="Black" FontSize="16"/>
-                    <TextBlock Grid.Column="3" x:Name="TbModifiedDate" Text="TbModifiedDate" Margin="5,2" VerticalAlignment="Center" Foreground="Black" FontSize="16"/>
-                    <TextBlock Grid.Column="4" x:Name="TbDirectory" Text="TbDirectory" Margin="5,2" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Foreground="Black" FontSize="16"/>
+                    <TextBlock Grid.Column="1" x:Name="TbFileSize" Text="TbFileSize" Margin="10,2" VerticalAlignment="Center" FontSize="16"/>
+                    <TextBlock Grid.Column="2" x:Name="TbDuration" Text="TbDuration" Margin="5,2" VerticalAlignment="Center" FontSize="16"/>
+                    <TextBlock Grid.Column="3" x:Name="TbModifiedDate" Text="TbModifiedDate" Margin="5,2" VerticalAlignment="Center" FontSize="16"/>
+                    <TextBlock Grid.Column="4" x:Name="TbDirectory" Text="TbDirectory" Margin="5,2" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" FontSize="16"/>
                     <!--
                     <TextBlock Grid.Column="0" Text="{Binding FileName}" Margin="10,2,5,2" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="1" Text="{Binding FileSize}" Margin="10,2" VerticalAlignment="Center" Foreground="Black"/>
@@ -42,16 +42,17 @@
         <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,5">
             <Button Content="開啟檔案..." Click="BtnOpenFiles_Click" Margin="0,0,10,0" FontSize="16"/>
             <Button Content="開啟目錄..." Click="BtnOpenFolder_Click" Margin="0,0,10,0" FontSize="16"/>
-            <Button Content="清除所有播放清單項目" Click="BtnClearAll_Click" FontSize="16"/>
+            <Button Content="清除所有播放清單項目" Click="BtnClearAll_Click" Margin="0,0,10,0" FontSize="16"/>
+            <!-- 放在 Grid 最上面或最下面都行，我放右上角 -->
+            <!-- HorizontalAlignment="Right" 
+            VerticalAlignment="Top" 
+            Margin="20,5,20,10" -->
+            <Button Content="刷新顯示" 
+            Click="RefreshButton_Click" 
+            Margin="0,0,10,0" 
+            FontSize="16"/>
         </StackPanel>
 
-        <!-- 放在 Grid 最上面或最下面都行，我放右上角 -->
-        <Button Content="刷新顯示" 
-        HorizontalAlignment="Right" 
-        VerticalAlignment="Top" 
-        Margin="20,5,20,10" 
-        Click="RefreshButton_Click" 
-        FontSize="16"/>
         
         <!-- Column Headers with GridSplitters -->
         <Grid x:Name="HeaderGrid" Grid.Row="1" Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}" Height="30" Margin="10,0">
@@ -67,27 +68,27 @@
                 <ColumnDefinition x:Name="Col4" Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="0" Text="檔案名稱" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center" FontSize="16"/>
+            <TextBlock Grid.Column="0" x:Name="HdrFileName" Text="檔案目錄" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center" FontSize="16" Tapped="Header_Tapped" Tag="FileName"/>
             <Border x:Name="Splitter0" Grid.Column="1" Background="Gray" 
                     PointerPressed="Splitter_PointerPressed" PointerMoved="Splitter_PointerMoved" PointerReleased="Splitter_PointerReleased"
                     PointerEntered="Splitter_PointerEntered" PointerExited="Splitter_PointerExited"/>
 
-            <TextBlock Grid.Column="2" Text="容量大小" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center" FontSize="16"/>
+            <TextBlock Grid.Column="2" x:Name="HdrFileSize" Text="容量大小" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center" FontSize="16" Tapped="Header_Tapped" Tag="FileSize"/>
             <Border x:Name="Splitter1" Grid.Column="3" Background="Gray"
                     PointerPressed="Splitter_PointerPressed" PointerMoved="Splitter_PointerMoved" PointerReleased="Splitter_PointerReleased"
                     PointerEntered="Splitter_PointerEntered" PointerExited="Splitter_PointerExited"/>
 
-            <TextBlock Grid.Column="4" Text="長度" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center"  FontSize="16"/>
+            <TextBlock Grid.Column="4" x:Name="HdrDuration" Text="長度" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center"  FontSize="16" Tapped="Header_Tapped" Tag="Duration"/>
             <Border x:Name="Splitter2" Grid.Column="5" Background="Gray"
                     PointerPressed="Splitter_PointerPressed" PointerMoved="Splitter_PointerMoved" PointerReleased="Splitter_PointerReleased"
                     PointerEntered="Splitter_PointerEntered" PointerExited="Splitter_PointerExited"/>
 
-            <TextBlock Grid.Column="6" Text="修改日期" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center" FontSize="16"/>
+            <TextBlock Grid.Column="6" x:Name="HdrModifiedDate" Text="修改日期" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center" FontSize="16" Tapped="Header_Tapped" Tag="ModifiedDate"/>
             <Border x:Name="Splitter3" Grid.Column="7" Background="Gray"
                     PointerPressed="Splitter_PointerPressed" PointerMoved="Splitter_PointerMoved" PointerReleased="Splitter_PointerReleased"
                     PointerEntered="Splitter_PointerEntered" PointerExited="Splitter_PointerExited"/>
 
-            <TextBlock Grid.Column="8" Text="目錄" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center" FontSize="16"/>
+            <TextBlock Grid.Column="8" x:Name="HdrDirectory" Text="目錄" FontWeight="SemiBold" Margin="10,0" VerticalAlignment="Center" FontSize="16" Tapped="Header_Tapped" Tag="Directory"/>
         </Grid>
 
         <!-- ListView -->

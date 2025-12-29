@@ -48,7 +48,7 @@ namespace FlowerPlayer
             try
             {
                 // disable window restore for debugging
-                /*
+                
                 var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
                 var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
                 var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
@@ -79,7 +79,7 @@ namespace FlowerPlayer
                         SaveMainWindowState();
                     }
                 };
-                */
+                
             }
             catch { }
             
@@ -237,14 +237,14 @@ namespace FlowerPlayer
                     // 記錄當前狀態
                     System.Diagnostics.Debug.WriteLine($"[DEBUG] Before update - Current Duration: {ViewModel.TotalDuration.TotalSeconds}s, RangeStart: {ViewModel.RangeStart}s, RangeEnd: {ViewModel.RangeEnd}s, SliderPosition: {ViewModel.SliderPosition}s");
 
-                    // 如果 duration 为 0 或无效，说明媒体已关闭，不更新 RangeSlider
+                    // 如果 duration 為 0 或無效，說明媒體已關閉，不更新 RangeSlider
                     if (duration.TotalSeconds <= 0)
                     {
                         System.Diagnostics.Debug.WriteLine($"[DEBUG] Duration is zero/invalid. Resetting properties.");
                         // 媒体已关闭，重置相关属性但不触发 RangeSlider 更新
                         ViewModel.SliderPosition = 0;
                         ViewModel.CurrentTime = TimeSpan.Zero;
-                        // 不设置 RangeStart 和 RangeEnd，避免触发 RangeSlider 更新
+                        // 不設置 RangeStart 和 RangeEnd，避免觸發 RangeSlider 更新
                         return;
                     }
 
@@ -368,20 +368,20 @@ namespace FlowerPlayer
             };
             
             // Connect range sliders to seek media to start/end points
-            // 注意：拖动范围滑块时不应该改变播放位置，只应该更新范围
-            // 移除 Position 设置，避免循环调用
+            // 注意：拖動範圍滑軌時不應該改變播放位置，只應該更新範圍
+            // 移除 Position 設置，避免循環調用
             TimelineSlider.RangeStartChanging += (s, newValue) =>
             {
                 System.Diagnostics.Debug.WriteLine($"[DEBUG] TimelineSlider_RangeStartChanging: {newValue}");
-                // 拖动 RangeStart 时，只更新 ViewModel.RangeStart（TwoWay 绑定会自动处理）
-                // 不设置 Position，避免循环调用
+                // 拖動 RangeStart 時，只更新 ViewModel.RangeStart（TwoWay 綁定會自動處理）
+                // 不設置 Position，避免循環調用
             };
 
             TimelineSlider.RangeEndChanging += (s, newValue) =>
             {
                 System.Diagnostics.Debug.WriteLine($"[DEBUG] TimelineSlider_RangeEndChanging: {newValue}");
-                // 拖动 RangeEnd 时，只更新 ViewModel.RangeEnd（TwoWay 绑定会自动处理）
-                // 不设置 Position，避免循环调用
+                // 拖動 RangeEnd 時，只更新 ViewModel.RangeEnd（TwoWay 綁定會自動處理）
+                // 不設置 Position，避免循環調用
             };
             
             //this.Title = "FlowerPlayer";
@@ -532,7 +532,7 @@ namespace FlowerPlayer
         {
             e.AcceptedOperation = Windows.ApplicationModel.DataTransfer.DataPackageOperation.Copy;
             ViewModel.StatusMessage = "拖曳檔案到此處以開啟";
-            // 不清除文件名和目录，保持显示当前文件信息
+            // 不清除檔名和目錄，保持顯示當前檔案資訊
         }
 
         private void PositionTimer_Tick(object sender, object e)
@@ -582,7 +582,7 @@ namespace FlowerPlayer
             }
         }
 
-        // 保存主窗口状态（位置和尺寸）
+        // 儲存主視窗狀態（位置和尺寸）
         private void SaveMainWindowState()
         {
             try
@@ -606,7 +606,7 @@ namespace FlowerPlayer
         
         private void MainWindow_Closed(object sender, WindowEventArgs args)
         {
-            // 保存主窗口状态
+            // 儲存主視窗狀態
             SaveMainWindowState();
             
             // 關閉所有子視窗

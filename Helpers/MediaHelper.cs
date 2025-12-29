@@ -382,6 +382,45 @@ namespace FlowerPlayer.Helpers
             }
         }
 
+        /// <summary>
+        /// 獲取媒體檔案的持續時間（優先從檔案屬性獲取）
+        /// </summary>
+        public static async Task<TimeSpan> GetMediaDurationAsync(StorageFile file)
+        {
+            try
+            {
+                if (file == null) return TimeSpan.Zero;
+                
+                System.Diagnostics.Debug.WriteLine($"MediaHelper: Fetching duration for {file.Name}...");
+
+                // 檢查是否為影片
+                if (MediaFileHelper.IsVideoFile(file))
+                {
+                    var videoProps = await file.Properties.GetVideoPropertiesAsync();
+                    if (videoProps.Duration != TimeSpan.Zero) 
+                    {
+                        System.Diagnostics.Debug.WriteLine($"MediaHelper: Got video duration: {videoProps.Duration} for {file.Name}");
+                        return videoProps.Duration;
+                    }
+                }
+                
+                // 檢查是否為音訊或影片（再試一次音樂屬性）
+                var musicProps = await file.Properties.GetMusicPropertiesAsync();
+                if (musicProps.Duration != TimeSpan.Zero) 
+                {
+                    System.Diagnostics.Debug.WriteLine($"MediaHelper: Got music/audio duration: {musicProps.Duration} for {file.Name}");
+                    return musicProps.Duration;
+                }
+                
+                System.Diagnostics.Debug.WriteLine($"MediaHelper: Could not find duration for {file.Name} (returned zero)");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"MediaHelper.GetMediaDurationAsync error for {file?.Name}: {ex.Message}");
+            }
+            return TimeSpan.Zero;
+        }
+
         // Frame rate estimation (defaulting to 30 if unknown)
         public static double EstimateFrameRate(TimeSpan duration, ulong frameCount)
         {

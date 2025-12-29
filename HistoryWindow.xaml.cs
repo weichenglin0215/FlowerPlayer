@@ -312,7 +312,7 @@ namespace FlowerPlayer
                     {
                         if (string.IsNullOrEmpty(path)) continue;
                         
-                        // 使用同步方式获取文件（与播放清单相同的方式）
+                        // 使用同步方式獲取檔案（與播放清單相同的方式）
                         var file = StorageFile.GetFileFromPathAsync(path).AsTask().Result;
                         AddFile(file);
                     }
@@ -323,7 +323,7 @@ namespace FlowerPlayer
                     }
                 }
 
-                // 移除无效路径
+                // 移除無效路徑
                 if (pathsToRemove.Count > 0)
                 {
                     var history = LocalSettingsService.HistoryPaths;
@@ -395,7 +395,7 @@ namespace FlowerPlayer
                 Grid.SetColumn(tbDir, 3);
                 rowGrid.Children.Add(tbDir);
 
-                // 將文件路徑存儲在 Tag 中，以便雙擊時可以獲取
+                // 將檔案路徑儲存在 Tag 中，以便雙擊時可以獲取
                 rowGrid.Tag = file.Path;
 
                 // Add the row to the ListView
@@ -408,7 +408,7 @@ namespace FlowerPlayer
             }
         }
 
-        // 保存窗口状态（位置和尺寸）
+        // 儲存視窗狀態（位置和尺寸）
         private void SaveWindowState()
         {
             try
@@ -430,7 +430,7 @@ namespace FlowerPlayer
             }
         }
         
-        // 窗口關閉時保存窗口狀態
+        // 視窗關閉時儲存視窗狀態
         private void HistoryWindow_Closed(object sender, WindowEventArgs args)
         {
             SaveWindowState();

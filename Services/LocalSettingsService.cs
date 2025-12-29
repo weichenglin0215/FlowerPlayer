@@ -17,12 +17,12 @@ namespace FlowerPlayer.Services
             {
                 if (_localSettings.Values.TryGetValue(key, out var value))
                 {
-                    // 处理数组类型的特殊情况 - 使用逗号分隔的字符串
+                    // 處理陣列類型的特殊情況 - 使用逗號分隔的字串
                     if (typeof(T) == typeof(string[]))
                     {
                         if (value is string pathsString)
                         {
-                            // 新格式：逗号分隔的字符串
+                            // 新格式：逗號分隔的字串
                             if (string.IsNullOrEmpty(pathsString))
                                 return (T)(object)new string[0];
                             
@@ -31,7 +31,7 @@ namespace FlowerPlayer.Services
                         }
                         else if (value is System.Collections.IList list)
                         {
-                            // 兼容旧格式（IList）
+                            // 兼容舊格式（IList）
                             var stringArray = new string[list.Count];
                             for (int i = 0; i < list.Count; i++)
                             {
@@ -48,14 +48,14 @@ namespace FlowerPlayer.Services
                         return directValue;
                     }
                     
-                    // 尝试类型转换
+                    // 嘗試型別轉換
                     try
                     {
                         return (T)Convert.ChangeType(value, typeof(T));
                     }
                     catch
                     {
-                        // 类型转换失败，返回默认值
+                        // 型別轉換失敗，返回預設值
                         System.Diagnostics.Debug.WriteLine($"LocalSettingsService: Failed to convert value for key '{key}' from {value?.GetType().Name} to {typeof(T).Name}");
                         return defaultValue;
                     }
@@ -72,18 +72,18 @@ namespace FlowerPlayer.Services
         {
             try
             {
-                // 处理数组类型的特殊情况 - 使用逗号分隔的字符串
+                // 處理陣列類型的特殊情況 - 使用逗號分隔的字串
                 if (value is string[] stringArray)
                 {
-                    // 使用 "|||" 作为分隔符（避免路径中包含逗号的问题）
+                    // 使用 "|||" 作為分隔符（避免路徑中包含逗號的問題）
                     var pathsString = string.Join("|||", stringArray);
                     
-                    // 检查字符串长度，避免超过 Windows 应用程序数据容器的限制（通常限制为 8KB）
-                    const int maxStringLength = 8000; // 留一些余量
+                    // 檢查字串長度，避免超過 Windows 應用程式資料容器的限制（通常限制為 8KB）
+                    const int maxStringLength = 8000; // 留一些餘量
                     if (pathsString.Length > maxStringLength)
                     {
                         System.Diagnostics.Debug.WriteLine($"LocalSettingsService: Paths string too long ({pathsString.Length} chars), truncating...");
-                        // 如果字符串太长，截断数组，只保留前面的项
+                        // 如果字串太長，截斷陣列，只保留前面的項
                         int maxItems = 1;
                         while (maxItems < stringArray.Length)
                         {
@@ -100,7 +100,7 @@ namespace FlowerPlayer.Services
                 }
                 else
                 {
-                    // 对于字符串类型，检查长度
+                    // 對於字串型別，檢查長度
                     if (value is string strValue && strValue.Length > 8000)
                     {
                         System.Diagnostics.Debug.WriteLine($"LocalSettingsService: String value too long ({strValue.Length} chars) for key '{key}', truncating...");
@@ -117,17 +117,17 @@ namespace FlowerPlayer.Services
             catch (System.Runtime.InteropServices.COMException ex)
             {
                 System.Diagnostics.Debug.WriteLine($"LocalSettingsService.SaveSetting COMException for key '{key}': {ex.Message}");
-                // 不抛出异常，避免程序崩溃
+                // 不拋出異常，避免程式崩潰
             }
             catch (InvalidCastException ex)
             {
                 System.Diagnostics.Debug.WriteLine($"LocalSettingsService.SaveSetting InvalidCastException for key '{key}': {ex.Message}");
-                // 不抛出异常，避免程序崩溃
+                // 不拋出異常，避免程式崩潰
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"LocalSettingsService.SaveSetting error for key '{key}': {ex.Message}");
-                // 不抛出异常，避免程序崩溃
+                // 不拋出異常，避免程式崩潰
             }
         }
 
@@ -202,7 +202,7 @@ namespace FlowerPlayer.Services
             set => SaveSetting(KeySkipStartSeconds, value);
         }
 
-        // History paths (最多保存50条)
+        // History paths (最多儲存50條)
         public static List<string> HistoryPaths
         {
             get
@@ -212,13 +212,13 @@ namespace FlowerPlayer.Services
             }
             set
             {
-                // 限制最多50条
+                // 限制最多50條
                 var pathsToSave = value?.Take(50).ToArray() ?? new string[0];
                 SaveSetting(KeyHistoryPaths, pathsToSave);
             }
         }
 
-        // Playlist paths (播放清单路径)
+        // Playlist paths (播放清單路徑)
         public static List<string> PlaylistPaths
         {
             get
@@ -228,13 +228,13 @@ namespace FlowerPlayer.Services
             }
             set
             {
-                // 限制最多200条（播放清单可能比历史记录更多）
+                // 限制最多200條（播放清單可能比歷史記錄更多）
                 var pathsToSave = value?.Take(200).ToArray() ?? new string[0];
                 SaveSetting(KeyPlaylistPaths, pathsToSave);
             }
         }
 
-        // 添加历史记录路径（自动去重并限制数量）
+        // 新增歷史記錄路徑（自動去重並限制數量）
         public static void AddHistoryPath(string path)
         {
             try
@@ -244,9 +244,9 @@ namespace FlowerPlayer.Services
                 var history = HistoryPaths;
                 // 如果已存在，先移除
                 history.Remove(path);
-                // 添加到最前面
+                // 新增到最前面
                 history.Insert(0, path);
-                // 限制最多50条
+                // 限制最多50條
                 if (history.Count > 50)
                 {
                     history = history.Take(50).ToList();
@@ -256,8 +256,8 @@ namespace FlowerPlayer.Services
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"LocalSettingsService.AddHistoryPath error for path '{path}': {ex.Message}");
-                // 不抛出异常，避免程序崩溃
-                // 历史记录保存失败不应该影响媒体播放
+                // 不拋出異常，避免程式崩潰
+                // 歷史記錄儲存失敗不應該影響媒體播放
             }
         }
         

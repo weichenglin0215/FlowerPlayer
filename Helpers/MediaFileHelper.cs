@@ -7,7 +7,7 @@ namespace FlowerPlayer.Helpers
 {
     public static class MediaFileHelper
     {
-        // 支持的视频文件格式
+        // 支援的影片檔案格式
         public static readonly string[] VideoExtensions = new[]
         {
             ".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".webm", ".m4v",
@@ -15,18 +15,18 @@ namespace FlowerPlayer.Helpers
             ".mpg", ".mpeg"
         };
 
-        // 支持的音频文件格式
+        // 支援的音訊檔案格式
         public static readonly string[] AudioExtensions = new[]
         {
             ".mp3", ".wav", ".wma", ".aac", ".m4a", ".flac", ".ogg", ".opus",
             ".ac3", ".amr", ".au", ".ra", ".rm", ".mp2", ".mpa", ".ape"
         };
 
-        // 所有支持的媒体文件格式
+        // 所有支援的媒體檔案格式
         public static readonly string[] AllMediaExtensions = VideoExtensions.Concat(AudioExtensions).ToArray();
 
         /// <summary>
-        /// 检查文件是否为支持的媒体文件
+        /// 檢查檔案是否為支援的媒體檔案
         /// </summary>
         public static bool IsMediaFile(StorageFile file)
         {
@@ -36,7 +36,7 @@ namespace FlowerPlayer.Helpers
         }
 
         /// <summary>
-        /// 检查文件是否为视频文件
+        /// 檢查檔案是否為影片檔案
         /// </summary>
         public static bool IsVideoFile(StorageFile file)
         {
@@ -46,7 +46,7 @@ namespace FlowerPlayer.Helpers
         }
 
         /// <summary>
-        /// 检查文件是否为音频文件
+        /// 檢查檔案是否為音訊檔案
         /// </summary>
         public static bool IsAudioFile(StorageFile file)
         {
@@ -56,11 +56,11 @@ namespace FlowerPlayer.Helpers
         }
 
         /// <summary>
-        /// 获取支持的媒体文件格式描述
+        /// 獲取支援的媒體檔案格式描述
         /// </summary>
         public static string GetSupportedFormatsDescription()
         {
-            return $"支持的媒体文件格式：\n视频：{string.Join(", ", VideoExtensions)}\n音频：{string.Join(", ", AudioExtensions)}";
+            return $"支援的媒體檔案格式：\n影片：{string.Join(", ", VideoExtensions)}\n音訊：{string.Join(", ", AudioExtensions)}";
         }
     }
 }
