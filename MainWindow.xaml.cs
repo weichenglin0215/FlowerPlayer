@@ -484,6 +484,7 @@ namespace FlowerPlayer
                 _playlistWindow = new PlaylistWindow(ViewModel.MediaService);
                 _playlistWindow.UpdateStatus = msg => ViewModel.StatusMessage = msg;
                 _playlistWindow.OpenFileAction = ViewModel.OpenFile;
+                _playlistWindow.FileRenamed += OnPlaylistFileRenamed;
                 _playlistWindow.Closed += (s, args) => _playlistWindow = null;
                 _playlistWindow.Activate();
             }
@@ -491,6 +492,31 @@ namespace FlowerPlayer
             {
                 // 如果視窗已經存在，則將焦點設置到該視窗
                 _playlistWindow.Activate();
+            }
+        }
+
+        private async void OnPlaylistFileRenamed(string oldPath, string newPath)
+        {
+            // 如果重新命名的檔案是當前播放的檔案，更新顯示資訊
+            if (ViewModel.MediaService.CurrentFile?.Path.Equals(oldPath, StringComparison.OrdinalIgnoreCase) == true)
+            {
+                try
+                {
+                    // 獲取新的檔案資訊
+                    var newFile = await Windows.Storage.StorageFile.GetFileFromPathAsync(newPath);
+
+                    // 更新 ViewModel 中的檔案資訊
+                    ViewModel.CurrentFileName = newFile.Name;
+                    ViewModel.CurrentFileDirectory = System.IO.Path.GetDirectoryName(newFile.Path) ?? string.Empty;
+                    ViewModel.CurrentFileFullPath = newFile.Path;
+
+                    // 更新媒體服務中的檔案引用
+                    ViewModel.MediaService.UpdateCurrentFile(newFile);
+                }
+                catch (Exception ex)
+                {
+                    ViewModel.StatusMessage = $"更新檔案資訊失敗: {ex.Message}";
+                }
             }
         }
 

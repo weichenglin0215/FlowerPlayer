@@ -125,6 +125,9 @@ namespace FlowerPlayer
         // 提供公共屬性訪問 PlaylistListView（用於 MainWindow 刪除檔案時）
         public ListView PlaylistListViewControl => PlaylistListView;
 
+        // 檔案重新命名事件，通知 MainWindow 更新顯示
+        public event Action<string, string> FileRenamed;
+
         public PlaylistWindow(IMediaService mediaService, ViewModels.PlaylistViewModel existingViewModel = null)
         {
             _mediaService = mediaService;
@@ -881,6 +884,11 @@ namespace FlowerPlayer
             deleteItem.Click += (s, args) => DeleteSelectedItems();
             flyout.Items.Add(deleteItem);
 
+            // 重新命名選單項
+            var renameItem = new MenuFlyoutItem { Text = "重新命名..." };
+            renameItem.Click += async (s, args) => await RenameSelectedFile();
+            flyout.Items.Add(renameItem);
+
             // 刪除實體檔案選單項（紅色）
             var deleteFileItem = new MenuFlyoutItem { Text = "刪除實體檔案..." };
             deleteFileItem.Click += async (s, args) => await DeleteSelectedFiles();
@@ -1449,6 +1457,9 @@ namespace FlowerPlayer
                 var container = PlaylistListView.ContainerFromIndex(i) as ListViewItem;
                 if (container == null) continue; // 還沒滾到、還沒生成就跳過
 
+                // 檢查檔案是否存在
+                item.IsMissing = !System.IO.File.Exists(item.FullPath);
+
                 // 強制這個容器載入模板（這行很重要！）
                 container.UpdateLayout();
 
@@ -1774,7 +1785,8 @@ namespace FlowerPlayer
                 return;
             }
             _isUpdatingDuration = true;
-            int updatedCount = 0;
+            int changeCount = 0;
+            int processedCount = 0;
 
             try
             {
@@ -1788,61 +1800,229 @@ namespace FlowerPlayer
                         break;
                     }
 
-                    // 只有「未知」或「零」的才需要更新
-                    bool isUnknown = string.Equals(item.Duration, "Unknown", StringComparison.OrdinalIgnoreCase) || 
-                                     string.IsNullOrWhiteSpace(item.Duration);
+                    processedCount++;
+                    bool itemChanged = false;
 
-                    if (isUnknown || item.RawDuration == TimeSpan.Zero)
+                    // 1. 檢查檔案是否存在
+                    bool fileExists = System.IO.File.Exists(item.FullPath);
+                    if (item.IsMissing != !fileExists) // 如果目前的 IsMissing 狀態跟實際存在狀態不符
                     {
-                        try
+                        item.IsMissing = !fileExists;
+                        itemChanged = true;
+                        System.Diagnostics.Debug.WriteLine($"UpdateDurations: File status changed [{item.FileName}] - IsMissing: {item.IsMissing}");
+                    }
+
+                    // 2. 如果檔案存在，嘗試更新長度（如果尚未獲取）
+                    if (fileExists)
+                    {
+                        // 只有「未知」或「零」的才需要更新
+                        //bool isUnknown = string.Equals(item.Duration, "Unknown", StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(item.Duration);
+                        //強制每個檔案都更新長度資料
+                        bool isUnknown = true;
+                        if (isUnknown || item.RawDuration == TimeSpan.Zero)
                         {
-                            System.Diagnostics.Debug.WriteLine($"UpdateDurations: Processing [{item.FileName}]...");
-                            var file = await StorageFile.GetFileFromPathAsync(item.FullPath);
-                            var duration = await MediaHelper.GetMediaDurationAsync(file);
-
-                            if (duration != TimeSpan.Zero)
+                            try
                             {
-                                string durationStr = duration.TotalHours >= 1 
-                                    ? duration.ToString(@"hh\:mm\:ss") 
-                                    : duration.ToString(@"mm\:ss");
+                                System.Diagnostics.Debug.WriteLine($"UpdateDurations: Processing duration for [{item.FileName}]...");
+                                var file = await StorageFile.GetFileFromPathAsync(item.FullPath);
+                                var duration = await MediaHelper.GetMediaDurationAsync(file);
 
-                                item.Duration = durationStr;
-                                item.RawDuration = duration;
-                                updatedCount++;
-
-                                // 回到 UI 執行緒更新顯示
-                                this.DispatcherQueue.TryEnqueue(() =>
+                                if (duration != TimeSpan.Zero)
                                 {
-                                    var container = PlaylistListView.ContainerFromItem(item) as ListViewItem;
-                                    if (container != null && container.ContentTemplateRoot is Grid grid)
-                                    {
-                                        UpdateDisplayItemUI(item, grid);
-                                    }
-                                });
-                                System.Diagnostics.Debug.WriteLine($"UpdateDurations: Updated [{item.FileName}] -> {durationStr}");
+                                    string durationStr = duration.TotalHours >= 1 
+                                        ? duration.ToString(@"hh\:mm\:ss") 
+                                        : duration.ToString(@"mm\:ss");
+
+                                    item.Duration = durationStr;
+                                    item.RawDuration = duration;
+                                    itemChanged = true;
+                                    System.Diagnostics.Debug.WriteLine($"UpdateDurations: Updated [{item.FileName}] -> {durationStr}");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"UpdateDurations: Error getting duration for {item.FileName}: {ex.Message}");
                             }
                         }
-                        catch (Exception ex)
+                    }
+
+                    // 3. 如果項目有變更，更新 UI
+                    if (itemChanged)
+                    {
+                        changeCount++;
+                        // 回到 UI 執行緒更新顯示
+                        this.DispatcherQueue.TryEnqueue(() =>
                         {
-                            System.Diagnostics.Debug.WriteLine($"UpdateDurations: Error for {item.FileName}: {ex.Message}");
-                        }
-                        
-                        // 稍微間隔一下，避免搶佔資源
-                        await Task.Delay(20, token);
+                            var container = PlaylistListView.ContainerFromItem(item) as ListViewItem;
+                            if (container != null && container.ContentTemplateRoot is Grid grid)
+                            {
+                                UpdateDisplayItemUI(item, grid);
+                            }
+                        });
+                    }
+
+                    // 稍微間隔一下，避免搶佔資源
+                    if (processedCount % 10 == 0) 
+                    {
+                        await Task.Delay(1, token);
                     }
                 }
             }
             finally
             {
                 _isUpdatingDuration = false;
-                System.Diagnostics.Debug.WriteLine($"UpdateDurations: Finished. Updated {updatedCount} items.");
+                System.Diagnostics.Debug.WriteLine($"UpdateDurations: Finished. Changed {changeCount} items.");
                 
-                // 如果有更新到任何項目的長度，就存檔一次
-                if (updatedCount > 0)
+                // 如果有更新到任何項目的長度或狀態，就存檔一次
+                if (changeCount > 0)
                 {
                     this.DispatcherQueue.TryEnqueue(() => SavePlaylist());
                 }
             }
+        }
+
+        private async Task RenameSelectedFile()
+        {
+            var selectedItem = PlaylistListView.SelectedItem;
+            if (selectedItem == null) return;
+
+            string currentFilePath = null;
+            string currentFileName = null;
+
+            if (selectedItem is PlaylistDisplayItem displayItem)
+            {
+                currentFilePath = displayItem.FullPath;
+                currentFileName = displayItem.FileName;
+            }
+            else if (selectedItem is Grid row && row.Tag is string tagPath)
+            {
+                currentFilePath = tagPath;
+                currentFileName = System.IO.Path.GetFileName(currentFilePath);
+            }
+
+            if (string.IsNullOrEmpty(currentFilePath) || string.IsNullOrEmpty(currentFileName))
+            {
+                UpdateStatus?.Invoke("Playlist: 無法獲取檔案資訊");
+                return;
+            }
+
+            // 創建輸入對話框
+            var inputTextBox = new TextBox
+            {
+                Text = System.IO.Path.GetFileNameWithoutExtension(currentFileName),
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                Margin = new Thickness(0, 10, 0, 0)
+            };
+
+            var dialog = new ContentDialog
+            {
+                Title = "重新命名檔案",
+                Content = inputTextBox,
+                PrimaryButtonText = "確定",
+                SecondaryButtonText = "取消",
+                XamlRoot = this.Content.XamlRoot
+            };
+
+            // 當對話框打開時，選中文字
+            dialog.Loaded += (s, e) =>
+            {
+                inputTextBox.SelectAll();
+                inputTextBox.Focus(FocusState.Programmatic);
+            };
+
+            var result = await dialog.ShowAsync();
+
+            if (result != ContentDialogResult.Primary)
+                return;
+
+            string newFileNameWithoutExt = inputTextBox.Text.Trim();
+            if (string.IsNullOrWhiteSpace(newFileNameWithoutExt))
+            {
+                UpdateStatus?.Invoke("Playlist: 檔案名稱不能為空");
+                return;
+            }
+
+            // 檢查檔案名稱是否包含非法字元
+            var invalidChars = System.IO.Path.GetInvalidFileNameChars();
+            if (newFileNameWithoutExt.IndexOfAny(invalidChars) >= 0)
+            {
+                UpdateStatus?.Invoke("Playlist: 檔案名稱包含非法字元");
+                return;
+            }
+
+            // 獲取副檔名並組合新檔案名稱
+            string extension = System.IO.Path.GetExtension(currentFileName);
+            string newFileName = newFileNameWithoutExt + extension;
+            string directory = System.IO.Path.GetDirectoryName(currentFilePath);
+            string newFilePath = System.IO.Path.Combine(directory, newFileName);
+
+            // 檢查新檔案名稱是否與原名稱相同
+            if (string.Equals(currentFileName, newFileName, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            // 檢查目標檔案是否已存在
+            if (System.IO.File.Exists(newFilePath))
+            {
+                UpdateStatus?.Invoke($"Playlist: 檔案 '{newFileName}' 已存在");
+                return;
+            }
+
+            try
+            {
+                // 重新命名實體檔案
+                System.IO.File.Move(currentFilePath, newFilePath);
+
+                // 更新播放清單項目
+                await UpdatePlaylistItemAfterRename(currentFilePath, newFilePath);
+
+                // 觸發事件通知 MainWindow
+                FileRenamed?.Invoke(currentFilePath, newFilePath);
+
+                UpdateStatus?.Invoke($"Playlist: 檔案已重新命名為 '{newFileName}'");
+            }
+            catch (Exception ex)
+            {
+                UpdateStatus?.Invoke($"Playlist: 重新命名失敗 - {ex.Message}");
+            }
+        }
+
+        private async Task UpdatePlaylistItemAfterRename(string oldPath, string newPath)
+        {
+            // 找到並更新播放清單中的項目
+            for (int i = 0; i < PlaylistListView.Items.Count; i++)
+            {
+                var item = PlaylistListView.Items[i];
+                if (item is PlaylistDisplayItem displayItem && displayItem.FullPath.Equals(oldPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    // 更新內容
+                    displayItem.FileName = System.IO.Path.GetFileName(newPath);
+                    displayItem.FullPath = newPath;
+                    displayItem.Directory = System.IO.Path.GetDirectoryName(newPath) ?? string.Empty;
+
+                    // 重新獲取一些屬性
+                    try
+                    {
+                        var file = await StorageFile.GetFileFromPathAsync(newPath);
+                        var props = await file.GetBasicPropertiesAsync();
+                        displayItem.ModifiedDate = props.DateModified.LocalDateTime.ToString("yyyy/MM/dd HH:mm");
+                        displayItem.RawModifiedDate = props.DateModified.LocalDateTime;
+                    }
+                    catch { }
+
+                    // 更新 UI 顯示
+                    var container = PlaylistListView.ContainerFromIndex(i) as ListViewItem;
+                    if (container != null && container.ContentTemplateRoot is Grid grid)
+                    {
+                        UpdateDisplayItemUI(displayItem, grid);
+                    }
+                    break;
+                }
+            }
+
+            // 保存播放清單
+            SavePlaylist();
         }
     }
 }

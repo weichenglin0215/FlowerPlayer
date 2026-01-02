@@ -136,6 +136,11 @@ namespace FlowerPlayer.Services
 
         public StorageFile CurrentFile => _currentFile;
 
+        public void UpdateCurrentFile(StorageFile newFile)
+        {
+            _currentFile = newFile;
+        }
+
         public bool IsStopped => _isStopped;
         private bool _isStopped = false;
 

@@ -26,6 +26,7 @@ namespace FlowerPlayer.Services
         StorageFile CurrentFile { get; }
 
         void Open(StorageFile file);
+        void UpdateCurrentFile(StorageFile newFile);
         void Play();
         void Pause();
         void Stop();
