@@ -9,7 +9,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="FlowerPlayer V0.3.0.0(播放清單視窗增加重新命名、fix刷新顯示、快速儲存片段、Tips顯示全路徑，重寫撥放清單紀錄JSON格式，優化右鍵選取、熱鍵、播放清單、介面配色。新增搜尋子目錄)">
+    Title="FlowerPlayer V0.4.0.0(RELEASE版仍無法存取檔案，新增存取播放清單，按鍵Tips，播放清單視窗增加重新命名、fix刷新顯示、快速儲存片段、Tips顯示全路徑，重寫撥放清單紀錄JSON格式，優化右鍵選取、熱鍵、播放清單、介面配色。新增搜尋子目錄)">
 
     <Window.SystemBackdrop>
         <MicaBackdrop />
@@ -78,41 +78,43 @@
         </Grid>
 
         <!-- Controls -->
-        <StackPanel Grid.Row="3" Orientation="Vertical" HorizontalAlignment="Center" Margin="0,5,0,5" Spacing="10">
+        <StackPanel Grid.Row="3" Orientation="Vertical" HorizontalAlignment="Center" Margin="0,5,0,5" Spacing="5">
             <!-- Main Controls -->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
-                <Button Content="＜分" Command="{x:Bind ViewModel.SeekBackwardCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
-                <Button Content="＜幀" Command="{x:Bind ViewModel.StepPrevFrameCommand}" IsEnabled="{x:Bind ViewModel.HasVideo, Mode=OneWay}"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
+                <Button Content="＜快跳" Command="{x:Bind ViewModel.SeekSmartSkipBackwardCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}" ToolTipService.ToolTip="Ctrl+Left Arrow 往回快速跳播，根據「設定」快速跳播秒數"/>
+                <Button Content="＜分" Command="{x:Bind ViewModel.SeekBackwardCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}" ToolTipService.ToolTip="Shift+Left Arrow 往回一分鐘"/>
+                <Button Content="＜幀" Command="{x:Bind ViewModel.StepPrevFrameCommand}" IsEnabled="{x:Bind ViewModel.HasVideo, Mode=OneWay}" ToolTipService.ToolTip="Left Arrow 往回一幀"/>
                 <Button Content="停止" Command="{x:Bind ViewModel.StopCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
                 <Button x:Name="PlayPauseButton"
                         Content="{Binding IsPlaying, Mode=OneWay, Converter={StaticResource PlayPauseLabelConverter}}"
                         Command="{x:Bind ViewModel.PlayPauseCommand}" Style="{StaticResource AccentButtonStyle}"
-                        IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
-                <Button Content="幀＞" Command="{x:Bind ViewModel.StepNextFrameCommand}" IsEnabled="{x:Bind ViewModel.HasVideo, Mode=OneWay}"/>
-                <Button Content="分＞" Command="{x:Bind ViewModel.SeekForwardCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
-                <Button Content="上個檔" Click="PlayPreviousFile_Click" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
-                <Button Content="下個檔" Click="PlayNextFile_Click" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
-                <Button Content="開啟檔案" Click="OpenFile_Click"/>
+                        IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}" ToolTipService.ToolTip="Space 播放/暫停"/>
+                <Button Content="幀＞" Command="{x:Bind ViewModel.StepNextFrameCommand}" IsEnabled="{x:Bind ViewModel.HasVideo, Mode=OneWay}" ToolTipService.ToolTip="Right Arrow 往前一幀"/>
+                <Button Content="分＞" Command="{x:Bind ViewModel.SeekForwardCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}" ToolTipService.ToolTip="Shift+Right Arrow 往前一分鐘"/>
+                <Button Content="快跳>" Command="{x:Bind ViewModel.SeekSmartSkipForwardCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}" ToolTipService.ToolTip="Shift+Left Arrow 往前快速跳播，根據「設定」快速跳播秒數"/>
+                <Button Content="上個檔" Click="PlayPreviousFile_Click" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}" ToolTipService.ToolTip="Ctrl+Up Arrow 開啟上一個檔案，根據目前目錄內容"/>
+                <Button Content="下個檔" Click="PlayNextFile_Click" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}" ToolTipService.ToolTip="Ctrl+Down Arrow 開啟下一個檔案，根據目前目錄內容"/>
+                <Button Content="開啟檔案" Click="OpenFile_Click" ToolTipService.ToolTip="Ctrl+O"/>
                 
                 <!-- MenuBar for Playlist -->
                 <MenuBar VerticalAlignment="Center">
-                    <MenuBarItem Title="選單">
-                        <MenuFlyoutItem Text="設定" Click="OpenSettings_Click"/>
-                        <MenuFlyoutItem Text="播放清單" Click="OpenPlaylist_Click"/>
-                        <MenuFlyoutItem Text="歷史清單" Click="OpenHistory_Click"/>
+                    <MenuBarItem Title="選單▼" BorderThickness="3">
+                        <MenuFlyoutItem Text="設定..." Click="OpenSettings_Click"/>
+                        <MenuFlyoutItem Text="播放清單... Ctrl+L" Click="OpenPlaylist_Click"/>
+                        <MenuFlyoutItem Text="歷史清單..." Click="OpenHistory_Click"/>
                     </MenuBarItem>
                 </MenuBar>
                 
                 <CheckBox Content="循環撥放" IsChecked="{x:Bind ViewModel.IsLooping, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
                 <Button Content="設定起點" Command="{x:Bind ViewModel.SetRangeStartCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
                 <Button Content="設定終點" Command="{x:Bind ViewModel.SetRangeEndCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
-                <Button Content="儲存片段" Click="SaveClip_Click" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
-                <ToggleButton Content="快速跳播" IsChecked="{x:Bind ViewModel.IsSmartSkipActive, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
-                <ToggleButton Content="顯示波形" IsChecked="{x:Bind ViewModel.IsWaveformVisible, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsFileLoadedAndNotGeneratingWaveform, Mode=OneWay}"/>
+                <Button Content="儲存片段..." Click="SaveClip_Click" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}" ToolTipService.ToolTip="將起點至終點時間另存成新的檔案，以非重新編碼方式快速儲存"/>
+                <ToggleButton Content="快速跳播" IsChecked="{x:Bind ViewModel.IsSmartSkipActive, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}" ToolTipService.ToolTip="根據「設定」的播放/跳過秒數進行跳躍式播放，快速瀏覽影片內容"/>
+                <ToggleButton Content="顯示波形" IsChecked="{x:Bind ViewModel.IsWaveformVisible, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsFileLoadedAndNotGeneratingWaveform, Mode=OneWay}" ToolTipService.ToolTip="顯示聲音波形，需耗費時間演算"/>
                 <Button Command="{x:Bind ViewModel.ToggleMuteCommand}" Background="Transparent" BorderThickness="0">
-                    <FontIcon Glyph="{x:Bind ViewModel.VolumeIcon, Mode=OneWay}"/>
+                    <FontIcon Glyph="{x:Bind ViewModel.VolumeIcon, Mode=OneWay}" ToolTipService.ToolTip="開/關聲音"/>
                 </Button>
-                <Slider Width="150" Minimum="0" Maximum="1" StepFrequency="0.01" 
+                <Slider Width="100" Minimum="0" Maximum="1" StepFrequency="0.01" 
                         Value="{x:Bind ViewModel.Volume, Mode=TwoWay}" VerticalAlignment="Center"/>
             </StackPanel>
         </StackPanel>

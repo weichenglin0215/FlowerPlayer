@@ -442,24 +442,21 @@ namespace FlowerPlayer
                 string nameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(originalName);
                 string suggestedName = $"{nameWithoutExt}_Cut{ext}";
 
-                // Bypass FileTypeChoices CCW marshalling issue in AOT build
-                // Just set the suggested filename with extension - user can change if needed
                 var picker = new FileSavePicker();
                 picker.SuggestedStartLocation = PickerLocationId.VideosLibrary;
                 picker.SuggestedFileName = suggestedName;
                 
-                // With rd.xml preserving List<string> marshalling, this should now work
+                // With enhanced rd.xml (System.Private.CoreLib + System.Collections), 
+                // List<string> marshalling should work in Release/AOT
                 if (!string.IsNullOrEmpty(ext))
                 {
                     picker.FileTypeChoices.Add($"{ext.TrimStart('.').ToUpper()} Files", new List<string> { ext });
                 }
                 else
                 {
-                    // Fallback if no extension detected
                     picker.FileTypeChoices.Add("All Files", new List<string> { "*" });
                 }
 
-                // Use standard WinRT initialization (works now that AOT is disabled in Debug)
                 InitializeWithWindow.Initialize(picker, WindowNative.GetWindowHandle(this));
 
                 var file = await picker.PickSaveFileAsync();
@@ -471,7 +468,6 @@ namespace FlowerPlayer
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"SaveClip_Click Error: {ex}");
                 ViewModel.StatusMessage = $"Error preparing to save: {ex.Message}";
             }
         }
@@ -680,11 +676,29 @@ namespace FlowerPlayer
 
             switch (e.Key)
             {
-                case Windows.System.VirtualKey.Right:
+                case Windows.System.VirtualKey.Down:
                     if (isCtrlPressed)
                     {
                         // Ctrl+右方向鍵：下一個檔案
                         PlayNextFile_Click(this, null);
+                        e.Handled = true;
+                    }
+                    break;
+
+                case Windows.System.VirtualKey.Up:
+                    if (isCtrlPressed)
+                    {
+                        // Ctrl+左方向鍵：上一個檔案
+                        PlayPreviousFile_Click(this, null);
+                        e.Handled = true;
+                    }
+                    break;
+
+                case Windows.System.VirtualKey.Right:
+                    if (isCtrlPressed)
+                    {
+                        // Shift+左方向鍵：+設定的快速跳過秒數（音樂和影片都可用）
+                        ViewModel.SeekSmartSkipForwardCommand?.Execute(null);
                         e.Handled = true;
                     }
                     else if (isShiftPressed)
@@ -704,8 +718,8 @@ namespace FlowerPlayer
                 case Windows.System.VirtualKey.Left:
                     if (isCtrlPressed)
                     {
-                        // Ctrl+左方向鍵：上一個檔案
-                        PlayPreviousFile_Click(this, null);
+                        // Shift+左方向鍵：-設定的快速跳過秒數（音樂和影片都可用）
+                        ViewModel.SeekSmartSkipBackwardCommand?.Execute(null);
                         e.Handled = true;
                     }
                     else if (isShiftPressed)

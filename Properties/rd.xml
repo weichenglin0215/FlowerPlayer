@@ -6,7 +6,16 @@
       This fixes the CCW (COM Callable Wrapper) creation errors when using
       FileSavePicker.FileTypeChoices with AOT compilation
     -->
+    
+    <!-- Support for classic .NET location -->
     <Assembly Name="System.Collections" Dynamic="Required All">
+      <Type Name="System.Collections.Generic.List`1" Dynamic="Required All">
+        <GenericArgument Name="System.String" Dynamic="Required All" />
+      </Type>
+    </Assembly>
+    
+    <!-- Support for .NET Core / .NET 5+ / .NET 8 core library -->
+    <Assembly Name="System.Private.CoreLib" Dynamic="Required All">
       <Type Name="System.Collections.Generic.List`1" Dynamic="Required All">
         <GenericArgument Name="System.String" Dynamic="Required All" />
       </Type>
@@ -24,5 +33,10 @@
     
     <!-- Preserve WinRT projection types -->
     <Assembly Name="WinRT.Runtime" Dynamic="Required All" />
+    
+    <!-- Application Models for JSON Serialization -->
+    <Assembly Name="FlowerPlayer" Dynamic="Required All">
+      <Type Name="FlowerPlayer.Models.PlaylistDisplayItem" Dynamic="Required All" />
+    </Assembly>
   </Application>
 </Directives>

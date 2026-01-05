@@ -17,6 +17,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
+using Windows.Storage.Pickers;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using Windows.Storage.Streams;
@@ -1356,34 +1357,78 @@ namespace FlowerPlayer
         }
         private async void BtnOpenFiles_Click(object sender, RoutedEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine("========== BtnOpenFiles_Click START ==========");
+            
             try
             {
+                System.Diagnostics.Debug.WriteLine("BtnOpenFiles_Click: Creating FileOpenPicker...");
                 var picker = new Windows.Storage.Pickers.FileOpenPicker();
-                // WinUI 3 需要設置 Window Handle
-                var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-                WinRT.Interop.InitializeWithWindow.Initialize(picker, hWnd);
+                System.Diagnostics.Debug.WriteLine($"BtnOpenFiles_Click: FileOpenPicker created, Type: {picker.GetType().FullName}");
                 
+                // WinUI 3 需要設置 Window Handle
+                System.Diagnostics.Debug.WriteLine("BtnOpenFiles_Click: Getting window handle...");
+                var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+                System.Diagnostics.Debug.WriteLine($"BtnOpenFiles_Click: Window handle: {hWnd}");
+                
+                System.Diagnostics.Debug.WriteLine("BtnOpenFiles_Click: Initializing with window...");
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, hWnd);
+                System.Diagnostics.Debug.WriteLine("BtnOpenFiles_Click: InitializeWithWindow succeeded");
+                
+                System.Diagnostics.Debug.WriteLine("BtnOpenFiles_Click: Setting picker properties...");
                 picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
                 picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.ComputerFolder;
                 
                 // 添加支援的檔案類型
+                System.Diagnostics.Debug.WriteLine("BtnOpenFiles_Click: Adding file type filters...");
+                int filterCount = 0;
+                
                 foreach (var ext in MediaFileHelper.AudioExtensions)
                 {
-                    picker.FileTypeFilter.Add(ext);
+                    System.Diagnostics.Debug.WriteLine($"BtnOpenFiles_Click: Adding audio extension: {ext}");
+                    try
+                    {
+                        picker.FileTypeFilter.Add(ext);
+                        filterCount++;
+                    }
+                    catch (Exception addEx)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"BtnOpenFiles_Click: FAILED to add audio extension {ext}");
+                        System.Diagnostics.Debug.WriteLine($"  Exception: {addEx.GetType().FullName}: {addEx.Message}");
+                        throw;
+                    }
                 }
+                
                 foreach (var ext in MediaFileHelper.VideoExtensions)
                 {
-                    picker.FileTypeFilter.Add(ext);
+                    System.Diagnostics.Debug.WriteLine($"BtnOpenFiles_Click: Adding video extension: {ext}");
+                    try
+                    {
+                        picker.FileTypeFilter.Add(ext);
+                        filterCount++;
+                    }
+                    catch (Exception addEx)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"BtnOpenFiles_Click: FAILED to add video extension {ext}");
+                        System.Diagnostics.Debug.WriteLine($"  Exception: {addEx.GetType().FullName}: {addEx.Message}");
+                        throw;
+                    }
                 }
+                
+                System.Diagnostics.Debug.WriteLine($"BtnOpenFiles_Click: Added {filterCount} file type filters");
+                
                 // 如果沒有定義擴展名，至少添加一個通配符或常見格式
                 if (picker.FileTypeFilter.Count == 0)
                 {
+                    System.Diagnostics.Debug.WriteLine("BtnOpenFiles_Click: No filters added, using wildcard");
                     picker.FileTypeFilter.Add("*");
                 }
 
+                System.Diagnostics.Debug.WriteLine("BtnOpenFiles_Click: Calling PickMultipleFilesAsync...");
                 var files = await picker.PickMultipleFilesAsync();
+                
                 if (files != null && files.Count > 0)
                 {
+                    System.Diagnostics.Debug.WriteLine($"BtnOpenFiles_Click: User selected {files.Count} files");
                     _isLoadingPlaylist = true;
                     foreach (var file in files)
                     {
@@ -1396,10 +1441,28 @@ namespace FlowerPlayer
                     
                     UpdateStatus?.Invoke($"Playlist: 已添加 {files.Count} 個檔案");
                 }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("BtnOpenFiles_Click: User cancelled or no files selected");
+                }
+                
+                System.Diagnostics.Debug.WriteLine("========== BtnOpenFiles_Click END (Success) ==========");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"BtnOpenFiles_Click error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine("========== BtnOpenFiles_Click END (Error) ==========");
+                System.Diagnostics.Debug.WriteLine($"Exception Type: {ex.GetType().FullName}");
+                System.Diagnostics.Debug.WriteLine($"Message: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Inner Exception Type: {ex.InnerException.GetType().FullName}");
+                    System.Diagnostics.Debug.WriteLine($"Inner Exception Message: {ex.InnerException.Message}");
+                    System.Diagnostics.Debug.WriteLine($"Inner Exception Stack: {ex.InnerException.StackTrace}");
+                }
+                System.Diagnostics.Debug.WriteLine("==============================================");
+                
+                UpdateStatus?.Invoke($"Playlist: Error opening files - {ex.Message}");
             }
         }
 
@@ -2023,6 +2086,111 @@ namespace FlowerPlayer
 
             // 保存播放清單
             SavePlaylist();
+        }
+
+        private async void BtnSavePlaylist_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var processedList = new List<PlaylistDisplayItem>();
+                foreach (var item in PlaylistListView.Items)
+                {
+                    if (item is PlaylistDisplayItem displayItem)
+                    {
+                        processedList.Add(displayItem);
+                    }
+                }
+
+                if (processedList.Count == 0)
+                {
+                     UpdateStatus?.Invoke("沒有項目可儲存");
+                     return;
+                }
+
+                var picker = new FileSavePicker();
+                picker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+                picker.SuggestedFileName = "Playlist";
+                
+                // Using List<string> to avoid AOT/CCW issues as per previous fix
+                picker.FileTypeChoices.Add("JSON Playlist", new List<string> { ".json" });
+                
+                // Use fully qualified names if imports are missing, though existing code uses WinRT.Interop...
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(this));
+
+                var file = await picker.PickSaveFileAsync();
+                if (file != null)
+                {
+                    var options = new JsonSerializerOptions { WriteIndented = true };
+                    string json = JsonSerializer.Serialize(processedList, options);
+                    await FileIO.WriteTextAsync(file, json);
+                    UpdateStatus?.Invoke($"已儲存 {processedList.Count} 個項目到 {file.Name}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"BtnSavePlaylist_Click error: {ex.Message}");
+                UpdateStatus?.Invoke($"儲存失敗: {ex.Message}");
+            }
+        }
+
+        private async void BtnLoadPlaylist_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var picker = new FileOpenPicker();
+                picker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+                picker.FileTypeFilter.Add(".json");
+                
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(this));
+
+                var file = await picker.PickSingleFileAsync();
+                if (file != null)
+                {
+                    string json = await FileIO.ReadTextAsync(file);
+                    
+                    List<PlaylistDisplayItem> items = null;
+                    try
+                    {
+                        items = JsonSerializer.Deserialize<List<PlaylistDisplayItem>>(json);
+                    }
+                    catch (JsonException)
+                    {
+                         UpdateStatus?.Invoke($"載入失敗: 檔案格式錯誤");
+                         return;
+                    }
+
+                    if (items != null && items.Count > 0)
+                    {
+                        _isLoadingPlaylist = true;
+                        PlaylistListView.Items.Clear();
+                        int loadedCount = 0;
+                        foreach (var item in items)
+                        {
+                            if (!string.IsNullOrEmpty(item.FullPath))
+                            {
+                                PlaylistListView.Items.Add(item);
+                                loadedCount++;
+                            }
+                        }
+                        _isLoadingPlaylist = false;
+                        
+                        SavePlaylist(); // Update internal default persistence
+                        // Start duration update if method exists (it does in this class)
+                        try { StartDurationUpdate(); } catch { } 
+                        
+                        UpdateStatus?.Invoke($"已載入 {loadedCount} 個項目從 {file.Name}");
+                    }
+                    else
+                    {
+                        UpdateStatus?.Invoke($"清單是空的");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"BtnLoadPlaylist_Click error: {ex.Message}");
+                UpdateStatus?.Invoke($"載入失敗: {ex.Message}");
+            }
         }
     }
 }

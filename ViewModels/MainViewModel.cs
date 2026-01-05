@@ -455,13 +455,27 @@ namespace FlowerPlayer.ViewModels
             _mediaService.Position += TimeSpan.FromMinutes(1);
             if (IsSmartSkipActive) SyncSmartSkipStart();
         }
-
+        [RelayCommand]
+        public void SeekSmartSkipForward()
+        {
+            double skipDuration = LocalSettingsService.SmartSkipSkipDuration;
+            _mediaService.Position += TimeSpan.FromSeconds(skipDuration);
+            if (IsSmartSkipActive) SyncSmartSkipStart();
+        }
         [RelayCommand]
         public void SeekBackward() 
         {
             _mediaService.Position -= TimeSpan.FromMinutes(1);
             if (IsSmartSkipActive) SyncSmartSkipStart();
         }
+        [RelayCommand]
+        public void SeekSmartSkipBackward()
+        {
+            double skipDuration = LocalSettingsService.SmartSkipSkipDuration;
+            _mediaService.Position -= TimeSpan.FromSeconds(skipDuration);
+            if (IsSmartSkipActive) SyncSmartSkipStart();
+        }
+
 
         [RelayCommand]
         public void StepNextFrame() => _mediaService.StepForward();

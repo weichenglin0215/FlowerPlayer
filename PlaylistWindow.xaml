@@ -42,6 +42,8 @@
         <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,5">
             <Button Content="開啟檔案..." Click="BtnOpenFiles_Click" Margin="0,0,10,0" FontSize="16"/>
             <Button Content="開啟目錄..." Click="BtnOpenFolder_Click" Margin="0,0,10,0" FontSize="16"/>
+            <Button Content="儲存清單..." Click="BtnSavePlaylist_Click" Margin="0,0,10,0" FontSize="16"/>
+            <Button Content="載入清單..." Click="BtnLoadPlaylist_Click" Margin="0,0,10,0" FontSize="16"/>
             <Button Content="清除所有播放清單項目" Click="BtnClearAll_Click" Margin="0,0,10,0" FontSize="16"/>
             <!-- 放在 Grid 最上面或最下面都行，我放右上角 -->
             <!-- HorizontalAlignment="Right" 
