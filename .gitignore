@@ -7,4 +7,5 @@ obj/
 packages/
 AppPackages/
 .vs/
+.vscode/
 .fake
