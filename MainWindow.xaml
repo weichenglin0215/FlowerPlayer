@@ -9,7 +9,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="FlowerPlayer V0.4.0.0(RELEASE版仍無法存取檔案，新增存取播放清單，按鍵Tips，播放清單視窗增加重新命名、fix刷新顯示、快速儲存片段、Tips顯示全路徑，重寫撥放清單紀錄JSON格式，優化右鍵選取、熱鍵、播放清單、介面配色。新增搜尋子目錄)">
+    Title="FlowerPlayer V0.5.0.0(RELEASE版仍無法存取檔案，新增強制轉檔功能，將部分按鍵移至選單下)">
 
     <Window.SystemBackdrop>
         <MicaBackdrop />
@@ -102,13 +102,15 @@
                         <MenuFlyoutItem Text="設定..." Click="OpenSettings_Click"/>
                         <MenuFlyoutItem Text="播放清單... Ctrl+L" Click="OpenPlaylist_Click"/>
                         <MenuFlyoutItem Text="歷史清單..." Click="OpenHistory_Click"/>
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem Text="設定起點" Command="{x:Bind ViewModel.SetRangeStartCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
+                        <MenuFlyoutItem Text="設定終點" Command="{x:Bind ViewModel.SetRangeEndCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
+                        <MenuFlyoutItem Text="儲存片段..." Click="SaveClip_Click" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}" ToolTipService.ToolTip="將起點至終點時間另存成新的檔案，以非重新編碼方式快速儲存"/>
+                        <MenuFlyoutItem Text="儲存片段(強制轉檔)..." Click="SaveClipForceTranscode_Click" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
                     </MenuBarItem>
                 </MenuBar>
                 
                 <CheckBox Content="循環撥放" IsChecked="{x:Bind ViewModel.IsLooping, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
-                <Button Content="設定起點" Command="{x:Bind ViewModel.SetRangeStartCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
-                <Button Content="設定終點" Command="{x:Bind ViewModel.SetRangeEndCommand}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}"/>
-                <Button Content="儲存片段..." Click="SaveClip_Click" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}" ToolTipService.ToolTip="將起點至終點時間另存成新的檔案，以非重新編碼方式快速儲存"/>
                 <ToggleButton Content="快速跳播" IsChecked="{x:Bind ViewModel.IsSmartSkipActive, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsFileLoaded, Mode=OneWay}" ToolTipService.ToolTip="根據「設定」的播放/跳過秒數進行跳躍式播放，快速瀏覽影片內容"/>
                 <ToggleButton Content="顯示波形" IsChecked="{x:Bind ViewModel.IsWaveformVisible, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsFileLoadedAndNotGeneratingWaveform, Mode=OneWay}" ToolTipService.ToolTip="顯示聲音波形，需耗費時間演算"/>
                 <Button Command="{x:Bind ViewModel.ToggleMuteCommand}" Background="Transparent" BorderThickness="0">

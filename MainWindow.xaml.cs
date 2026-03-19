@@ -472,6 +472,309 @@ namespace FlowerPlayer
             }
         }
 
+        private async void SaveClipForceTranscode_Click(object sender, RoutedEventArgs e)
+        {
+            if (!ViewModel.IsFileLoaded || ViewModel.MediaService.CurrentFile == null) return;
+            var currentFile = ViewModel.MediaService.CurrentFile;
+
+            uint defaultWidth = 0;
+            uint defaultHeight = 0;
+            uint defaultBitrate = 0;
+            double defaultFps = 30.0;
+            
+            string videoCodecStr = "";
+            string audioCodecStr = "";
+            uint audioSampleRate = 0;
+            uint audioChannels = 0;
+            uint audioBitrate = 0;
+
+            try 
+            {
+                defaultFps = await ViewModel.MediaService.GetFrameRateAsync();
+            } 
+            catch { }
+
+            if (MediaFileHelper.IsVideoFile(currentFile))
+            {
+                var videoProps = await currentFile.Properties.GetVideoPropertiesAsync();
+                defaultWidth = videoProps.Width;
+                defaultHeight = videoProps.Height;
+                defaultBitrate = videoProps.Bitrate;
+            }
+
+            // Using FFmpeg to get format details
+            try
+            {
+                var appFolder = Windows.ApplicationModel.Package.Current.InstalledLocation.Path;
+                var ffmpegPath = System.IO.Path.Combine(appFolder, "FFmpeg", "ffmpeg.exe");
+                if (!System.IO.File.Exists(ffmpegPath)) ffmpegPath = "ffmpeg";
+
+                using (var process = new System.Diagnostics.Process())
+                {
+                    process.StartInfo.FileName = ffmpegPath;
+                    process.StartInfo.Arguments = $"-i \"{currentFile.Path}\"";
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.RedirectStandardError = true;
+                    process.StartInfo.CreateNoWindow = true;
+                    process.StartInfo.WorkingDirectory = System.IO.Path.GetDirectoryName(ffmpegPath) ?? Environment.CurrentDirectory;
+                    process.Start();
+                    string stderr = process.StandardError.ReadToEnd();
+                    process.WaitForExit();
+
+                    foreach (var line in stderr.Split('\n'))
+                    {
+                        if (line.Contains("Video:"))
+                        {
+                            var p = line.Substring(line.IndexOf("Video:") + 6).Trim().Split(new[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                            if (p.Length > 0) videoCodecStr = p[0].ToLower();
+                            
+                            var fpsMatch = System.Text.RegularExpressions.Regex.Match(line, @"(\d+(?:\.\d+)?) fps");
+                            if (fpsMatch.Success && double.TryParse(fpsMatch.Groups[1].Value, out double parsedFps) && parsedFps > 0)
+                            {
+                                defaultFps = parsedFps;
+                            }
+                        }
+                        else if (line.Contains("Audio:"))
+                        {
+                            string pstr = line.Substring(line.IndexOf("Audio:") + 6).Trim();
+                            var p = pstr.Split(new[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                            if (p.Length > 0) audioCodecStr = p[0].ToLower();
+                            
+                            var hzMatch = System.Text.RegularExpressions.Regex.Match(pstr, @"(\d+) Hz");
+                            if (hzMatch.Success) uint.TryParse(hzMatch.Groups[1].Value, out audioSampleRate);
+                            
+                            if (pstr.Contains("stereo")) audioChannels = 2;
+                            else if (pstr.Contains("mono")) audioChannels = 1;
+                            
+                            var kbpsMatch = System.Text.RegularExpressions.Regex.Match(pstr, @"(\d+) kb/s");
+                            if (kbpsMatch.Success) uint.TryParse(kbpsMatch.Groups[1].Value, out audioBitrate);
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+            {
+                Title = "儲存片段(強制轉檔)",
+                PrimaryButtonText = "確認",
+                CloseButtonText = "取消",
+                XamlRoot = this.RootGrid.XamlRoot
+            };
+
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(20) }); // Spacing
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            var leftPanel = new StackPanel { Spacing = 10 };
+            Grid.SetColumn(leftPanel, 0);
+
+            var rightPanel = new StackPanel { Spacing = 10 };
+            Grid.SetColumn(rightPanel, 2);
+
+            grid.Children.Add(leftPanel);
+            grid.Children.Add(rightPanel);
+
+            // Left Panel (Video)
+            string origExt = System.IO.Path.GetExtension(currentFile.Name).TrimStart('.').ToUpper();
+            var comboVideoFormat = new ComboBox { Header = "影像格式", IsEditable = false, SelectedIndex = 0, HorizontalAlignment = HorizontalAlignment.Stretch };
+            int selectedFormatIdx = 0;
+            string[] formats = { "MP4", "MKV", "AVI" };
+            for (int i = 0; i < formats.Length; i++)
+            {
+                string text = formats[i];
+                if (text == origExt) { text += " (原影片規格)"; selectedFormatIdx = i; }
+                comboVideoFormat.Items.Add(text);
+            }
+            comboVideoFormat.SelectedIndex = selectedFormatIdx;
+
+            var comboVideoEncoder = new ComboBox { Header = "影像編碼器", IsEditable = false, SelectedIndex = 0, HorizontalAlignment = HorizontalAlignment.Stretch };
+            int selectedVideoCodecIdx = 3; // Default to copy if not matched
+            
+            bool isH264 = videoCodecStr == "h264" || videoCodecStr == "avc";
+            bool isH265 = videoCodecStr == "hevc" || videoCodecStr == "h265";
+            bool isVp9 = videoCodecStr == "vp9";
+
+            comboVideoEncoder.Items.Add(new ComboBoxItem { Content = "H.264" + (isH264 ? " (原影片規格)" : ""), Tag = "libx264" });
+            if (isH264) selectedVideoCodecIdx = 0;
+
+            comboVideoEncoder.Items.Add(new ComboBoxItem { Content = "H.265 (HEVC)" + (isH265 ? " (原影片規格)" : ""), Tag = "libx265" });
+            if (isH265) selectedVideoCodecIdx = 1;
+
+            comboVideoEncoder.Items.Add(new ComboBoxItem { Content = "VP9" + (isVp9 ? " (原影片規格)" : ""), Tag = "libvpx-vp9" });
+            if (isVp9) selectedVideoCodecIdx = 2;
+
+            comboVideoEncoder.Items.Add(new ComboBoxItem { Content = "原編碼 (Copy)", Tag = "copy" });
+            comboVideoEncoder.SelectedIndex = selectedVideoCodecIdx;
+
+            var checkKeepAspectRatio = new CheckBox { Content = "維持比例", IsChecked = true, Margin = new Thickness(0, 5, 0, -5) };
+
+            var nbWidth = new Microsoft.UI.Xaml.Controls.NumberBox { Header = "畫面寬度", Value = defaultWidth, SpinButtonPlacementMode = Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode.Inline, HorizontalAlignment = HorizontalAlignment.Stretch };
+            var nbHeight = new Microsoft.UI.Xaml.Controls.NumberBox { Header = "畫面高度", Value = defaultHeight, SpinButtonPlacementMode = Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode.Inline, HorizontalAlignment = HorizontalAlignment.Stretch };
+            
+            var comboFrameRate = new ComboBox { Header = "影像幀率", IsEditable = false, SelectedIndex = 0, HorizontalAlignment = HorizontalAlignment.Stretch };
+            double[] frameRates = { 12, 24, 29.97, 30, 60 };
+            comboFrameRate.Items.Add(new ComboBoxItem { Content = $"目前設定{ (defaultFps > 0 ? " (" + Math.Round(defaultFps, 2) + "fps)" : "") } (原影片規格)", Tag = "0" });
+            int selectedFpsIdx = 0;
+            for (int i = 0; i < frameRates.Length; i++)
+            {
+                bool isOrigFps = Math.Abs(defaultFps - frameRates[i]) < 0.1;
+                string text = frameRates[i].ToString();
+                if (isOrigFps) { text += " (原影片規格)"; selectedFpsIdx = i + 1; }
+                comboFrameRate.Items.Add(new ComboBoxItem { Content = text, Tag = frameRates[i].ToString() });
+            }
+            comboFrameRate.SelectedIndex = selectedFpsIdx;
+
+            var nbBitrate = new Microsoft.UI.Xaml.Controls.NumberBox { Header = "影像位元速率 (kbps)", Value = defaultBitrate > 0 ? (double)(defaultBitrate / 1000) : 0, SpinButtonPlacementMode = Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode.Inline, HorizontalAlignment = HorizontalAlignment.Stretch };
+            var txtBitrateHint = new TextBlock { Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Gray), Margin = new Thickness(0, -5, 0, 5), TextWrapping = TextWrapping.Wrap };
+            
+            void UpdateBitrateHint()
+            {
+                double w = double.IsNaN(nbWidth.Value) ? 0 : nbWidth.Value;
+                double h = double.IsNaN(nbHeight.Value) ? 0 : nbHeight.Value;
+                double fps = defaultFps > 0 ? defaultFps : 30.0;
+                if (comboFrameRate.SelectedItem is ComboBoxItem cbi && double.TryParse(cbi.Tag?.ToString(), out double parsedFps) && parsedFps > 0)
+                {
+                    fps = parsedFps;
+                }
+                
+                if (w > 0 && h > 0 && fps > 0)
+                {
+                    double recommended = (w * h * fps * 8192.0) / (1920.0 * 1080.0 * 30.0);
+                    txtBitrateHint.Text = $"建議依據畫面尺寸與幀率設定約 {Math.Round(recommended)} kbps";
+                }
+                else
+                {
+                    txtBitrateHint.Text = "";
+                }
+            }
+            
+            bool isUpdatingDimensions = false;
+            double aspectRatio = (defaultWidth > 0 && defaultHeight > 0) ? (double)defaultWidth / defaultHeight : 1.0;
+
+            nbWidth.ValueChanged += (s, args) =>
+            {
+                if (isUpdatingDimensions || checkKeepAspectRatio.IsChecked != true || double.IsNaN(args.NewValue)) return;
+                isUpdatingDimensions = true;
+                if (aspectRatio > 0) nbHeight.Value = Math.Round(args.NewValue / aspectRatio);
+                isUpdatingDimensions = false;
+                UpdateBitrateHint();
+            };
+
+            nbHeight.ValueChanged += (s, args) =>
+            {
+                if (isUpdatingDimensions || checkKeepAspectRatio.IsChecked != true || double.IsNaN(args.NewValue)) return;
+                isUpdatingDimensions = true;
+                if (aspectRatio > 0) nbWidth.Value = Math.Round(args.NewValue * aspectRatio);
+                isUpdatingDimensions = false;
+                UpdateBitrateHint();
+            };
+
+            comboFrameRate.SelectionChanged += (s, args) => UpdateBitrateHint();
+            UpdateBitrateHint();
+
+            leftPanel.Children.Add(comboVideoFormat);
+            leftPanel.Children.Add(comboVideoEncoder);
+            leftPanel.Children.Add(checkKeepAspectRatio);
+            leftPanel.Children.Add(nbWidth);
+            leftPanel.Children.Add(nbHeight);
+            leftPanel.Children.Add(comboFrameRate);
+            leftPanel.Children.Add(nbBitrate);
+            leftPanel.Children.Add(txtBitrateHint);
+
+            // Right Panel (Audio)
+            var comboAudioEncoder = new ComboBox { Header = "聲音編碼器", IsEditable = false, SelectedIndex = 0, HorizontalAlignment = HorizontalAlignment.Stretch };
+            bool isAac = audioCodecStr == "aac";
+            bool isMp3 = audioCodecStr == "mp3";
+            int selectedAudioCodecIdx = 2; // copy
+
+            comboAudioEncoder.Items.Add(new ComboBoxItem { Content = "AAC" + (isAac ? " (原影片規格)" : ""), Tag = "aac" });
+            if (isAac) selectedAudioCodecIdx = 0;
+
+            comboAudioEncoder.Items.Add(new ComboBoxItem { Content = "MP3" + (isMp3 ? " (原影片規格)" : ""), Tag = "libmp3lame" });
+            if (isMp3) selectedAudioCodecIdx = 1;
+
+            comboAudioEncoder.Items.Add(new ComboBoxItem { Content = "原編碼 (Copy)", Tag = "copy" });
+            comboAudioEncoder.SelectedIndex = selectedAudioCodecIdx;
+
+            if (audioBitrate == 0) audioBitrate = 128;
+            var nbAudioBitrate = new Microsoft.UI.Xaml.Controls.NumberBox { Header = "聲音位元速率 (kbps)", Value = audioBitrate, SpinButtonPlacementMode = Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode.Inline, HorizontalAlignment = HorizontalAlignment.Stretch };
+            var txtAudioBitrateHint = new TextBlock { Text = "建議128kbps~192kbps", Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Gray), Margin = new Thickness(0, -5, 0, 5) };
+
+            var comboAudioChannels = new ComboBox { Header = "聲音頻道", IsEditable = false, SelectedIndex = 0, HorizontalAlignment = HorizontalAlignment.Stretch };
+            comboAudioChannels.Items.Add(new ComboBoxItem { Content = "目前設定 (原影片規格)", Tag = "0" });
+            int selectedAudioChannelsIdx = 0;
+            comboAudioChannels.Items.Add(new ComboBoxItem { Content = "1 (單聲道)" + (audioChannels == 1 ? " (原影片規格)" : ""), Tag = "1" });
+            if (audioChannels == 1) selectedAudioChannelsIdx = 1;
+            comboAudioChannels.Items.Add(new ComboBoxItem { Content = "2 (立體聲)" + (audioChannels == 2 ? " (原影片規格)" : ""), Tag = "2" });
+            if (audioChannels == 2) selectedAudioChannelsIdx = 2;
+            comboAudioChannels.SelectedIndex = selectedAudioChannelsIdx;
+
+            var comboAudioSampleRate = new ComboBox { Header = "音訊取樣率", IsEditable = false, SelectedIndex = 0, HorizontalAlignment = HorizontalAlignment.Stretch };
+            comboAudioSampleRate.Items.Add(new ComboBoxItem { Content = "目前設定 (原影片規格)", Tag = "0" });
+            uint[] sampleRates = { 11025, 22050, 44100, 48000 };
+            string[] sampleRateStrs = { "11 kHz", "22 kHz", "44.1 kHz", "48 kHz" };
+            int selectedAudioSampleRateIdx = 0;
+            for (int i = 0; i < sampleRates.Length; i++)
+            {
+                bool isOrigHz = audioSampleRate == sampleRates[i];
+                string text = sampleRateStrs[i];
+                if (isOrigHz) { text += " (原影片規格)"; selectedAudioSampleRateIdx = i + 1; }
+                comboAudioSampleRate.Items.Add(new ComboBoxItem { Content = text, Tag = sampleRates[i].ToString() });
+            }
+            comboAudioSampleRate.SelectedIndex = selectedAudioSampleRateIdx;
+
+            rightPanel.Children.Add(comboAudioEncoder);
+            rightPanel.Children.Add(nbAudioBitrate);
+            rightPanel.Children.Add(txtAudioBitrateHint);
+            rightPanel.Children.Add(comboAudioChannels);
+            rightPanel.Children.Add(comboAudioSampleRate);
+
+            dialog.Content = new ScrollViewer { Content = grid, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+
+            var result = await dialog.ShowAsync();
+            if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+            {
+                var options = new FlowerPlayer.Helpers.TranscodeOptions
+                {
+                    VideoCodec = (comboVideoEncoder.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "libx264",
+                    Width = !double.IsNaN(nbWidth.Value) && nbWidth.Value > 0 ? (uint)nbWidth.Value : 0,
+                    Height = !double.IsNaN(nbHeight.Value) && nbHeight.Value > 0 ? (uint)nbHeight.Value : 0,
+                    VideoBitrateKbps = !double.IsNaN(nbBitrate.Value) && nbBitrate.Value > 0 ? (uint)nbBitrate.Value : 0,
+                    FrameRate = double.Parse((comboFrameRate.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "0"),
+                    AudioCodec = (comboAudioEncoder.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "aac",
+                    AudioChannels = uint.Parse((comboAudioChannels.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "0"),
+                    AudioSampleRate = uint.Parse((comboAudioSampleRate.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "0"),
+                    AudioBitrateKbps = !double.IsNaN(nbAudioBitrate.Value) && nbAudioBitrate.Value > 0 ? (uint)nbAudioBitrate.Value : 0
+                };
+
+                // Normalize width/height to be even numbers if not 0 (ffmpeg restriction for many codecs)
+                if (options.Width > 0 && options.Width % 2 != 0) options.Width--;
+                if (options.Height > 0 && options.Height % 2 != 0) options.Height--;
+
+                string selectedFormat = comboVideoFormat.SelectedItem?.ToString().Split(' ')[0] ?? "MP4";
+                string ext = "." + selectedFormat.ToLower();
+
+                string originalName = currentFile.Name;
+                string nameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(originalName);
+                string suggestedName = $"{nameWithoutExt}_Transcoded{ext}";
+
+                var picker = new FileSavePicker();
+                picker.SuggestedStartLocation = PickerLocationId.VideosLibrary;
+                picker.SuggestedFileName = suggestedName;
+                picker.FileTypeChoices.Add($"{selectedFormat} Files", new System.Collections.Generic.List<string> { ext });
+
+                InitializeWithWindow.Initialize(picker, WindowNative.GetWindowHandle(this));
+                var outFile = await picker.PickSaveFileAsync();
+                
+                if (outFile != null)
+                {
+                    await ViewModel.SaveClipForceTranscodeAsync(outFile, options);
+                }
+            }
+        }
+
         private void OpenPlaylist_Click(object sender, RoutedEventArgs e)
         {
             // 確保只有一個播放清單視窗

@@ -577,5 +577,44 @@ namespace FlowerPlayer.ViewModels
                 System.Diagnostics.Debug.WriteLine($"Error clipping video: {ex}");
             }
         }
+        public async Task SaveClipForceTranscodeAsync(StorageFile destinationFile, TranscodeOptions options)
+        {
+            if (_mediaService.CurrentFile == null) return;
+
+            double start = RangeStart;
+            double end = RangeEnd;
+
+            // Basic validation
+            if (end <= start)
+            {
+                StatusMessage = "儲存失敗: 起始時間必須小於結束時間";
+                return;
+            }
+
+            // Ensure start/end are within bounds
+            if (start < 0) start = 0;
+            if (end > TotalDuration.TotalSeconds) end = TotalDuration.TotalSeconds;
+
+            string inputPath = _mediaService.CurrentFile.Path;
+            string outputPath = destinationFile.Path;
+
+            try
+            {
+                StatusMessage = "正在轉檔儲存影片... (請稍候)";
+                
+                // Calculate duration
+                var startTime = TimeSpan.FromSeconds(start);
+                var duration = TimeSpan.FromSeconds(end - start);
+
+                await FFmpegHelper.TranscodeClipAsync(inputPath, outputPath, startTime, duration, options);
+                
+                StatusMessage = "影片轉檔儲存完成";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"轉檔錯誤: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine($"Error transcoding video: {ex}");
+            }
+        }
     }
 }
